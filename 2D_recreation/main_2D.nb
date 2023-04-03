@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     19642,        500]
-NotebookOptionsPosition[     18079,        466]
-NotebookOutlinePosition[     18487,        482]
-CellTagsIndexPosition[     18444,        479]
+NotebookDataLength[     17620,        444]
+NotebookOptionsPosition[     16280,        414]
+NotebookOutlinePosition[     16688,        430]
+CellTagsIndexPosition[     16645,        427]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -47,8 +47,6 @@ Cell["Git", "Section",
  CellChangeTimes->{{3.8892005575373144`*^9, 
   3.8892005577511435`*^9}},ExpressionUUID->"8cda6d8f-4932-4b46-ab52-\
 8570c08dec5d"],
-
-Cell[CellGroupData[{
 
 Cell[BoxData[{
  RowBox[{"Needs", "[", "\"\<Wolfram`GitLink`\>\"", "]"}], "\n", 
@@ -113,96 +111,7 @@ Cell[BoxData[{
    3.889287460223466*^9, 3.8892874812150574`*^9}, {3.8892879177669573`*^9, 
    3.8892879328752785`*^9}, {3.88928877431835*^9, 3.8892888277395573`*^9}, {
    3.8893227828392215`*^9, 3.8893227835127525`*^9}},
- CellLabel->
-  "In[106]:=",ExpressionUUID->"4f29d154-3750-4333-adcd-4a523a8d6966"],
-
-Cell[BoxData["\<\"C:\\\\Users\\\\Nathan_Chapman\\\\Documents\\\\Science\\\\\
-GitHub_repos\\\\Thesis\"\>"], "Echo",
- CellChangeTimes->{
-  3.889378586397894*^9},ExpressionUUID->"6419721a-b369-4924-8705-\
-9bd21fbc805d"],
-
-Cell[BoxData[
- RowBox[{"\[LeftAssociation]", 
-  RowBox[{
-   RowBox[{"\<\"New\"\>", "\[Rule]", 
-    RowBox[{"{", "}"}]}], ",", 
-   RowBox[{"\<\"Modified\"\>", "\[Rule]", 
-    RowBox[{"{", "\<\"2D_recreation\\\\main_2D.nb\"\>", "}"}]}], ",", 
-   RowBox[{"\<\"Deleted\"\>", "\[Rule]", 
-    RowBox[{"{", "}"}]}], ",", 
-   RowBox[{"\<\"TypeChange\"\>", "\[Rule]", 
-    RowBox[{"{", "}"}]}], ",", 
-   RowBox[{"\<\"IndexNew\"\>", "\[Rule]", 
-    RowBox[{"{", "}"}]}], ",", 
-   RowBox[{"\<\"IndexModified\"\>", "\[Rule]", 
-    RowBox[{"{", "}"}]}], ",", 
-   RowBox[{"\<\"IndexDeleted\"\>", "\[Rule]", 
-    RowBox[{"{", "}"}]}], ",", 
-   RowBox[{"\<\"IndexTypeChange\"\>", "\[Rule]", 
-    RowBox[{"{", "}"}]}]}], "\[RightAssociation]"}]], "Output",
- CellChangeTimes->{3.8893785864108934`*^9},
- CellLabel->
-  "Out[108]=",ExpressionUUID->"9665e669-09a7-4fc9-b6e2-30a87eabb44b"],
-
-Cell[BoxData[
- InterpretationBox[GridBox[{
-    {
-     ButtonBox["\<\"git status\"\>",
-      Appearance->{"FramedPalette"},
-      BaseStyle->15,
-      ButtonFunction:>Print[
-        Wolfram`GitLink`GitStatus[$CellContext`repo]],
-      Evaluator->Automatic,
-      FrameMargins->Medium,
-      Method->"Queued"]},
-    {
-     ButtonBox["\<\"git add .\"\>",
-      Appearance->{"FramedPalette"},
-      BaseStyle->15,
-      ButtonFunction:>Wolfram`GitLink`GitAdd[$CellContext`repo, All],
-      Evaluator->Automatic,
-      FrameMargins->Medium,
-      Method->"Queued"]},
-    {
-     ButtonBox["\<\"git reset\"\>",
-      Appearance->{"FramedPalette"},
-      BaseStyle->15,
-      ButtonFunction:>Wolfram`GitLink`GitReset[$CellContext`repo, All],
-      Evaluator->Automatic,
-      FrameMargins->Medium,
-      Method->"Queued"]},
-    {
-     ButtonBox["\<\"git commit -m\"\>",
-      Appearance->{"FramedPalette"},
-      BaseStyle->15,
-      ButtonFunction:>Wolfram`GitLink`GitCommit[$CellContext`repo, 
-        InputString["Commit message"]],
-      Evaluator->Automatic,
-      FrameMargins->Medium,
-      Method->"Queued"]}
-   },
-   DefaultBaseStyle->"Column",
-   GridBoxAlignment->{"Columns" -> {{Left}}},
-   GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}},
-   GridBoxSpacings->{"Columns" -> {
-       Offset[0.27999999999999997`], {
-        Offset[0.5599999999999999]}, 
-       Offset[0.27999999999999997`]}, "Rows" -> {
-       Offset[0.2], {
-        Offset[0.]}, 
-       Offset[0.2]}}],
-  ButtonBar[{"git status" :> Print[
-      Wolfram`GitLink`GitStatus[$CellContext`repo]], "git add ." :> 
-    Wolfram`GitLink`GitAdd[$CellContext`repo, All], "git reset" :> 
-    Wolfram`GitLink`GitReset[$CellContext`repo, All], "git commit -m" :> 
-    Wolfram`GitLink`GitCommit[$CellContext`repo, 
-      InputString["Commit message"]]}, BaseStyle -> 15, FrameMargins -> 
-   Medium, Appearance -> {"Vertical"}, Method -> "Queued"]]], "Output",
- CellChangeTimes->{3.889378586412893*^9},
- CellLabel->
-  "Out[109]=",ExpressionUUID->"e3a193ad-f800-4214-97c4-4766d5a3d036"]
-}, Open  ]]
+ CellLabel->"In[1]:=",ExpressionUUID->"4f29d154-3750-4333-adcd-4a523a8d6966"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -256,7 +165,7 @@ Cell[BoxData[{
   3.8892979545485277`*^9, 3.889297954694853*^9}, {3.889299413472841*^9, 
   3.889299420571559*^9}, {3.889371143085904*^9, 3.88937116343771*^9}, {
   3.8893778336731944`*^9, 3.889377878863652*^9}},
- CellLabel->"In[71]:=",ExpressionUUID->"eba4886f-e11e-497b-9d16-bc4a98db87ba"],
+ CellLabel->"In[5]:=",ExpressionUUID->"eba4886f-e11e-497b-9d16-bc4a98db87ba"],
 
 Cell[BoxData[{
  RowBox[{"Clear", "@", "fieldEquation"}], "\[IndentingNewLine]", 
@@ -354,17 +263,18 @@ Cell[BoxData[{
  RowBox[{
   RowBox[{"(*", 
    RowBox[{
-    RowBox[{"eq", " ", "106"}], ",", " ", 
+    RowBox[{"eq", " ", "106", " ", "and", " ", "107"}], ",", " ", 
     RowBox[{"A", " ", "and", " ", "B"}]}], "*)"}], 
   RowBox[{
    RowBox[{
-    RowBox[{"{", 
+    RowBox[{"{", "\[IndentingNewLine]", 
      RowBox[{
       RowBox[{
        RowBox[{"mode", "[", "k_", "]"}], "[", "\[Eta]_", "]"}], ",", 
+      "\[IndentingNewLine]", 
       RowBox[{
        RowBox[{"densityFluctuation", "[", "k_", "]"}], "[", "\[Eta]_", 
-       "]"}]}], "}"}], "=", 
+       "]"}]}], "\[IndentingNewLine]", "}"}], "=", 
     RowBox[{
      RowBox[{
       RowBox[{"{", 
@@ -458,9 +368,47 @@ Cell[BoxData[{
    3.889377863220994*^9, 3.889377864240484*^9}, {3.8893778965901923`*^9, 
    3.8893779227173586`*^9}, {3.8893780418828883`*^9, 3.88937813027507*^9}, {
    3.8893781739492693`*^9, 3.889378270936609*^9}, 3.889378351979504*^9, {
-   3.889378399811998*^9, 
-   3.8893784327967067`*^9}},ExpressionUUID->"3811a6e7-716a-42df-addb-\
-10df845e6410"]
+   3.889378399811998*^9, 3.8893784327967067`*^9}, {3.889551606279445*^9, 
+   3.889551607586518*^9}, {3.8895518524993944`*^9, 
+   3.889551870701226*^9}},ExpressionUUID->"3811a6e7-716a-42df-addb-\
+10df845e6410"],
+
+Cell[BoxData[{
+ RowBox[{"Clear", "[", 
+  RowBox[{"r", ",", "\[Lambda]"}], "]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"eq", " ", "108"}], ",", " ", "R"}], "*)"}], 
+  RowBox[{
+   RowBox[{
+    RowBox[{"r", "[", "k_", "]"}], "[", "t_", "]"}], ":=", 
+   RowBox[{
+    RowBox[{"-", 
+     RowBox[{
+      RowBox[{"\[Omega]", "[", "k", "]"}], "[", "0", "]"}]}], 
+    RowBox[{
+     RowBox[{"conformalTime", "[", "k", "]"}], "[", "t", 
+     "]"}]}]}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"eq", " ", "109"}], ",", " ", "\[Lambda]"}], "*)"}], 
+  RowBox[{
+   RowBox[{"\[Lambda]", "[", "k_", "]"}], ":=", 
+   SqrtBox[
+    RowBox[{"2", 
+     RowBox[{"energy", "[", "0", "]"}], 
+     RowBox[{
+      RowBox[{
+       RowBox[{"densityFluctuation", "[", "k", "]"}], "[", "0", "]"}], "/", 
+      "\[HBar]"}], " ", 
+     RowBox[{
+      RowBox[{"\[Omega]", "[", "k", "]"}], "[", "0", "]"}]}]]}]}]}], "Input",
+ CellChangeTimes->{{3.8895516287050085`*^9, 3.889551771724077*^9}, {
+  3.8895518048272943`*^9, 3.8895518111211524`*^9}, {3.8895534236142893`*^9, 
+  3.8895534243671074`*^9}},ExpressionUUID->"7cf76981-f4c3-47b9-bb32-\
+d20df2e8bd7e"]
 }, Open  ]]
 }, Open  ]]
 },
@@ -486,20 +434,16 @@ Cell[580, 22, 324, 8, 168, "Title",ExpressionUUID->"71ae5414-7450-4ece-828c-06eb
 Cell[907, 32, 411, 9, 87, "Subtitle",ExpressionUUID->"307dd166-40b3-4f4f-a5f7-3b1b646f9c41"],
 Cell[CellGroupData[{
 Cell[1343, 45, 152, 3, 50, "Section",ExpressionUUID->"8cda6d8f-4932-4b46-ab52-8570c08dec5d"],
-Cell[CellGroupData[{
-Cell[1520, 52, 3133, 64, 248, "Input",ExpressionUUID->"4f29d154-3750-4333-adcd-4a523a8d6966",
- InitializationCell->True],
-Cell[4656, 118, 216, 4, 18, "Echo",ExpressionUUID->"6419721a-b369-4924-8705-9bd21fbc805d"],
-Cell[4875, 124, 866, 21, 35, "Output",ExpressionUUID->"9665e669-09a7-4fc9-b6e2-30a87eabb44b"],
-Cell[5744, 147, 2063, 56, 117, "Output",ExpressionUUID->"e3a193ad-f800-4214-97c4-4766d5a3d036"]
-}, Open  ]]
+Cell[1498, 50, 3128, 63, 248, "Input",ExpressionUUID->"4f29d154-3750-4333-adcd-4a523a8d6966",
+ InitializationCell->True]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[7856, 209, 290, 4, 50, "Section",ExpressionUUID->"c149dc9a-62cb-4622-b163-17bfe1d197ef"],
-Cell[8149, 215, 1594, 43, 52, "Input",ExpressionUUID->"eba4886f-e11e-497b-9d16-bc4a98db87ba"],
-Cell[9746, 260, 1022, 27, 53, "Input",ExpressionUUID->"217ee04b-49da-4eea-9910-b0ad64a0ae5f"],
-Cell[10771, 289, 795, 21, 36, "Input",ExpressionUUID->"e8f5106d-fbd5-4ffc-8ceb-dd0d5d76d9a9"],
-Cell[11569, 312, 6482, 150, 202, "Input",ExpressionUUID->"3811a6e7-716a-42df-addb-10df845e6410"]
+Cell[4663, 118, 290, 4, 50, "Section",ExpressionUUID->"c149dc9a-62cb-4622-b163-17bfe1d197ef"],
+Cell[4956, 124, 1593, 43, 52, "Input",ExpressionUUID->"eba4886f-e11e-497b-9d16-bc4a98db87ba"],
+Cell[6552, 169, 1022, 27, 53, "Input",ExpressionUUID->"217ee04b-49da-4eea-9910-b0ad64a0ae5f"],
+Cell[7577, 198, 795, 21, 36, "Input",ExpressionUUID->"e8f5106d-fbd5-4ffc-8ceb-dd0d5d76d9a9"],
+Cell[8375, 221, 6680, 152, 246, "Input",ExpressionUUID->"3811a6e7-716a-42df-addb-10df845e6410"],
+Cell[15058, 375, 1194, 35, 53, "Input",ExpressionUUID->"7cf76981-f4c3-47b9-bb32-d20df2e8bd7e"]
 }, Open  ]]
 }, Open  ]]
 }
