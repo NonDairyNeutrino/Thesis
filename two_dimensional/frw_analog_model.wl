@@ -1,6 +1,13 @@
 (* ::Package:: *)
 
+(* ::Section:: *)
 (*FRW Analog Model*)
+
+
+$Assumptions=.//Quiet;
+$Assumptions=Join[Thread[{labTime,timeScale,waveNumber,\[HBar],interactionStrength[0],soundSpeed[0]}>0],{-2timeScale<\[Eta]<0}];
+
+
 Clear[interactionStrength,soundSpeed,dispersion,expansion]
 (*eq 26*)interactionStrength[timeScale_][labTime_]:=interactionStrength[0]scaling["Lab",timeScale][labTime]
 (*eq 27*)soundSpeed[timeScale_][labTime_]:=soundSpeed[0]Sqrt@scaling["Lab",timeScale][labTime]
