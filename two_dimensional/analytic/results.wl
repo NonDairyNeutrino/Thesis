@@ -5,48 +5,59 @@
 
 
 (* ::Subsection:: *)
+(*Definitions*)
+
+
+(* ::Input:: *)
+(*SetOptions[ListLinePlot3D,{AxesLabel->(Style[#,Black,12]&/@{"|k|","t \[Times] \!\(\*SuperscriptBox[\(10\), \(-4\)]\)","\!\(\*SubscriptBox[\(N\), \(k\)]\)"}),PlotRange->All}];*)
+
+
+(* ::Input:: *)
+(*Clear@nonDimTimeScaleList*)
+(*nonDimTimeScaleList=N@{1 10^-5,2 10^-5,5 10^-5,1 10^-4,1 10^-3};*)
+
+
+Clear@pp
+pp[nonDimTimeScale_][k_,t_]=Block[
+{boxLength=1,
+m=1,
+\[HBar]=1,
+n0=10^7,
+initialNonlinearity=10^5,
+expansionValue=2000,
+ts,tf,
+interactionStrength0,soundSpeed0,pp,data
+},
+(*time scale in terms of nondimensionalized time scale*)
+ts=nonDimTimeScale (m boxLength^2)/\[HBar];
+interactionStrength0=initialNonlinearity \[HBar]^2/(n0 m boxLength^2);
+soundSpeed0=Sqrt@initialNonlinearity;
+tf=Normal@First@SolveValues[expansion[2,ts][tf]==expansionValue&&tf>0&&ts>0,tf];
+particleProduction[n0,ts][(\[HBar]/(m boxLength^2))t,k boxLength]/.{interactionStrength[0]->interactionStrength0,soundSpeed[0]->soundSpeed0}//N
+]
+
+
+(* ::Input:: *)
+(*pp[10^-5][1,Subdivide[0.,10^-4,1000]]//Chop*)
+
+
+(* ::Subsection::Closed:: *)
 (*Single Time Scale*)
 
 
 (* ::Input:: *)
-(*(*Move to Block style*)*)
-(*Block[*)
-(*{n0=10^7,*)
-(*boxLength=1,*)
-(*m=1,*)
-(*\[HBar]=1,*)
-(*nonDimTimeScale=5 10^-5,*)
-(*initialNonlinearity=10^5,*)
-(*ts,t,interactionStrength0,soundSpeed0,*)
-(*pp,fig*)
-(*},*)
-(*(*time scale in terms of nondimensionalized time scale*)*)
-(*ts=nonDimTimeScale (m boxLength^2)/\[HBar];*)
-(*(*Nondimensionalized lab time in terms of expansion.  Effectively just t = tf for a given expansion.*)*)
-(*t=(\[HBar]/(m boxLength^2))Normal@First@SolveValues[expansion[2,ts][tf]==2000&&tf>0&&ts>0,tf];*)
-(*interactionStrength0=initialNonlinearity \[HBar]^2/(n0 m boxLength^2);*)
-(*soundSpeed0=Sqrt@initialNonlinearity;*)
-(**)
-(*pp=particleProduction[n0,ts][t,k boxLength]/.{interactionStrength[0]->interactionStrength0,soundSpeed[0]->soundSpeed0};*)
-(*fig=Function[k,Evaluate@pp];*)
 (*DiscretePlot[*)
-(*fig@momentumMagnitude,*)
+(*pp[ts][momentumMagnitude,tf]//.{tf->Normal@First@SolveValues[expansion[2,ts][tf]==2000&&tf>0&&ts>0,tf],ts->5 10^-5}//Evaluate,*)
 (*{momentumMagnitude,0,200},*)
 (*AxesOrigin->{0,0},*)
 (*Filling->None,*)
 (*Joined->True,*)
 (*AxesLabel->{ToString[Abs[k]L,TraditionalForm],"\!\(\*SubscriptBox[\(N\), \(k\)]\)"}*)
 (*]*)
-(*]*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Multiple Time Scales*)
-
-
-(* ::Input:: *)
-(*Clear@nonDimTimeScaleList*)
-(*nonDimTimeScaleList=N@{1 10^-5,2 10^-5,5 10^-5,1 10^-4,1 10^-3};*)
 
 
 (* ::Input:: *)
@@ -82,10 +93,10 @@
 
 
 (* ::Input:: *)
-(*Export[FileNameJoin@{NotebookDirectory[],"results","fig2.png"},fig2]*)
+(*(*Export[FileNameJoin@{NotebookDirectory[],"results","fig2.png"},fig2]*)*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Single Time Scale and Multiple Times*)
 
 
@@ -155,10 +166,6 @@
 (*pp=particleProduction[n0,ts][(\[HBar]/(m boxLength^2))t,k boxLength]/.{interactionStrength[0]->interactionStrength0,soundSpeed[0]->soundSpeed0};*)
 (*data=(*Catenate@*)ParallelTable[{k,t 10^4,Evaluate@pp},{nonDimTimeScale,nonDimTimeScaleList},{k,1.,201,5},{t,0.,tf,tf/50}]//Chop*)
 (*];*)
-
-
-(* ::Input:: *)
-(*SetOptions[ListLinePlot3D,{AxesLabel->(Style[#,Black,12]&/@{"|k|","t \[Times] \!\(\*SuperscriptBox[\(10\), \(-4\)]\)","\!\(\*SubscriptBox[\(N\), \(k\)]\)"}),PlotRange->All}];*)
 
 
 (* ::Input:: *)

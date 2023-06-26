@@ -17,7 +17,7 @@ Clear[scaling,conformalTime]
 (*eq 44, \[Eta]*)conformalTime[timeScale_][labTime_]=DSolveValue[
 {
 conformalTime[timeScale]'[labTime]==Sqrt@scaling["Lab",timeScale][labTime],
-conformalTime[timeScale][0]==-2timeScale(*expansion dependent*)
+conformalTime[timeScale][0]==-2 timeScale(*expansion dependent*)
 },
 conformalTime[timeScale][labTime],
 labTime
@@ -50,7 +50,7 @@ labToConformal=Solve[conformalTime[timeScale][labTime]==\[Eta],labTime][[1,1]]//
 
 
 Clear@fieldEquation
-(*eq103*)fieldEquation=\[Chi][waveNumber]''[\[Eta]]-\[Chi][waveNumber]'[\[Eta]]/\[Eta]+c[0]^2waveNumber^2 \[Chi][waveNumber][\[Eta]]==0;
+(*eq103*)fieldEquation=\[Chi][waveNumber]''[\[Eta]]-\[Chi][waveNumber]'[\[Eta]]/\[Eta]+c[0]^2 waveNumber^2 \[Chi][waveNumber][\[Eta]]==0;
 
 
 (* ::Text:: *)
@@ -84,10 +84,16 @@ densityFourierAmplitude["out",timeScale][labTime,waveNumber]==-(\[HBar]/interact
 k->waveNumber,
 c[0]->dispersion[timeScale][0,waveNumber]/waveNumber
 };
-(*show in terms of conformal time*)
-Subscript[\[Chi], k][t]==(%//labToConformal//FullSimplify//Collect[#,{(BesselJ|BesselY)[1,Times[___,\[Eta],___]],\[Eta]},Simplify]&)//notate
+
+
+(* ::Input:: *)
+(*(*show in terms of conformal time*)*)
+(*Subscript[\[Chi], k][t]==(%//labToConformal//FullSimplify//Collect[#,{(BesselJ|BesselY)[1,Times[___,\[Eta],___]],\[Eta]},Simplify]&)//notate*)
 
 
 (*eq 81, n*)densityFourierAmplitude["exp",timeScale_][labTime_,waveNumber_]=-(\[HBar]/interactionStrength[timeScale][labTime]) D[#,labTime]&@phaseFourierAmplitude["exp",timeScale][labTime,waveNumber]//FullSimplify;
-(*show in terms of conformal time*)
-Subscript[n, k][t]==(%//labToConformal//FullSimplify//Collect[#,{(BesselJ|BesselY)[0,Times[___,\[Eta],___]],\[Eta]},Simplify]&)//notate
+
+
+(* ::Input:: *)
+(*(*show in terms of conformal time*)*)
+(*Subscript[n, k][t]==(%//labToConformal//FullSimplify//Collect[#,{(BesselJ|BesselY)[0,Times[___,\[Eta],___]],\[Eta]},Simplify]&)//notate*)
