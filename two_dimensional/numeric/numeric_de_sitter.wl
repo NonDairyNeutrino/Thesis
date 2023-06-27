@@ -38,7 +38,7 @@ scaling["conformal",timeScale_][\[Eta]_]:=(\[Eta]/(2timeScale))^2
 Clear[phaseFieldEquation,initialConditionList]
 phaseFieldEquation=D[\[Theta][\[Eta],x,y],{\[Eta],2}]-1/2 b'[\[Eta]]/b[\[Eta]] D[\[Theta][\[Eta],x,y],{\[Eta],1}]-soundSpeed0^2Laplacian[\[Theta][\[Eta],x,y],{x,y}]==0/.b->scaling["conformal",ts]//Expand
 initialConditionList=Splice@{
-\[Theta][-2ts,x,y]==(x^2+y^2)^2,
+\[Theta][-2ts,x,y]==Exp@-(x^2+y^2)^2,
 Derivative[1,0,0][\[Theta]][-2ts,x,y]==0
 }/.{interactionStrength[0]->interactionStrength0,soundSpeed[0]->soundSpeed0}
 
@@ -50,12 +50,16 @@ initialConditionList
 },
 \[Theta],
 {\[Eta],-2ts,0},
-{x,y}\[Element]universe,
-InterpolationOrder->All
+{x,y}\[Element]universe
 ]
 
 
-Manipulate[
-ContourPlot[phaseFieldSolution[\[Eta],x,y],{x,y}\[Element]universe,PlotPoints->100],
-{\[Eta],-2ts,0,Animator}
-]
+phaseField = Table[phaseFieldSolution[\[Eta],x,y], {\[Eta], -2 ts, 0, 2 ts / 10}, {x, -boxLength/2, boxLength/2, boxLength/100}, {y, -boxLength/2, boxLength/2, boxLength/100}];
+
+
+phaseFieldFourierAmplitude = Fourier[phaseField[[1]],{{2,2}}]
+densityFieldFourierAmplitude = -(\[HBar] / interactionStrength0)(Fourier[phaseField[[2]],{{2,2}}]-Fourier[phaseField[[1]],{{2,2}}]) / (2 ts / 10)
+
+
+mixedFourierAmplitude["u"] = 1 / (2Sqrt[n0]) densityFieldFourierAmplitude + I Sqrt[n0] phaseFieldFourierAmplitude
+mixedFourierAmplitude["v"] = 1 / (2Sqrt[n0]) densityFieldFourierAmplitude - I Sqrt[n0] phaseFieldFourierAmplitude
