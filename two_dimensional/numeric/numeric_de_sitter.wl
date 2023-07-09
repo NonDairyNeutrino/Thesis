@@ -7,19 +7,23 @@ Clear@"Global`*"
 (*Start with numeric parameters*)
 
 
-boxLength=10;
-universe=Cuboid[-0.5{boxLength,boxLength},0.5{boxLength,boxLength}];
-m=1;
-\[HBar]=1;
-n0=10^7;
-initialNonlinearity=10^5;
-(*expansionValue=2000;*)
-nonDimTimeScale=5 10^-5;
+parametersExplicit = <|
+	boxLength -> 2*10^1,
+	m -> 1,
+	hbar-> 1,
+	initialParticleNumber -> 10^7,
+	initialNonlinearity -> 10^5,
+	nonDimTimeScale -> 5 10^-5,
+	timeFinal -> 1 (*Normal@First@SolveValues[expansion[2,ts][tf]==expansionValue&&tf>0&&ts>0,tf]*)
+|>
 
-ts=nonDimTimeScale (m boxLength^2)/\[HBar];
-interactionStrength0=initialNonlinearity \[HBar]^2/(n0 m boxLength^2);
-soundSpeed0=Sqrt@initialNonlinearity;
-tf=1(*Normal@First@SolveValues[expansion[2,ts][tf]==expansionValue&&tf>0&&ts>0,tf];*);
+
+parametersImplicit = <|
+	universe -> Cuboid[-0.5 parametersExplicit@boxLength {1,1}, 0.5 parametersExplicit[boxLength]{1,1}],
+	timeScale -> parametersExplicit@nonDimTimeScale (parametersExplicit@m parametersExplicit@boxLength^2) / parametersExplicit@hbar,
+	interactionStrength0 -> parametersExplicit@initialNonlinearity parametersExplicit@hbar^2/(parametersExplicit@initialParticleNumber parametersExplicit@m parametersExplicit@boxLength^2),
+	soundSpeed0 -> Sqrt@parametersExplicit@initialNonlinearity
+|>
 
 
 (* ::Text:: *)
@@ -28,7 +32,7 @@ tf=1(*Normal@First@SolveValues[expansion[2,ts][tf]==expansionValue&&tf>0&&ts>0,t
 
 Clear@scaling
 (*eq 100 b[t] de Sitter*)scaling["Lab",timeScale_][labTime_]:=Exp[-labTime/timeScale]
-scaling["conformal",timeScale_][\[Eta]_]:=(\[Eta]/(2timeScale))^2
+scaling["conformal",timeScale_][\[Eta]_]:=(\[Eta]/(2 timeScale))^2
 
 
 (* ::Text:: *)
@@ -36,30 +40,40 @@ scaling["conformal",timeScale_][\[Eta]_]:=(\[Eta]/(2timeScale))^2
 
 
 Clear[phaseFieldEquation,initialConditionList]
-phaseFieldEquation=D[\[Theta][\[Eta],x,y],{\[Eta],2}]-1/2 b'[\[Eta]]/b[\[Eta]] D[\[Theta][\[Eta],x,y],{\[Eta],1}]-soundSpeed0^2Laplacian[\[Theta][\[Eta],x,y],{x,y}]==0/.b->scaling["conformal",ts]//Expand
+phaseFieldEquation=D[\[Theta][\[Eta],x,y],{\[Eta],2}]-1/2 b'[\[Eta]]/b[\[Eta]] D[\[Theta][\[Eta],x,y],{\[Eta],1}]-parametersImplicit@soundSpeed0^2Laplacian[\[Theta][\[Eta],x,y],{x,y}]==0/.b->scaling["conformal", parametersImplicit@timeScale]//Expand
 initialConditionList=Splice@{
-\[Theta][-2ts,x,y]==Exp@-(x^2+y^2)^2,
-Derivative[1,0,0][\[Theta]][-2ts,x,y]==0
-}/.{interactionStrength[0]->interactionStrength0,soundSpeed[0]->soundSpeed0}
+	\[Theta][-2 parametersImplicit@timeScale,x,y]==Exp@-(x^2+y^2)^2,
+	Derivative[1,0,0][\[Theta]][-2 parametersImplicit@timeScale,x,y]==0
+}/.{interactionStrength[0]->parametersImplicit@interactionStrength0],soundSpeed[0]->parametersImplicit@soundSpeed0}
 
 
 phaseFieldSolution=NDSolveValue[
-{
-phaseFieldEquation,
-initialConditionList
-},
-\[Theta],
-{\[Eta],-2ts,0},
-{x,y}\[Element]universe
+	{
+		phaseFieldEquation,
+		initialConditionList
+	},
+	\[Theta],
+	{\[Eta], -2 parametersImplicit@timeScale, 0},
+	{x, y} \[Element] parametersImplicit@universe
 ]
 
 
-phaseField = Table[phaseFieldSolution[\[Eta],x,y], {\[Eta], -2 ts, 0, 2 ts / 10}, {x, -boxLength/2, boxLength/2, boxLength/100}, {y, -boxLength/2, boxLength/2, boxLength/100}];
+phaseField = Table[phaseFieldSolution[\[Eta],x,y], {\[Eta], -2 parametersImplicit@timeScale, 0, 2 parametersImplicit@timeScale / 10}, {x, -parametersExplicit@boxLength/2, parametersExplicit@boxLength/2, parametersExplicit@boxLength/100}, {y, -parametersExplicit@boxLength/2, parametersExplicit@boxLength/2, parametersExplicit@boxLength/100}];
 
 
-phaseFieldFourierAmplitude = Fourier[phaseField[[1]],{{2,2}}]
-densityFieldFourierAmplitude = -(\[HBar] / interactionStrength0)(Fourier[phaseField[[2]],{{2,2}}]-Fourier[phaseField[[1]],{{2,2}}]) / (2 ts / 10)
+waveVector = {2,2} + 1;
+phaseFieldFourierAmplitude[0] = Fourier[phaseField[[1]],{waveVector}]
+phaseFieldFourierAmplitude[\[Eta]] = Fourier[phaseField[[2]],{waveVector}]
+densityFieldFourierAmplitude[0] = -(parametersExplicit@hbar / parametersImplicit@interactionStrength0)(phaseFieldFourierAmplitude[\[Eta]] - phaseFieldFourierAmplitude[0]) / (2 parametersImplicit@timeScale / 10)
+densityFieldFourierAmplitude[\[Eta]] = -(parametersExplicit@hbar / parametersImplicit@interactionStrength0)(phaseFieldFourierAmplitude[\[Eta]] - phaseFieldFourierAmplitude[0]) / (2 parametersImplicit@timeScale / 10)
 
 
-mixedFourierAmplitude["u"] = 1 / (2Sqrt[n0]) densityFieldFourierAmplitude + I Sqrt[n0] phaseFieldFourierAmplitude
-mixedFourierAmplitude["v"] = 1 / (2Sqrt[n0]) densityFieldFourierAmplitude - I Sqrt[n0] phaseFieldFourierAmplitude
+mixedFourierAmplitude["u","out"] = 1 / (2 Sqrt[parametersExplicit@initialParticleNumber]) densityFieldFourierAmplitude[0] + I Sqrt[parametersExplicit@initialParticleNumber] phaseFieldFourierAmplitude[0]
+mixedFourierAmplitude["v","out"] = 1 / (2 Sqrt[parametersExplicit@initialParticleNumber]) densityFieldFourierAmplitude[0] - I Sqrt[parametersExplicit@initialParticleNumber] phaseFieldFourierAmplitude[0]
+
+
+mixedFourierAmplitude["u","exp"] = 1 / (2 Sqrt[parametersExplicit@initialParticleNumber]) densityFieldFourierAmplitude[\[Eta]] + I Sqrt[parametersExplicit@initialParticleNumber] phaseFieldFourierAmplitude[\[Eta]]
+mixedFourierAmplitude["v","exp"] = 1 / (2 Sqrt[parametersExplicit@initialParticleNumber]) densityFieldFourierAmplitude[\[Eta]] - I Sqrt[parametersExplicit@initialParticleNumber] phaseFieldFourierAmplitude[\[Eta]]
+
+
+particleNumber = Conjugate@mixedFourierAmplitude["u","out"] Conjugate@mixedFourierAmplitude["v","exp"] - Conjugate@mixedFourierAmplitude["v","out"] Conjugate@mixedFourierAmplitude["u","exp"] // Abs[#]^2 &
