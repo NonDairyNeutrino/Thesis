@@ -5,6 +5,16 @@
 
 using Test
 
+"""
+    differentiate(var, theta, pt, stepSizes; order = 1)
+
+Evaluate the numeric derivative of a function at a 4D point.
+
+# Examples
+```jldoctest
+julia> differentiate(1, (t,x,y,z) -> t^2 + x^2 + y^2 + z^2, (1,0,0,0), .1 * [1,1,1,1]) |> round
+2
+"""
 function differentiate(var, theta, pt, stepSizes; order = 1)
 	# define choice of variable to pick out later
 	vc = zeros(Int, length(pt))
@@ -27,24 +37,29 @@ function differentiate(var, theta, pt, stepSizes; order = 1)
 	now    = theta(eta               , x             , y             , z             )
 	after  = theta(eta + vc[1] * deta, x + vc[2] * dx, y + vc[3] * dy, z + vc[4] * dz)
 
+    dvar = vc[1] * deta + vc[2] * dx + vc[3] * dy + vc[4] * dz
+
 	if order == 1
 		# Below implements the first order central finite difference method
-
-		# numerator
 		numerator = after - before
-
-		# denominator
-		denominator = 2 * (vc[1] * deta + vc[2] * dx + vc[3] * dy + vc[4] * dz)
-
+		denominator = 2 * dvar
 	elseif order == 2
 		# Below implements the second order central finite difference method
 		numerator = after - 2 * now + before
-		denominator = vc[1] * deta + vc[2] * dx + vc[3] * dy + vc[4] * dz
-
+		denominator = dvar
 	end
 
 	return numerator / denominator
 end
 
-@test (differentiate(1, (t,x,y,z) -> t^2 + x^2 + y^2 + z^2, (1,0,0,0), .1 * [1,1,1,1]) |> Int) == 2
+function test()
+	if split(PROGRAM_FILE, "\\")[end] == "run_debugger.jl"
+		@test differentiate(1, (t, x, y, z) -> t^2 + x^2 + y^2 + z^2, (1, 0, 0, 0), 0.1 * [1, 1, 1, 1], order = 1) |> round == 2
+        @test differentiate(1, (t, x, y, z) -> t^2 + x^2 + y^2 + z^2, (1, 0, 0, 0), 0.1 * [1, 1, 1, 1], order = 2) |> round == 2
+	end
+end
 
+test()
+
+println(PROGRAM_FILE)
+println(@__FILE__)
