@@ -1,6 +1,6 @@
 # define scaling and time here for testing purposes
 scaling(timeScale, labTime) = exp(- labTime / timeScale) # de Sitter expansion
-labTimeVector               = 0 : 0.1 : 1
+labTimeVector               = 0 : 0.01 : 10
 
 timeScale                           = 1
 conformalTimeVector                 = sqrt.(scaling.(timeScale, labTimeVector)) |> cumsum
