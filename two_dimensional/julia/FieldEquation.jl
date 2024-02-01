@@ -1,4 +1,4 @@
-using LinearAlgebra
+using LinearAlgebra, GLMakie
 
 include("ConformalTime.jl") # gives conformalTimeVector
 
@@ -33,4 +33,9 @@ end
 phaseFourierVector = nullspace(operatorMatrix) |> vec
 
 # display(operatorMatrix)
-display(phaseFourierVector |> length)
+# display(phaseFourierVector)
+
+# crude plot
+fig = lines(conformalTimeVector, phaseFourierVector)
+save("phaseFourier(t).png", fig, axis=(; title="Phase Fourier Transform", xlabel="t"), ylabel="χ")
+# display(fig)
