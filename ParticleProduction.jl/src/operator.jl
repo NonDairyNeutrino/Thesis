@@ -1,3 +1,5 @@
+using SparseArrays
+
 # define matrix equation to solve to get finite difference coefficients
 
 """
@@ -14,8 +16,7 @@ function centralCoefficients(order :: Int, accuracy :: Int) :: Vector{Float64}
     p = floor((order + 1) / 2) - 1 + accuracy / 2 # p is the main value for the vander mode matrix
 
     vandermodeMatrix = [(-p + j)^i for (i, j) in Iterators.product(0:2p, 0:2p)] # matrix to get the coefficients
-
-    sol = zeros(Int, 2p + 1); sol[order + 1] = factorial(order) # solution vector of the matrix equation
+    sol = zeros(Int, 2p + 1 |> Int); sol[order + 1] = factorial(order) # solution vector of the matrix equation
 
     coefficientVector = vandermodeMatrix \ sol # solve the matrix equation using left division 
                                                # i.e. left multiplication of the inverse of the vandermodeMatrix
@@ -40,20 +41,25 @@ abstract = {Through introducing the generalized Vandermonde determinant, the lin
 =#
 
 """
-    operator(hubbleVector :: Vector, speed :: Float64, waveNumber :: Float64, accuracy :: Int = 2)
+    operator(hubbleVector :: Vector, speed :: Float64, waveNumber :: Float64, accuracy :: Int = 2) :: SparseArrays.SparseMatrixCSC{Float64, Int64}
 
 Gives the finite-difference approximated field operator.
 """
-function operator(hubbleVector :: Vector, speed :: Float64, waveNumber :: Float64, accuracy :: Int = 2)
-# coefficients for a central finite difference
-derivative2 = centralCoefficients(2, accuracy) # second derivative coefficients
-derivative1 = centralCoefficients(1, accuracy) # first derivative coefficients
-derivative0 = zeros(max(length(derivative1), length(derivative2))) # the derivative0 vector is zero everywhere except in the middle where it's 1
-derivative0[length(derivative0) - 1 / 2 + 1 |> Int] = 1 # set center element to 1
+function operator(hubbleVector :: Vector, speed :: Float64, waveNumber :: Float64, accuracy :: Int = 2) :: SparseArrays.SparseMatrixCSC{Float64, Int64}
+    # coefficients for a central finite difference
+    derivative2 = centralCoefficients(2, accuracy) # second derivative coefficients
+    derivative1 = centralCoefficients(1, accuracy) # first derivative coefficients
+    derivative0 = zeros(max(length(derivative1), length(derivative2))) # the derivative0 vector is zero everywhere except in the middle where it's 1
+    p = (length(derivative0) - 1) / 2
+    centerIndex = p + 1 |> Int
+    derivative0[centerIndex] = 1 # set center element to 1
 
-dissipationVector = 0.5 * hubbleVector
+    dissipationVector = 0.5 * hubbleVector
 
-mat = zeros(length(hubbleVector), length(hubbleVector))
-coefficientVector = [derivative2 - dissipation * derivative1 - speed^2 * waveNumber^2 * derivative0 for dissipation in dissipationVector]
-# TODO: set appropriate indices of mat to values of coefficientVector to get an n-diagonal matrix of time-series finite difference coefficients.
+    mat = spzeros(length(hubbleVector), length(hubbleVector))
+    coefficientVector = [derivative2 - dissipation * derivative1 - speed^2 * waveNumber^2 * derivative0 for dissipation in dissipationVector]
+    for row in Int.(p + 1:(size(mat)[1] - p))
+        mat[row, row .+ Int.(-p:p)] = coefficientVector[row]
+    end
+    return mat
 end
