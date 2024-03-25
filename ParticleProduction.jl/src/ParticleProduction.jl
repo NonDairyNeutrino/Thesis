@@ -9,5 +9,8 @@ module ParticleProduction
 
 include("initialize.jl")
 include("conformal.jl")
+include("operator.jl")
 
+hubbleVector = conformalTime(labtime -> exp(-labtime), 0.1, 1.0)
+operator(hubbleVector, 1., 1., 2) |> display
 end

@@ -5,7 +5,7 @@
 
 Generate the sequence of conformal time values.
 """
-function conformalTime(scaling :: Function, step :: Float64, finalTime :: Float64) :: Vector{T} where T <: Number
+function conformalTime(scaling :: Function, step :: Float64, finalTime :: Float64) :: Vector
     labTimeVector = 0 : step : finalTime
     conformalTimeVector                 = sqrt.(scaling.(labTimeVector)) |> cumsum
     conformalTimeScaledVector           = scaling.(conformalTimeVector)

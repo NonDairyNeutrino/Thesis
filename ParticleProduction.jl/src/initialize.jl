@@ -27,5 +27,5 @@ struct Implicit
     speedOfSound
 end
 
-print("Enter Scaling Function: ")
-scalingFunction = readline()
+# print("Enter Scaling Function: ")
+scalingFunction = labTime -> exp(-labTime) #= readline() =#
