@@ -132,6 +132,8 @@
 
             can be interpreted as the covariant metric tensor (with determinant $g$) describing an analog, spatially flat, Friedmann–Lema{\^i}tre–Robertson–Walker universe, $c$ is the speed of sound in the condensate, and $d$ is the number of spatial dimensions.  Equation (\ref{eq:KG}) describes both the phase-perturbations $\hat{\theta}$ of oscillations with low spatial frequency (i.e. low momentum phonons) in the BEC and also the dynamics of a quantum field that produces massless, spin-0 particles.
 
+\pagebreak
+
         \subsubsection{Expanding Universes}
 
             The time dependence of the system is completely captured in the speed of sound by 
@@ -232,48 +234,33 @@
                 \item Calculate the number of particles at time $t$ with wave vector $\mathbf{k}$ as in equation (\ref{eq:particleProduction})
             \end{enumerate}
 
-        \subsubsection{Computational Parameters} \label{sec:parameters}
+    \subsection{Computational Implementation}
 
-            The aforementioned previous model\cite{Jain} considered a system with several specified parameters.  The universe with had a size of 128 $\times$ 128 grid points. The length of time encompassed several different scales ranging from $10^{-5}$ to $10^{-3}$.  The domain of wave vectors whose norm is less than $32 \times 2 \pi$.  This domain of wave vectors resulted in 3209 values of $\mathbf{k}$, which corresponds to the number of terms in the Fourier expansions (eq. \ref{eq:FourierExpansion}) at each point in the field at each point in time.  Ultimately this leads to $3209 \times 128 \times 128 \approx 5 \times 10^7$ values of $\chi_\mathbf{k}$ for a single moment in time.  The time step was chosen such that the total particle number for the entire field changed by much less than one.
+        \begin{enumerate}
+            \item non-dimensionalize parameters
+            \item pre-integrate conformal time from lab time
+            \item find finite-difference coefficients for any order and scale
+            \item discretize field operator as GPU-based sparse matrix (\verb|cuSPARSE|) of finite-difference coefficients
+            \item solve discretized field equation using multi-GPU-based sparse-matrix equation solver (\verb|cuSOLVER|)
+            \item optionally take the GPU-based GPU-based inverse-fft (\verb|cuFFT|) to get phase and density perturbations to get wave function
+            \item differentiate the solution using high-accuracy finite-differences to get density perturbation
+            \item combine to get particle production for a single k
+            \item repeat/parallelize 4-8 for all k under critical k
+        \end{enumerate}
 
-            \begin{table}[h]
-                \centering
-                \begin{tabular}{c|c}
-                    \multicolumn{2}{c}{Previous domains}  \\
-                        Universe Size $\mathbf{x}$      & 128 $\times$ 128 \\
-                        \hline
-                        Time Scale $t_s$                & $10^{-5}$ to $10^{-3}$ \\
-                        \hline
-                        Wave Vector Domain $\mathbf{k}$ & $||\mathbf{k}|| \leq 32 \times 2 \pi$ \\
-                \end{tabular}
-                \quad
-                \begin{tabular}{c|c}
-                    \multicolumn{2}{c}{New domains}  \\
-                        Universe Size $\mathbf{x}$      & $128 \times 128 \times 128$ \\
-                        \hline
-                        Time Scale $t_s$                & $10^{-5}$ to $10^{-3}$ \\
-                        \hline
-                        Wave Vector Domain $\mathbf{k}$ & $||\mathbf{k}|| < k_c$ \\
-                \end{tabular}
-                \caption{Previous and new computational domains}
-                \label{tab:Domains}
-            \end{table}
+        % \begin{figure}[h]
+        %     \centering
+        %     \includegraphics[width = 0.7\textwidth]{images/fig2.png}
+        %     \caption{The momentum distribution when the universe stops expanding for multiple effective rates of expansion}
+        %     \label{fig:finalTime}
+        % \end{figure}
 
-            I will extend these domains to include a universe with three spatial dimensions, starting with a cubic grid of $128 \times 128 \times 128$, and all wave vectors that are valid in the system I have described i.e. all wave vectors with $||\mathbf{k}|| \leq k_c$ where $k_c$ is defined such that $\hbar^2 k_c^2 / 2 m = U n_0$.
-
-            \begin{figure}[h]
-                \centering
-                \includegraphics[width = 0.7\textwidth]{images/fig2.png}
-                \caption{The momentum distribution when the universe stops expanding for multiple effective rates of expansion}
-                \label{fig:finalTime}
-            \end{figure}
-
-            \begin{figure}[h!]
-                \centering
-                \includegraphics[width=\textwidth]{images/Analytic_Fig_4.png}
-                \caption{Momentum distribution throughout the expansion}
-                \label{fig:allTime}
-            \end{figure}
+        % \begin{figure}[h!]
+        %     \centering
+        %     \includegraphics[width=\textwidth]{images/Analytic_Fig_4.png}
+        %     \caption{Momentum distribution throughout the expansion}
+        %     \label{fig:allTime}
+        % \end{figure}
 
     % This work aims to produce several results in different facets.  From a physical perspective, we will produce the data to describe particle production in a universe undergoing a de Sitter expansion.  From an efficiency approach, we will quantitatively describe the ratio of accuracy to ``effort'' in order for future investigations to determine if using the lower-dimensional model is sufficient for their needs.  From an accessibility viewpoint, we will produce a modern, open-source, and ready-to-use computational model that is available to future investigations.
 
@@ -283,7 +270,7 @@
 
     % The final result of this work will be a packaged software that can be downloaded and used ``out of the box'', for free, by anyone that can run the program.  This level of accessibility is meant to disseminate this work to everybody that wants it.
     
-\section{Dissemination}
+\section{Upcoming Conferences}
 
     \begin{itemize}
         \item SOURCE - Late May
