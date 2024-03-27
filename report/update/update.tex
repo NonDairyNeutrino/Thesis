@@ -248,6 +248,34 @@
             \item repeat/parallelize 4-8 for all k under critical k
         \end{enumerate}
 
+        \subsubsection{Non-Dimensionalized Parameters}
+
+            It's more natural to implement physical quantities in terms of system-relevant references.
+
+        \subsubsection{Conformal Time Integration}
+
+            Because the expansion of the universe is non-zero for a finite amount of (lab) time, the conformal time can be precomputed for all discretized time steps.  The conformal time $\eta$ is defined by the first order differential equation $\frac{d\eta}{dt} = \sqrt{b(t)}$.  As such, the conformal time can be simply integrated as 
+
+            \begin{equation}
+                \eta(t) = \int_{0}^{t} \sqrt{b(\xi)} d\xi,
+            \end{equation}
+
+            which holds up to a constant.
+
+            This integral can be evluated numerically using an adaptive Gauss-Kronrod quadrature algorithm\cite{quadgk}.
+
+        \subsubsection{Finite Difference Coefficients}
+
+        \subsubsection{Discretized Operator}
+
+        \subsubsection{Field Matrix Equation}
+
+        \subsubsection{Wave Function}
+
+        \subsubsection{Density Perturbation}
+
+        \subsubsection{Particle Production}
+
         % \begin{figure}[h]
         %     \centering
         %     \includegraphics[width = 0.7\textwidth]{images/fig2.png}
