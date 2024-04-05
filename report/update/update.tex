@@ -14,7 +14,7 @@
 
 \renewcommand{\arraystretch}{1.5}
 
-\title{\Large \vspace{-0.625in} \emph{Momentum Distribution of Massless Spin-0 Quasiparticles in Analog (3+1) Expanding Universes using High-Performance Computing} \vspace{-0.15in}}
+\title{\Large \vspace{-0.625in} \emph{Production of Massless, Spin-0 Quasiparticles with Linear Dispersion in Analog (3+1) Inflationary Cosmologies Using Finite-Differences and High-Performance Computing} \vspace{-0.15in}}
 \author{Nathan Chapman \\ {\normalsize Central Washington University}}
 \date{\vspace{-0.1in}\today}
 
@@ -24,7 +24,10 @@
 
 \begin{center}
     Abstract \\
-    During the moments just after the Big Bang, particles were produced due to the rapid expansion of the universe. Because direct observation of the universe at this time is impossible, a lab-based ultra-cold quantum gas can be used as an analog.  Previous research has been done to computationally model these gases while restricted to a quasi-two-dimensional geometry.  This restriction yields an analog universe with two only spatial dimensions and a description of a reduced momentum distribution of the created particles.  A computational model simulating an unrestricted gas and an analog universe with three spatial dimensions requires the use of high-performance computing.  I aim to use high-performance computing to simulate the full-dimensional system. This will allow me to measure the error associated with using a reduced-dimensional model, and determine the cost-benefit ratio to using a high-performance implementation.
+    \begin{enumerate}
+        \item 
+    \end{enumerate}
+    % During the moments just after the Big Bang, particles were produced due to the rapid expansion of the universe. Because direct observation of the universe at this time is impossible, a lab-based ultra-cold quantum gas can be used as an analog.  Previous research has been done to computationally model these gases while restricted to a quasi-two-dimensional geometry.  This restriction yields an analog universe with two only spatial dimensions and a description of a reduced momentum distribution of the created particles.  A computational model simulating an unrestricted gas and an analog universe with three spatial dimensions requires the use of high-performance computing.  I aim to use high-performance computing to simulate the full-dimensional system. This will allow me to measure the error associated with using a reduced-dimensional model, and determine the cost-benefit ratio to using a high-performance implementation.
     %\begin{itemize}
     %     \item Provide insight into the dynamics of particles created due to the expansion of the universe in the moments just after the Big Bang.
         
@@ -111,13 +114,13 @@
             Using a linearized Madelung density-phase representation
 
             \begin{equation} \label{eq:Madelung}
-                \psi(\mathbf{x}, t) = \sqrt{n_0 + \hat{n}} e^{i \left( \theta_0 + \hat{\theta} \right)},
+                \psi(\mathbf{x}, t) = \sqrt{n_0 + \Delta n(\mathbf{x}, t)} e^{i \left( \theta_0 + \Delta\theta(\mathbf{x}, t) \right)},
             \end{equation}
 
-            where $n_0 + \hat{n}$ is the linearized form of the real density field $n(\mathbf{x}, t)$ and $\theta_0 + \hat{\theta}$ is the linearized form of the real phase field $n(\mathbf{x}, t)$, equation (\ref{eq:GPE}) becomes\cite{Jain} 
+            where $n_0 + \Delta n(\mathbf{x}, t)$ is the linearized form of the real density field $n(\mathbf{x}, t)$ and $\theta_0 + \Delta\theta(\mathbf{x}, t)$ is the linearized form of the real phase field $n(\mathbf{x}, t)$, equation (\ref{eq:GPE}) becomes\cite{Jain} 
 
             \begin{equation} \label{eq:KG}
-                \frac{1}{\sqrt{-g}} \partial_\mu \left[ \sqrt{-g} g^{\mu \nu} \partial_\nu \hat{\theta} \right] = 0,
+                \frac{1}{\sqrt{-g}} \partial_\mu \left[ \sqrt{-g} g^{\mu \nu} \partial_\nu \Delta\theta \right] = 0,
             \end{equation}
 
             where 
@@ -130,7 +133,7 @@
                 \end{bmatrix}
             \end{equation}
 
-            can be interpreted as the covariant metric tensor (with determinant $g$) describing an analog, spatially flat, Friedmann–Lema{\^i}tre–Robertson–Walker universe, $c$ is the speed of sound in the condensate, and $d$ is the number of spatial dimensions.  Equation (\ref{eq:KG}) describes both the phase-perturbations $\hat{\theta}$ of oscillations with low spatial frequency (i.e. low momentum phonons) in the BEC and also the dynamics of a quantum field that produces massless, spin-0 particles.
+            can be interpreted as the covariant metric tensor (with determinant $g$) describing an analog, spatially flat, Friedmann–Lema{\^i}tre–Robertson–Walker universe, $c$ is the speed of sound in the condensate, and $d$ is the number of spatial dimensions.  Equation (\ref{eq:KG}) describes both the phase-perturbations $\Delta\theta$ of oscillations with low spatial frequency (i.e. low momentum phonons) in the BEC and also the dynamics of a quantum field that produces massless, spin-0 particles.
 
 \pagebreak
 
@@ -162,43 +165,51 @@
 
             \begin{subequations}
             \begin{equation} \label{eq:fieldEquation2D}
-                \text{2D: } \partial_t^2\theta - \frac{3}{2} \frac{\dot{b}(t)}{b(t)} \partial_t \theta - c_0^2 b(t) \nabla^2\theta = 0
+                \text{2D: } \partial_t^2\Delta\theta - \frac{3}{2} \frac{\dot{b}(t)}{b(t)} \partial_t \Delta\theta - c_0^2 b(t) \nabla^2\Delta\theta = 0
             \end{equation}
             \begin{equation} \label{eq:fieldEquation3D}
-                \text{3D: } \partial_t^2\theta - \phantom{\frac{3}{2}} \frac{\dot{b}(t)}{b(t)} \partial_t \theta - c_0^2 b(t) \nabla^2\theta = 0
+                \text{3D: } \partial_t^2\Delta\theta - \phantom{\frac{3}{2}} \frac{\dot{b}(t)}{b(t)} \partial_t \Delta\theta - c_0^2 b(t) \nabla^2\Delta\theta = 0
             \end{equation}
             \end{subequations}
 
             These equations only differ in the constant coefficient to the first derivative i.e. the dissipative term.  If we consider the \emph{conformal time} $\eta$ defined by $d\eta = \sqrt{b(t)} dt$, the two-dimensional field equation (eq \ref{eq:fieldEquation2D}) becomes
 
             \begin{equation} \label{eq:fieldEquationConformal}
-                \partial_\eta^2 \hat{\theta} - \frac{1}{2} \frac{\dot{b}(\eta)}{b(\eta)} \partial_\eta \hat{\theta} - c_0^2 \nabla^2 \hat{\theta} = 0.
+                \partial_\eta^2 \Delta\theta - \frac{1}{2} \frac{\dot{b}(\eta)}{b(\eta)} \partial_\eta \Delta\theta - c_0^2 \nabla^2 \Delta\theta = 0.
             \end{equation}
 
-            Equation (\ref{eq:fieldEquationConformal}) governs the dynamics of oscillations in the BEC for a time-dependent speed of sound, and the behavior of the massless, spin-0 particles in an expanding universe.  Then we can expand the phase $\hat{\theta}(\mathbf{x}, t)$ and density $\hat{n}(\mathbf{x}, t)$ perturbation fields in a Fourier plane-wave amplitude representation as 
+            Equation (\ref{eq:fieldEquationConformal}) governs the dynamics of oscillations in the BEC for a time-dependent speed of sound, and the behavior of the massless, spin-0 particles in an expanding universe.
+                
+        \subsubsection{Acoustic \& Bogoliubov Modes}
+
+            We can expand the phase $\Delta\theta(\mathbf{x}, t)$ and density $\Delta n(\mathbf{x}, t)$ perturbation fields in a Fourier plane-wave amplitude representation as 
 
             \begin{subequations} \label{eq:FourierExpansion}
             \begin{equation}
-                \hat{\theta}(\mathbf{x}, t) = \frac{1}{\sqrt{V}} \sum_\mathbf{k} e^{i \mathbf{k} \cdot \mathbf{x}} \chi_\mathbf{k}(t) \hat{b}_\mathbf{k}(t) + e^{-i \mathbf{k} \cdot \mathbf{x}} \chi_\mathbf{k}^*(t) \hat{b}_\mathbf{k}^\dagger(t)
+                \Delta\theta(\mathbf{x}, t) = \frac{1}{\sqrt{V}} \sum_\mathbf{k} e^{i \mathbf{k} \cdot \mathbf{x}} \phi_\mathbf{k}(t) \hat{b}_\mathbf{k}(t) + e^{-i \mathbf{k} \cdot \mathbf{x}} \phi_\mathbf{k}^*(t) \hat{b}_\mathbf{k}^\dagger(t)
             \end{equation}
             \begin{equation}
-                \hat{n}(\mathbf{x}, t) = \frac{1}{\sqrt{V}} \sum_\mathbf{k} e^{i \mathbf{k} \cdot \mathbf{x}} n_\mathbf{k}(t) \hat{b}_\mathbf{k}(t) + e^{-i \mathbf{k} \cdot \mathbf{x}} n_\mathbf{k}^*(t) \hat{b}_\mathbf{k}^\dagger(t)
+                \Delta n(\mathbf{x}, t) = \frac{1}{\sqrt{V}} \sum_\mathbf{k} e^{i \mathbf{k} \cdot \mathbf{x}} \rho_\mathbf{k}(t) \hat{b}_\mathbf{k}(t) + e^{-i \mathbf{k} \cdot \mathbf{x}} \rho_\mathbf{k}^*(t) \hat{b}_\mathbf{k}^\dagger(t)
             \end{equation}
             \end{subequations}
+
+            where $\mathbf{k}$ is the wave vector of the phase and density perturbations, 
+
+\newpage
             
-            so that equation (\ref{eq:fieldEquationConformal}) becomes
+            Equation (\ref{eq:fieldEquationConformal}) then becomes
 
             \begin{equation} \label{eq:fieldEquationConformalFourier}
-                \boxed{\partial_\eta^2 \chi_\mathbf{k} - \frac{1}{2} \frac{\dot{b}(\eta)}{b(\eta)} \partial_\eta \chi_\mathbf{k} - c_0^2 k^2 \chi_\mathbf{k} = 0.}
+                \boxed{\partial_\eta^2 \phi_\mathbf{k} - \frac{1}{2} \frac{\dot{b}(\eta)}{b(\eta)} \partial_\eta \phi_\mathbf{k} - c_0^2 k^2 \phi_\mathbf{k} = 0.}
             \end{equation}
 
             For a de Sitter universe, the scaling function is defined such that $b(t) = \exp(-t / t_s)$.  Therefore, field equation for a de Sitter universe is
 
             \begin{equation} \label{eq:fieldEquationdeSitter}
-                \partial_\eta^2 \chi_\mathbf{k} - \frac{1}{\eta} \partial_\eta \chi_\mathbf{k} + c_0^2 k^2 \chi_\mathbf{k} = 0,
+                \partial_\eta^2 \phi_\mathbf{k} - \frac{1}{\eta} \partial_\eta \phi_\mathbf{k} + c_0^2 k^2 \phi_\mathbf{k} = 0,
             \end{equation}
 
-            where the scaling function $b$ has been defined such that $b(t) = e^{-t / t_s}$ so that the analog universe is undergoing a de Sitter type expansion on a time scale $t_s$.  The boundary conditions for equation (\ref{eq:fieldEquationdeSitter}) come from the fact that $\chi_\mathbf{k}$ needs to be continuous at the moment when expansion begins.
+            where the scaling function $b$ has been defined such that $b(t) = e^{-t / t_s}$ so that the analog universe is undergoing a de Sitter type expansion on a time scale $t_s$.  The boundary conditions for equation (\ref{eq:fieldEquationdeSitter}) come from the fact that $\phi_\mathbf{k}$ needs to be continuous at the moment when expansion begins.
 
         \subsubsection{Particle Production} \label{sec:particleProduction}
 
@@ -222,15 +233,15 @@
             ``out'' and ``exp'' corresponding to regions of spacetime outside of and inside the expansion of the universe, and the density field Fourier plane wave amplitude is given by 
 
             \begin{equation} \label{eq:densityFromPhase}
-                n_\mathbf{k} = - \frac{\hbar}{U} \partial_t \chi_\mathbf{k}.
+                \rho_\mathbf{k} = - \frac{\hbar}{U} \partial_t \phi_\mathbf{k}.
             \end{equation}
 
             It might help to summarize the entire process of calculating the particle production in steps. To calculate the number of particles produced at position $\mathbf{x}$ and time $t$ with wave vector $\mathbf{k}$ looks like the following:
 
             \begin{enumerate}
-                \item Solve the field equation (\ref{eq:fieldEquationdeSitter}) for $\chi_\mathbf{k}(t)$
-                \item Differentiate $\chi_\mathbf{k}(t)$ to get $n_\mathbf{k}(t)$ as in equation (\ref{eq:densityFromPhase})
-                \item Combine $\chi_\mathbf{k}(t)$ and $n_\mathbf{k}(t)$ as in equations (\ref{eq:mixedFourierAmplitudes})
+                \item Solve the field equation (\ref{eq:fieldEquationdeSitter}) for $\phi_\mathbf{k}(t)$
+                \item Differentiate $\phi_\mathbf{k}(t)$ to get $\rho_\mathbf{k}(t)$ as in equation (\ref{eq:densityFromPhase})
+                \item Combine $\phi_\mathbf{k}(t)$ and $\rho_\mathbf{k}(t)$ as in equations (\ref{eq:mixedFourierAmplitudes})
                 \item Calculate the number of particles at time $t$ with wave vector $\mathbf{k}$ as in equation (\ref{eq:particleProduction})
             \end{enumerate}
 
