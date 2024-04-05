@@ -14,7 +14,7 @@
 
 \renewcommand{\arraystretch}{1.5}
 
-\title{\Large \vspace{-0.625in} \emph{Production of Massless, Spin-0 Quasiparticles with Linear Dispersion in Analog (3+1) Inflationary Cosmologies Using Finite-Differences and High-Performance Computing} \vspace{-0.15in}}
+\title{\Large \vspace{-0.625in} \emph{Production of Massless, Spin-0 Quasiparticles in Analog (3+1) Inflationary Cosmologies Using High-Performance Finite-Differences} \vspace{-0.15in}}
 \author{Nathan Chapman \\ {\normalsize Central Washington University}}
 \date{\vspace{-0.1in}\today}
 
@@ -22,7 +22,7 @@
 
 \maketitle
 
-\begin{center}
+    \begin{center}
     Abstract \\
     \begin{enumerate}
         \item 
@@ -37,7 +37,7 @@
         
     %     \item Provide an accessible, free, open-source, ``ready to use package'', high-performance computational model that can be used to investigate systems such as the one described here.
     % \end{itemize}
-\end{center}
+    \end{center}
 
 \tableofcontents
 
@@ -142,19 +142,19 @@
             The time dependence of the system is completely captured in the speed of sound by 
 
             \begin{equation} \label{eq:speed}
-                c(t)^2 = \frac{U(t) n_0}{m} = \frac{4 \pi \hbar^2}{m^2} n_0 a(t),
+                c(t)^2 = \frac{U(t) n_0}{m} = \frac{4 \pi \hbar^2}{m^2} n_0 \ell(t),
             \end{equation}
 
-            with atoms of mass $m$, scattering length $a$, and number density $n_0$.  With the dimensionless scaling function $b(t)$, the interaction strength $U(t)$ (or equivalently the scattering length) has time dependence defined by 
+            with atoms of mass $m$, scattering length $\ell(t)$, and number density $n_0$.  With the dimensionless scaling function $a(t)$, the interaction strength $U(t)$ (or equivalently the scattering length) has time dependence defined by 
 
             \begin{equation}
-                U(t) \equiv U_0 b(t),
+                U(t) \equiv U_0 a(t),
             \end{equation}
 
             where $U_0 = U(t_0)$ for an initial time $t_0$.  Then equation (\ref{eq:speed}) becomes 
 
             \begin{equation}
-                c(t) = c_0 \sqrt{b(t)}.
+                c(t) = c_0 \sqrt{a(t)}.
             \end{equation}
 
             This time dependence of the speed of sound and interaction strength allows us to draw another analogy.  If the speed of sound decreases with time, it would appear as if the space between the source and the observer were increasing.  Similarly, if the speed of sound increases with time, it would appear as if the space between the source and observer is decreasing. With this in mind, if the interaction strength between atoms $U(t)$ decreases with $t$, the analog universe is expanding, and if $U(t)$ increases, the analog universe is contracting.
@@ -165,17 +165,17 @@
 
             \begin{subequations}
             \begin{equation} \label{eq:fieldEquation2D}
-                \text{2D: } \partial_t^2\Delta\theta - \frac{3}{2} \frac{\dot{b}(t)}{b(t)} \partial_t \Delta\theta - c_0^2 b(t) \nabla^2\Delta\theta = 0
+                \text{2D: } \partial_t^2\Delta\theta - \frac{3}{2} \frac{\dot{a}(t)}{a(t)} \partial_t \Delta\theta - c_0^2 a(t) \nabla^2\Delta\theta = 0
             \end{equation}
             \begin{equation} \label{eq:fieldEquation3D}
-                \text{3D: } \partial_t^2\Delta\theta - \phantom{\frac{3}{2}} \frac{\dot{b}(t)}{b(t)} \partial_t \Delta\theta - c_0^2 b(t) \nabla^2\Delta\theta = 0
+                \text{3D: } \partial_t^2\Delta\theta - \phantom{\frac{3}{2}} \frac{\dot{a}(t)}{a(t)} \partial_t \Delta\theta - c_0^2 a(t) \nabla^2\Delta\theta = 0
             \end{equation}
             \end{subequations}
 
-            These equations only differ in the constant coefficient to the first derivative i.e. the dissipative term.  If we consider the \emph{conformal time} $\eta$ defined by $d\eta = \sqrt{b(t)} dt$, the two-dimensional field equation (eq \ref{eq:fieldEquation2D}) becomes
+            These equations only differ in the constant coefficient to the first derivative i.e. the dissipative term.  If we consider the \emph{conformal time} $\eta$ defined by $d\eta = \sqrt{a(t)} dt$, the two-dimensional field equation (eq \ref{eq:fieldEquation2D}) becomes
 
             \begin{equation} \label{eq:fieldEquationConformal}
-                \partial_\eta^2 \Delta\theta - \frac{1}{2} \frac{\dot{b}(\eta)}{b(\eta)} \partial_\eta \Delta\theta - c_0^2 \nabla^2 \Delta\theta = 0.
+                \partial_\eta^2 \Delta\theta - \frac{1}{2} \frac{\dot{a}(\eta)}{a(\eta)} \partial_\eta \Delta\theta - c_0^2 \nabla^2 \Delta\theta = 0.
             \end{equation}
 
             Equation (\ref{eq:fieldEquationConformal}) governs the dynamics of oscillations in the BEC for a time-dependent speed of sound, and the behavior of the massless, spin-0 particles in an expanding universe.
@@ -186,30 +186,30 @@
 
             \begin{subequations} \label{eq:FourierExpansion}
             \begin{equation}
-                \Delta\theta(\mathbf{x}, t) = \frac{1}{\sqrt{V}} \sum_\mathbf{k} e^{i \mathbf{k} \cdot \mathbf{x}} \phi_\mathbf{k}(t) \hat{b}_\mathbf{k}(t) + e^{-i \mathbf{k} \cdot \mathbf{x}} \phi_\mathbf{k}^*(t) \hat{b}_\mathbf{k}^\dagger(t)
+                \Delta\theta(\mathbf{x}, t) = \frac{1}{\sqrt{V}} \sum_\mathbf{k} e^{i \mathbf{k} \cdot \mathbf{x}} \widetilde{\theta}_\mathbf{k}(t) \hat{b}_\mathbf{k}(t) + e^{-i \mathbf{k} \cdot \mathbf{x}} \widetilde{\theta}_\mathbf{k}^*(t) \hat{b}_\mathbf{k}^\dagger(t)
             \end{equation}
             \begin{equation}
-                \Delta n(\mathbf{x}, t) = \frac{1}{\sqrt{V}} \sum_\mathbf{k} e^{i \mathbf{k} \cdot \mathbf{x}} \rho_\mathbf{k}(t) \hat{b}_\mathbf{k}(t) + e^{-i \mathbf{k} \cdot \mathbf{x}} \rho_\mathbf{k}^*(t) \hat{b}_\mathbf{k}^\dagger(t)
+                \Delta n(\mathbf{x}, t) = \frac{1}{\sqrt{V}} \sum_\mathbf{k} e^{i \mathbf{k} \cdot \mathbf{x}} \widetilde{n}_\mathbf{k}(t) \hat{b}_\mathbf{k}(t) + e^{-i \mathbf{k} \cdot \mathbf{x}} \widetilde{n}_\mathbf{k}^*(t) \hat{b}_\mathbf{k}^\dagger(t)
             \end{equation}
             \end{subequations}
 
-            where $\mathbf{k}$ is the wave vector of the phase and density perturbations, 
+            where $\mathbf{k}$ is the wave vector of the phase and density perturbations (does $\mathbf{k}$ physically represent something physically?), $\widetilde{\theta}_\mathbf{k}$ is the discrete Fourier Transform of the phase perturbation $\Delta \theta$, 
 
 \newpage
             
             Equation (\ref{eq:fieldEquationConformal}) then becomes
 
             \begin{equation} \label{eq:fieldEquationConformalFourier}
-                \boxed{\partial_\eta^2 \phi_\mathbf{k} - \frac{1}{2} \frac{\dot{b}(\eta)}{b(\eta)} \partial_\eta \phi_\mathbf{k} - c_0^2 k^2 \phi_\mathbf{k} = 0.}
+                \boxed{\partial_\eta^2 \widetilde{\theta}_\mathbf{k} - \frac{1}{2} \frac{\dot{a}(\eta)}{a(\eta)} \partial_\eta \widetilde{\theta}_\mathbf{k} - c_0^2 k^2 \widetilde{\theta}_\mathbf{k} = 0.}
             \end{equation}
 
-            For a de Sitter universe, the scaling function is defined such that $b(t) = \exp(-t / t_s)$.  Therefore, field equation for a de Sitter universe is
+            For a de Sitter universe, the scaling function is defined such that $a(t) = \exp(-t / t_s)$.  Therefore, field equation for a de Sitter universe is
 
             \begin{equation} \label{eq:fieldEquationdeSitter}
-                \partial_\eta^2 \phi_\mathbf{k} - \frac{1}{\eta} \partial_\eta \phi_\mathbf{k} + c_0^2 k^2 \phi_\mathbf{k} = 0,
+                \partial_\eta^2 \widetilde{\theta}_\mathbf{k} - \frac{1}{\eta} \partial_\eta \widetilde{\theta}_\mathbf{k} + c_0^2 k^2 \widetilde{\theta}_\mathbf{k} = 0,
             \end{equation}
 
-            where the scaling function $b$ has been defined such that $b(t) = e^{-t / t_s}$ so that the analog universe is undergoing a de Sitter type expansion on a time scale $t_s$.  The boundary conditions for equation (\ref{eq:fieldEquationdeSitter}) come from the fact that $\phi_\mathbf{k}$ needs to be continuous at the moment when expansion begins.
+            where the scaling function $b$ has been defined such that $a(t) = e^{-t / t_s}$ so that the analog universe is undergoing a de Sitter type expansion on a time scale $t_s$.  The boundary conditions for equation (\ref{eq:fieldEquationdeSitter}) come from the fact that $\widetilde{\theta}_\mathbf{k}$ needs to be continuous at the moment when expansion begins.
 
         \subsubsection{Particle Production} \label{sec:particleProduction}
 
@@ -223,25 +223,25 @@
 
             \begin{subequations} \label{eq:mixedFourierAmplitudes}
             \begin{equation}
-                u_k(t) = \frac{1}{2 \sqrt{n_0}} n_k(t) + i \sqrt{n_0} \chi_k(t)
+                u_k(t) = \frac{1}{2 \sqrt{n_0}} n_k(t) + i \sqrt{n_0} \widetilde{\theta}_k(t)
             \end{equation}
             \begin{equation}
-                v_k(t) = \frac{1}{2 \sqrt{n_0}} n_k(t) - i \sqrt{n_0} \chi_k(t),
+                v_k(t) = \frac{1}{2 \sqrt{n_0}} n_k(t) - i \sqrt{n_0} \widetilde{\theta}_k(t),
             \end{equation}
             \end{subequations}
 
             ``out'' and ``exp'' corresponding to regions of spacetime outside of and inside the expansion of the universe, and the density field Fourier plane wave amplitude is given by 
 
             \begin{equation} \label{eq:densityFromPhase}
-                \rho_\mathbf{k} = - \frac{\hbar}{U} \partial_t \phi_\mathbf{k}.
+                \widetilde{n}_\mathbf{k} = - \frac{\hbar}{U} \partial_t \widetilde{\theta}_\mathbf{k}.
             \end{equation}
 
             It might help to summarize the entire process of calculating the particle production in steps. To calculate the number of particles produced at position $\mathbf{x}$ and time $t$ with wave vector $\mathbf{k}$ looks like the following:
 
             \begin{enumerate}
-                \item Solve the field equation (\ref{eq:fieldEquationdeSitter}) for $\phi_\mathbf{k}(t)$
-                \item Differentiate $\phi_\mathbf{k}(t)$ to get $\rho_\mathbf{k}(t)$ as in equation (\ref{eq:densityFromPhase})
-                \item Combine $\phi_\mathbf{k}(t)$ and $\rho_\mathbf{k}(t)$ as in equations (\ref{eq:mixedFourierAmplitudes})
+                \item Solve the field equation (\ref{eq:fieldEquationdeSitter}) for $\widetilde{\theta}_\mathbf{k}(t)$
+                \item Differentiate $\widetilde{\theta}_\mathbf{k}(t)$ to get $\widetilde{n}_\mathbf{k}(t)$ as in equation (\ref{eq:densityFromPhase})
+                \item Combine $\widetilde{\theta}_\mathbf{k}(t)$ and $\widetilde{n}_\mathbf{k}(t)$ as in equations (\ref{eq:mixedFourierAmplitudes})
                 \item Calculate the number of particles at time $t$ with wave vector $\mathbf{k}$ as in equation (\ref{eq:particleProduction})
             \end{enumerate}
 
@@ -265,7 +265,7 @@
 
         \subsubsection{Conformal Time Integration}
 
-            Because the expansion of the universe is non-zero for a finite amount of (lab) time, the conformal time can be precomputed for all discretized time steps.  The conformal time $\eta$ is defined by the first order differential equation $\frac{d\eta}{dt} = \sqrt{b(t)}$.  As such, the conformal time can be simply integrated as 
+            Because the expansion of the universe is non-zero for a finite amount of (lab) time, the conformal time can be precomputed for all discretized time steps.  The conformal time $\eta$ is defined by the first order differential equation $\frac{d\eta}{dt} = \sqrt{a(t)}$.  As such, the conformal time can be simply integrated as 
 
             \begin{equation}
                 \eta(t) = \int_{0}^{t} \sqrt{b(\xi)} d\xi,
