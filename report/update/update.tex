@@ -14,9 +14,9 @@
 
 \renewcommand{\arraystretch}{1.5}
 
-\title{\Large \vspace{-0.625in} \emph{Production of Massless, Spin-0 Quasiparticles in Analog (3+1) Inflationary Cosmologies Using High-Performance Finite-Differences} \vspace{-0.15in}}
+\title{\Large \vspace{-0.625in} \emph{Production of Massless Spin-0 Phonons in Analog (3+1) Inflationary Cosmologies Using High-Performance Finite-Differences} \vspace{-0.15in}}
 \author{Nathan Chapman \\ {\normalsize Central Washington University}}
-\date{\vspace{-0.1in}\today}
+\date{\normalsize \vspace{-0.1in}\today}
 
 \begin{document}
 
@@ -24,9 +24,6 @@
 
     \begin{center}
     Abstract \\
-    \begin{enumerate}
-        \item 
-    \end{enumerate}
     % During the moments just after the Big Bang, particles were produced due to the rapid expansion of the universe. Because direct observation of the universe at this time is impossible, a lab-based ultra-cold quantum gas can be used as an analog.  Previous research has been done to computationally model these gases while restricted to a quasi-two-dimensional geometry.  This restriction yields an analog universe with two only spatial dimensions and a description of a reduced momentum distribution of the created particles.  A computational model simulating an unrestricted gas and an analog universe with three spatial dimensions requires the use of high-performance computing.  I aim to use high-performance computing to simulate the full-dimensional system. This will allow me to measure the error associated with using a reduced-dimensional model, and determine the cost-benefit ratio to using a high-performance implementation.
     %\begin{itemize}
     %     \item Provide insight into the dynamics of particles created due to the expansion of the universe in the moments just after the Big Bang.
@@ -103,7 +100,7 @@
 
     \subsection{Physical Theory}
 
-        \subsubsection{Setting up the Analog}
+        \subsubsection{BEC Analogs of FLRW Cosmologies}
 
             The gas as is outlined in section \ref{sec:intro} is a ground-state Bose-Einstein condensate (BEC) without thermal or quantum fluctuations. The dynamics of the BEC are described by the Gross-Pitaevskii equation (GPE) under a Bogoliubov mean-field approximation (also known as the \textit{nonlinear Schr{\"o}dinger equation}),
             
@@ -137,9 +134,7 @@
 
             Equation (\ref{eq:metric}) can be interpreted as the covariant metric tensor (with determinant $g$) describing an analog, spatially flat, Friedmann–Lema{\^i}tre–Robertson–Walker universe, $c$ is the speed of sound in the condensate, and $d$ is the number of spatial dimensions.  Equation (\ref{eq:KG}) describes both the phase-perturbations $\Delta\theta$ of oscillations with low spatial frequency (i.e. low momentum phonons) in the BEC and also the dynamics of a quantum field that produces massless, spin-0 particles.
 
-\pagebreak
-
-        \subsubsection{Expanding Universes}
+        \subsubsection{Variable Speed of Sound and Inflation}
 
             The time dependence of the system is completely captured in the speed of sound by 
 
@@ -219,17 +214,17 @@
                 \boxed{\partial_\eta^2 \widetilde{\theta}_\mathbf{k} - \frac{1}{2} \frac{\dot{a}(\eta)}{a(\eta)} \partial_\eta \widetilde{\theta}_\mathbf{k} - c_0^2 k^2 \widetilde{\theta}_\mathbf{k} = 0.}
             \end{equation}
 
-            For a de Sitter universe, the scaling function is defined such that $a(t) = \exp(-t / t_s)$.  Therefore, field equation for a de Sitter universe is
+            For a de Sitter universe, the scaling function is defined such that $a(t) = \exp(-t / t_s)$.  Therefore, the field equation for a two-dimensional de Sitter universe is
 
             \begin{equation} \label{eq:fieldEquationdeSitter}
                 \partial_\eta^2 \widetilde{\theta}_\mathbf{k} - \frac{1}{\eta} \partial_\eta \widetilde{\theta}_\mathbf{k} + c_0^2 k^2 \widetilde{\theta}_\mathbf{k} = 0,
             \end{equation}
 
-            where the scaling function $b$ has been defined such that $a(t) = e^{-t / t_s}$ so that the analog universe is undergoing a de Sitter type expansion on a time scale $t_s$.  The boundary conditions for equation (\ref{eq:fieldEquationdeSitter}) come from the fact that $\widetilde{\theta}_\mathbf{k}$ needs to be continuous at the moment when expansion begins.
+            The boundary conditions for equation (\ref{eq:fieldEquationdeSitter}) come from the fact that $\widetilde{\theta}_\mathbf{k}$ needs to be continuous at the moment when expansion begins.
 
         \subsubsection{Particle Production} \label{sec:particleProduction}
 
-            The number of particles $N_k(t)$ produced at time $t$ with wave vector $\mathbf{k}$ is described by the equation
+            The number of particles $N_k(t)$ produced at time $t$ with wave-vector $\mathbf{k}$ is described by the equation
 
             \begin{equation} \label{eq:particleProduction}
                 N_k(t) = \left| u_k^{\text{out} *}(t) v_k^{\text{exp} *}(t) - v_k^{\text{out} *} u_k^{\text{exp} *}(t) \right|^2
@@ -239,10 +234,10 @@
 
             \begin{subequations} \label{eq:mixedFourierAmplitudes}
             \begin{equation}
-                u_k(t) = \frac{1}{2 \sqrt{n_0}} n_k(t) + i \sqrt{n_0} \widetilde{\theta}_k(t)
+                u_k(t) = \frac{1}{2 \sqrt{n_0}} \widetilde{n}_k(t) + i \sqrt{n_0} \widetilde{\theta}_k(t)
             \end{equation}
             \begin{equation}
-                v_k(t) = \frac{1}{2 \sqrt{n_0}} n_k(t) - i \sqrt{n_0} \widetilde{\theta}_k(t),
+                v_k(t) = \frac{1}{2 \sqrt{n_0}} \widetilde{n}_k(t) - i \sqrt{n_0} \widetilde{\theta}_k(t),
             \end{equation}
             \end{subequations}
 
@@ -252,13 +247,13 @@
                 \widetilde{n}_\mathbf{k} = - \frac{\hbar}{U} \partial_t \widetilde{\theta}_\mathbf{k}.
             \end{equation}
 
-            It might help to summarize the entire process of calculating the particle production in steps. To calculate the number of particles produced at position $\mathbf{x}$ and time $t$ with wave vector $\mathbf{k}$ looks like the following:
+            It might help to summarize the entire process of calculating the particle production in steps. To calculate the number of particles produced at position $\mathbf{x}$ and time $t$ with wave-vector $\mathbf{k}$ looks like the following:
 
             \begin{enumerate}
                 \item Solve the field equation (\ref{eq:fieldEquationdeSitter}) for $\widetilde{\theta}_\mathbf{k}(t)$
                 \item Differentiate $\widetilde{\theta}_\mathbf{k}(t)$ to get $\widetilde{n}_\mathbf{k}(t)$ as in equation (\ref{eq:densityFromPhase})
                 \item Combine $\widetilde{\theta}_\mathbf{k}(t)$ and $\widetilde{n}_\mathbf{k}(t)$ as in equations (\ref{eq:mixedFourierAmplitudes})
-                \item Calculate the number of particles at time $t$ with wave vector $\mathbf{k}$ as in equation (\ref{eq:particleProduction})
+                \item Calculate the number of particles at time $t$ with wave-vector $\mathbf{k}$ as in equation (\ref{eq:particleProduction})
             \end{enumerate}
 
     \subsection{Computational Implementation}
@@ -303,6 +298,12 @@
 
         \subsubsection{Particle Production}
 
+    \section{Results}
+
+    \section{Discussion}
+
+    \section{Conclusion}
+
         % \begin{figure}[h]
         %     \centering
         %     \includegraphics[width = 0.7\textwidth]{images/fig2.png}
@@ -324,7 +325,7 @@
     % Because previous investigations were less accurate but needed fewer computational resources and time, these results will be used to assess the efficiency of the two-dimensional model.  In other words, we aim to provide a quantitative description of whether or not the increased accuracy of the three-dimensional model warrants the extra theoretical and computational effort as compared to the two-dimensional model\cite{Jain}.
 
     % The final result of this work will be a packaged software that can be downloaded and used ``out of the box'', for free, by anyone that can run the program.  This level of accessibility is meant to disseminate this work to everybody that wants it.
-    
+
 
 % h) CitedliteratureorReferences(notincludedin 8-pagelimitation)
 \pagebreak
