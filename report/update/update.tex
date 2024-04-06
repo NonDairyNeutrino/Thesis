@@ -182,24 +182,38 @@
 
             Equation (\ref{eq:fieldEquationConformal}) governs the dynamics of oscillations in the BEC for a time-dependent speed of sound, and the behavior of the massless, spin-0 particles in an expanding universe.
                 
-\vfill
+        \subsubsection{Phononic \& Free-Particle Modes}
 
-            We can expand the phase $\Delta\theta(\mathbf{x}, t)$ and density $\Delta n(\mathbf{x}, t)$ perturbation fields in a Fourier plane-wave amplitude representation as 
+            The phase $\Delta\theta(t, \mathbf{x})$ and density $\Delta n(t, \mathbf{x})$ perturbation fields can be expanded in a Fourier plane-wave amplitude representation as 
 
             \begin{subequations} \label{eq:FourierExpansion}
             \begin{equation}
-                \Delta\theta(\mathbf{x}, t) = \frac{1}{\sqrt{V}} \sum_\mathbf{k} e^{i \mathbf{k} \cdot \mathbf{x}} \widetilde{\theta}_\mathbf{k}(t) \hat{b}_\mathbf{k}(t) + e^{-i \mathbf{k} \cdot \mathbf{x}} \widetilde{\theta}_\mathbf{k}^*(t) \hat{b}_\mathbf{k}^\dagger(t)
+                \Delta\theta(t, \mathbf{x}) = \frac{1}{\sqrt{V}} \sum_\mathbf{k} e^{i \mathbf{k} \cdot \mathbf{x}} \widetilde{\theta}_\mathbf{k}(t) \hat{b}_\mathbf{k}(t) + e^{-i \mathbf{k} \cdot \mathbf{x}} \widetilde{\theta}_\mathbf{k}^*(t) \hat{b}_\mathbf{k}^\dagger(t)
             \end{equation}
             \begin{equation}
-                \Delta n(\mathbf{x}, t) = \frac{1}{\sqrt{V}} \sum_\mathbf{k} e^{i \mathbf{k} \cdot \mathbf{x}} \widetilde{n}_\mathbf{k}(t) \hat{b}_\mathbf{k}(t) + e^{-i \mathbf{k} \cdot \mathbf{x}} \widetilde{n}_\mathbf{k}^*(t) \hat{b}_\mathbf{k}^\dagger(t)
+                \Delta n(t, \mathbf{x}) = \frac{1}{\sqrt{V}} \sum_\mathbf{k} e^{i \mathbf{k} \cdot \mathbf{x}} \widetilde{n}_\mathbf{k}(t) \hat{b}_\mathbf{k}(t) + e^{-i \mathbf{k} \cdot \mathbf{x}} \widetilde{n}_\mathbf{k}^*(t) \hat{b}_\mathbf{k}^\dagger(t)
             \end{equation}
             \end{subequations}
 
-            where $\mathbf{k}$ is the wave vector of the phase and density perturbations (does $\mathbf{k}$ physically represent something physically?), $\widetilde{\theta}_\mathbf{k}$ is the discrete Fourier Transform of the phase perturbation $\Delta \theta$, 
+            where $\mathbf{k}$ is the wave-vector of the phase and density perturbations, $\widetilde{\theta}$ is the discrete Fourier Transform of the phase perturbation, $\hat{b}$ and $\hat{b}^\dagger$ are the annhilation and creation operators, respectively.  From this, there arises two domains to consider\footnote{These domains can also be described as ``acoustic'' and ``Bogoliubov'', respectively.}: phononic quasiparticles with linear dispersion, and free-particle-like quasiparticles with quadratic dispersion.
 
-\newpage
-            
-            Equation (\ref{eq:fieldEquationConformal}) then becomes
+            The boundary between phononic and free-particle-like quasiparticles is described by the critical wave-number $k_c$.  The critical wave-number $k_c$ is defined\cite{Jain} in terms of the healing length of the BEC $\xi$, where
+
+            \begin{equation} \label{eq:healing}
+                \xi(t) = \frac{\hbar}{\sqrt{2} m c} = \xi_0 / \sqrt{a(t)},
+            \end{equation}
+
+            and
+
+            \begin{equation} \label{eq:critical}
+                k_c(t) = 1 / \xi(t) = \sqrt{a(t)} / \xi_0.
+            \end{equation}
+
+            Wave-vectors $\mathbf{k}$ with wave-number $k = ||\mathbf{k}||$ such that $k \ll k_c$ are called \emph{phononic}\footnote{Phononic quasiparticles have linear dispersion $\omega = c k$ characterized by neglecting quantum pressure.}.  Likewise, those with $k \gg k_c$ are called \emph{free-particle-like}\footnote{Free-particle-like quasiparticles have quadratic dispersion characterized by $\omega_k(t)^2 = \frac{k^2}{2m} \left(\frac{\hbar^2 k^2}{2m} + 2 U(t) n_0\right)$ characteried by including quantum-pressure}.
+
+            For phononic quasiparticles, the analog between a BEC and an inflationary cosmology is exact.  Inlcuding free-particle-like quasiparticles forces the analog to include `trans-Planckian' effects and analog Lorentz violation\cite{Jain}.  For these reasons, this investigation focuses only on phononic quasiparticles; namely wave-vectors $\mathbf{k}$ such that $||\mathbf{k}|| \ll k_c$.  Additionally, the free-particle-like regime has nonlinear dispersion which significantly increases the complexity of the field equation\cite{Jain}.
+
+            Only considering phononic modes, the two-dimensional field equation (eq. \ref{eq:fieldEquationConformal}) then becomes
 
             \begin{equation} \label{eq:fieldEquationConformalFourier}
                 \boxed{\partial_\eta^2 \widetilde{\theta}_\mathbf{k} - \frac{1}{2} \frac{\dot{a}(\eta)}{a(\eta)} \partial_\eta \widetilde{\theta}_\mathbf{k} - c_0^2 k^2 \widetilde{\theta}_\mathbf{k} = 0.}
