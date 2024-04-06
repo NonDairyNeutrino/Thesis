@@ -105,19 +105,21 @@
 
         \subsubsection{Setting up the Analog}
 
-            The gas as is outlined in section \ref{sec:intro} is called a ground-state Bose-Einstein condensate (BEC) without thermal or quantum fluctuations. The dynamics of this BEC are described by the Gross-Pitaevskii equation (GPE) under a Bogoliubov mean-field approximation (also known as the \textit{nonlinear Schr{\"o}dinger equation}),
+            The gas as is outlined in section \ref{sec:intro} is a ground-state Bose-Einstein condensate (BEC) without thermal or quantum fluctuations. The dynamics of the BEC are described by the Gross-Pitaevskii equation (GPE) under a Bogoliubov mean-field approximation (also known as the \textit{nonlinear Schr{\"o}dinger equation}),
             
             \begin{equation} \label{eq:GPE}
-                i \hbar \, \partial_t \psi(\mathbf{x}, t) = \left[ -\frac{\hbar^2}{2 m} \nabla^2 + V_\text{ext}(x) + U \left| \psi(\mathbf{x}, t) \right|^2 \right] \psi(\mathbf{x}, t).
+                i \hbar \, \partial_t \psi(t, \mathbf{x}) = \left[ -\frac{\hbar^2}{2 m} \nabla^2 + V_\text{ext}(x) + U \left| \psi(t, \mathbf{x}) \right|^2 \right] \psi(t, \mathbf{x}).
             \end{equation}
             
-            Using a linearized Madelung density-phase representation
+            The wave function $\psi$ can be expanded using a linearized Madelung density-phase representation
 
             \begin{equation} \label{eq:Madelung}
-                \psi(\mathbf{x}, t) = \sqrt{n_0 + \Delta n(\mathbf{x}, t)} e^{i \left( \theta_0 + \Delta\theta(\mathbf{x}, t) \right)},
+                \psi(t, \mathbf{x}) = \sqrt{n_0 + \Delta n(t, \mathbf{x})} e^{i \left( \theta_0 + \Delta\theta(t, \mathbf{x}) \right)},
             \end{equation}
 
-            where $n_0 + \Delta n(\mathbf{x}, t)$ is the linearized form of the real density field $n(\mathbf{x}, t)$ and $\theta_0 + \Delta\theta(\mathbf{x}, t)$ is the linearized form of the real phase field $n(\mathbf{x}, t)$, equation (\ref{eq:GPE}) becomes\cite{Jain} 
+            where $n_0 + \Delta n(t, \mathbf{x})$ and $\theta_0 + \Delta \theta(t, \mathbf{x})$ are the linearized forms of the real density and phase fields, respectively.  Furthermore, $\Delta n(t, \mathbf{x})$ and $\Delta \theta(t, \mathbf{x})$ are the density and phase perturbations, respectively.
+            
+            With the Madelung representation defined in equation (\ref{eq:Madelung}), the GPE in equation (\ref{eq:GPE}) becomes\cite{Jain} 
 
             \begin{equation} \label{eq:KG}
                 \frac{1}{\sqrt{-g}} \partial_\mu \left[ \sqrt{-g} g^{\mu \nu} \partial_\nu \Delta\theta \right] = 0,
@@ -130,10 +132,10 @@
                     -c^2 & \vdots & 0 \\
                     \cdots & & \cdots \\
                     0 & \vdots & \delta_{ij}
-                \end{bmatrix}
+                \end{bmatrix}.
             \end{equation}
 
-            can be interpreted as the covariant metric tensor (with determinant $g$) describing an analog, spatially flat, Friedmann–Lema{\^i}tre–Robertson–Walker universe, $c$ is the speed of sound in the condensate, and $d$ is the number of spatial dimensions.  Equation (\ref{eq:KG}) describes both the phase-perturbations $\Delta\theta$ of oscillations with low spatial frequency (i.e. low momentum phonons) in the BEC and also the dynamics of a quantum field that produces massless, spin-0 particles.
+            Equation (\ref{eq:metric}) can be interpreted as the covariant metric tensor (with determinant $g$) describing an analog, spatially flat, Friedmann–Lema{\^i}tre–Robertson–Walker universe, $c$ is the speed of sound in the condensate, and $d$ is the number of spatial dimensions.  Equation (\ref{eq:KG}) describes both the phase-perturbations $\Delta\theta$ of oscillations with low spatial frequency (i.e. low momentum phonons) in the BEC and also the dynamics of a quantum field that produces massless, spin-0 particles.
 
 \pagebreak
 
