@@ -24,6 +24,7 @@
 
     \begin{center}
     Abstract \\
+    Something abstract-like goes here
     % During the moments just after the Big Bang, particles were produced due to the rapid expansion of the universe. Because direct observation of the universe at this time is impossible, a lab-based ultra-cold quantum gas can be used as an analog.  Previous research has been done to computationally model these gases while restricted to a quasi-two-dimensional geometry.  This restriction yields an analog universe with two only spatial dimensions and a description of a reduced momentum distribution of the created particles.  A computational model simulating an unrestricted gas and an analog universe with three spatial dimensions requires the use of high-performance computing.  I aim to use high-performance computing to simulate the full-dimensional system. This will allow me to measure the error associated with using a reduced-dimensional model, and determine the cost-benefit ratio to using a high-performance implementation.
     %\begin{itemize}
     %     \item Provide insight into the dynamics of particles created due to the expansion of the universe in the moments just after the Big Bang.
@@ -93,10 +94,14 @@
     Computationally, simulations have had to investigate analog universes of reduced dimension due to the unreasonable time it takes to simulate full-dimensional systems without using high-performance computing.  These simulations have been deemed accurate enough as it is proposed that a full-dimensional simulation would yield qualitatively similar results.  In order to be confident in the level of accuracy of the reduced-dimensional simulations, those results need to be compared to those of a full-dimensional simulation.  This will not only allow a quantification of the error in the reduced-dimensional simulation, but also a measure of the error-to-resource efficiency of a full-dimensional simulation.
 
     Future insight into these analog systems and the fundamental properties of the early universe require computational support.  A readily-usable computational model will not only allow theoretical investigations to make predictions, but also allow experimental research to have a guide on where to go next and have something with which to compare.  The availability of this work is paramount to more efficient and more physically-accurate insight into our universe.
+
+\pagebreak
         
     I choose a gas with linear dispersion, analog massless and spin-0 particles, an analog universe undergoing a de Sitter expansion with zero background velocity.  The de Sitter spacetime is chosen because of its significance to modern cosmology and previously predicted particle production (as done by Hawking)\cite{de_Sitter_inhomogeneities, de_Sitter_particle_production_1, de_Sitter_particle_production_2}. Particle production will be calculated with standard methods\cite{particle_production_1, particle_production_2}.  The numerical parameters chosen in this study also follow from previous studies\cite{parameters}.  Computational implementations will be done using high-performance methods.
 
 \section{Methods}
+
+    The methods used in this investigation fall into two different categories: the physical theory of the production of phononic quasiparticles in analog inflationary cosmologies arising from the dynamics of Bose-Einstein condensates, and the computational implementations of high-performance methods such as adaptive integration, finite-differences on non-uniform grids, discretizing differential operators, and the Fast-Fourier Transform.
 
     \subsection{Physical Theory}
 
@@ -174,6 +179,8 @@
             \begin{equation} \label{eq:fieldEquationConformal}
                 \partial_\eta^2 \Delta\theta - \frac{1}{2} \frac{\dot{a}(\eta)}{a(\eta)} \partial_\eta \Delta\theta - c_0^2 \nabla^2 \Delta\theta = 0.
             \end{equation}
+
+\vfill
 
             Equation (\ref{eq:fieldEquationConformal}) governs the dynamics of oscillations in the BEC for a time-dependent speed of sound, and the behavior of the massless, spin-0 particles in an expanding universe.
                 
@@ -254,34 +261,20 @@
             \end{equation}
             \end{subequations}
 
-            ``out'' and ``exp'' corresponding to regions of spacetime outside of and inside the expansion of the universe, and the density field Fourier plane wave amplitude is given by 
+            ``out'' and ``exp'' corresponding to regions of spacetime outside of and inside the expansion of the universe.
 
-            \begin{equation} \label{eq:densityFromPhase}
-                \widetilde{n}_\mathbf{k} = - \frac{\hbar}{U} \partial_t \widetilde{\theta}_\mathbf{k}.
-            \end{equation}
-
-            It might help to summarize the entire process of calculating the particle production in steps. To calculate the number of particles produced at position $\mathbf{x}$ and time $t$ with wave-vector $\mathbf{k}$ looks like the following:
+            To summarize, to calculate the number of particles produced at position $\mathbf{x}$ and time $t$ with wave-vector $\mathbf{k}$ looks like the following:
 
             \begin{enumerate}
-                \item Solve the field equation (\ref{eq:fieldEquationdeSitter}) for $\widetilde{\theta}_\mathbf{k}(t)$
-                \item Differentiate $\widetilde{\theta}_\mathbf{k}(t)$ to get $\widetilde{n}_\mathbf{k}(t)$ as in equation (\ref{eq:densityFromPhase})
+                \item Solve the field equation (\ref{eq:fieldEquationConformalFourier}) for $\widetilde{\theta}_\mathbf{k}(t)$
+                \item Differentiate $\widetilde{\theta}_\mathbf{k}(t)$ to get $\widetilde{n}_\mathbf{k}(t)$ as in equation (\ref{eq:conditionDerivative})
                 \item Combine $\widetilde{\theta}_\mathbf{k}(t)$ and $\widetilde{n}_\mathbf{k}(t)$ as in equations (\ref{eq:mixedFourierAmplitudes})
                 \item Calculate the number of particles at time $t$ with wave-vector $\mathbf{k}$ as in equation (\ref{eq:particleProduction})
             \end{enumerate}
 
-    \subsection{Computational Implementation}
+\pagebreak
 
-        \begin{enumerate}
-            \item non-dimensionalize parameters
-            \item pre-integrate conformal time from lab time
-            \item find finite-difference coefficients for any order and scale
-            \item discretize field operator as GPU-based sparse matrix (\verb|cuSPARSE|) of finite-difference coefficients
-            \item solve discretized field equation using multi-GPU-based sparse-matrix equation solver (\verb|cuSOLVER|)
-            \item optionally take the GPU-based GPU-based inverse-fft (\verb|cuFFT|) to get phase and density perturbations to get wave function
-            \item differentiate the solution using high-accuracy finite-differences to get density perturbation
-            \item combine to get particle production for a single k
-            \item repeat/parallelize 4-8 for all k under critical k
-        \end{enumerate}
+    \subsection{Computational Implementation}
 
         \subsubsection{Non-Dimensionalized Parameters}
 
@@ -297,19 +290,37 @@
 
             which holds up to a constant.
 
-            This integral can be evluated numerically using an adaptive Gauss-Kronrod quadrature algorithm\cite{quadgk}.  Routines for Gauss–Kronrod quadrature are provided by the QUADPACK library, the GNU Scientific Library, the NAG Numerical Libraries, R, the C++ library Boost., as well as the Julia package QuadGK.jl (which can compute Gauss–Kronrod formulas to arbitrary precision).  The Wolfram Language's \verb|NIntegrate| function uses Gauss-Kronrod quadrature for one-dimensional integrals\cite{GKQuad}.
+            This integral can be evluated numerically using an adaptive Gauss-Kronrod quadrature algorithm\cite{quadgk}.  Routines for Gauss-Kronrod quadrature are provided by the QUADPACK library, the GNU Scientific Library, the NAG Numerical Libraries, R, the C++ library Boost., as well as the Julia package QuadGK.jl (which can compute Gauss-Kronrod formulas to arbitrary precision).  The Wolfram Language's \verb|NIntegrate| function uses Gauss-Kronrod quadrature for one-dimensional integrals\cite{GKQuad}.
+
+            =======INCLUDE DISCUSSION ON ERROR=======
+
+\pagebreak
 
         \subsubsection{Finite Difference Coefficients}
+
+            Find finite difference coefficients on non-uniform grids (because conformal time is non-uniform from integration) using algorithms from literature\cite{FiniteDifferences}.
 
         \subsubsection{Discretized Operator}
 
         \subsubsection{Field Matrix Equation}
 
+            solve discretized field equation using multi-GPU-based sparse-matrix equation solver (\verb|cuSOLVER|)
+
         \subsubsection{Wave Function}
+
+            take the GPU-based GPU-based inverse-fft (\verb|cuFFT|) to get phase and density perturbations to get wave function
 
         \subsubsection{Density Perturbation}
 
+            differentiate the solution using high-accuracy finite-differences to get density perturbation
+
         \subsubsection{Particle Production}
+
+            combine to get particle production for a single k
+
+        \subsubsection{All phononic modes}
+
+            repeat/parallelize 4-8 for all k under critical $k_c$
 
     \section{Results}
 
