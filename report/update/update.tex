@@ -220,7 +220,20 @@
                 \partial_\eta^2 \widetilde{\theta}_\mathbf{k} - \frac{1}{\eta} \partial_\eta \widetilde{\theta}_\mathbf{k} + c_0^2 k^2 \widetilde{\theta}_\mathbf{k} = 0,
             \end{equation}
 
-            The boundary conditions for equation (\ref{eq:fieldEquationdeSitter}) come from the fact that $\widetilde{\theta}_\mathbf{k}$ needs to be continuous at the moment when expansion begins.
+        \subsubsection{Initial Conditions}
+
+            As the phase and density perturbations need to be continuous at $t = 0$ when the expansion begins, the initial conditions i.e. spacetime boundary conditions are defined by this physical conservation.  Therefore
+
+            \begin{subequations}
+                \begin{equation} \label{eq:conditionValue}
+                    \widetilde{\theta}_\mathbf{k}(t = 0) = \widetilde{\theta}_{\mathbf{k}0}
+                \end{equation}
+                \begin{equation} \label{eq:conditionDerivative}
+                    \partial_t \widetilde{\theta}_\mathbf{k}(t = 0) = -\frac{U}{\hbar} \widetilde{n}_{\mathbf{k}0}
+                \end{equation}
+            \end{subequations}
+
+            where the initial derivative of the phase perturbation's Fourier amplitude (eq. \ref{eq:conditionDerivative}) is determined by neglecting the quantum pressure\cite{Jain}.
 
         \subsubsection{Particle Production} \label{sec:particleProduction}
 
