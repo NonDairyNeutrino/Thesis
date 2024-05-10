@@ -302,6 +302,35 @@
 
         \subsubsection{Discretized Operator}
 
+            Because the field equation (eq. \ref{eq:fieldEquationConformalFourier}) is linear, it can be rewritten in ``operator form'' as
+
+            \begin{equation} \label{eq:operator}
+                \left[\partial_\eta^2 - \frac{1}{2} \frac{\dot{a}(\eta)}{a(\eta)} \partial_\eta - c_0^2 k^2 \right] \widetilde{\theta}_\mathbf{k} = 0.
+            \end{equation}
+
+            Representating the field equation in operator form naturally lends itself to being discretized as
+
+            \begin{equation} \label{eq:operatordiscretized}
+                \begin{bmatrix}
+                    D_{00} & D_{01} & \ldots & D_{0N} \\
+                    D_{10} & D_{11} & \ldots & D_{1N} \\
+                    \vdots & \vdots & \vdots & \vdots \\
+                    D_{N0} & D_{N1} & \ldots & D_{NN} \\
+                \end{bmatrix} \begin{bmatrix}
+                    \widetilde{\theta}_\mathbf{k}(\eta_0) \\
+                    \widetilde{\theta}_\mathbf{k}(\eta_1) \\
+                    \vdots \\
+                    \widetilde{\theta}_\mathbf{k}(\eta_N) \\
+                \end{bmatrix} = \begin{bmatrix}
+                    0 \\
+                    0 \\
+                    \vdots \\
+                    0 \\
+                \end{bmatrix}.
+            \end{equation}
+
+            Can use GPU-based sparse matrix via \verb|cuSPARSE|
+
         \subsubsection{Field Matrix Equation}
 
             solve discretized field equation using multi-GPU-based sparse-matrix equation solver (\verb|cuSOLVER|)
