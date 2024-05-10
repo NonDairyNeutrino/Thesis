@@ -1,0 +1,7 @@
+Title: Production of Massless Spin-0 Phonons in Analog (3+1) Inflationary Cosmologies Using High-Performance Finite-Differences
+
+Short Title: High-Performance Computing for Particle Production in Analog Universes
+
+Abstract: 
+
+Our current model of physics suggests particles were spontaneously produced at the beginning of the universe during a period of rapid expansion.  The mathematical model of this production exactly matches that of quantum systems able to be realized experimentally.  In order to guide and support both theoretical investigations in quantum cosmology, and experimental research in ultra-cold quantum gases, a computational model is needed.  While traditional computing methods have been previously applied on approximate physical models, high-performance computing methods needs to be used when considering a more accurate physical model.  These new methods have reproduced traditionally-found results considering a de Sitter expansion.  As the implementation supports an arbitrary expansion, preliminary results have been found for notable cosmologies.
