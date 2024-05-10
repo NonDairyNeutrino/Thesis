@@ -1,0 +1,164 @@
+\documentclass[aspectratio=169]{beamer}
+\beamertemplatenavigationsymbolsempty
+
+\usepackage{parskip, setspace}
+\setstretch{1.25}
+
+\usepackage{biblatex}
+\addbibresource{bib.bib}
+% math formatting
+\usepackage{amsmath, amsfonts, braket}
+% \numberwithin{equation}{section}
+% rich text
+\usepackage{graphicx, caption}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,  
+    urlcolor=blue,
+    citecolor=blue,
+    pdftitle={Chapman SOURCE 2024},
+    pdfpagemode=FullScreen,
+}
+
+\usepackage[ruled,linesnumbered,lined,boxed,commentsnumbered]{algorithm2e}
+
+\usetheme{Madrid}
+\title[Particle Production]{Modelling Particle Production in Analog Expanding Universes with High-Performance Computing}
+% \subtitle{}
+
+\author[Chapman, Nathan]{Nathan Chapman}
+
+\institute[CWU]
+{
+  Department of Computer Science \\
+  Department of Physics \\
+  Central Washington University
+%   \and
+%   \inst{2}%
+%   Faculty of Chemistry\\
+%   Very Famous University
+}
+
+\date[SOURCE 2024]{CWU SOURCE 2024}
+
+\logo{\includegraphics[height=0.5cm]{images/cwu_logo.png}}
+
+\begin{document}
+
+\frame{\titlepage}
+
+\begin{frame}
+    \frametitle{Introduction}
+
+    \begin{enumerate}
+        \item Big Bang and rapid expansion $\implies$ could observe particles
+        \item Big Bang was 14 billion years ago $\implies$ we can't observe particles
+        \item Condensed matter dynamics match particle dynamics (see Methods)
+        \item Can make condensed matter in the lab $\implies$ can effectively observe Big Bang particles
+        \item Lab based condensed matter system = ``analog universe''
+    \end{enumerate}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Related Work}
+
+    Previous research has been done investigating a variety of different systems
+        \begin{enumerate}
+            \item ``Hyper-phononic'' quasiparticles and Lorentz Violation%\cite{Nonlinear_dispersion_Lorentz_breaking_1, Nonlinear_dispersion_Lorentz_breaking_2, Nonlinear_dispersion_Lorentz_breaking_3}
+            \item Analog massive particles%\cite{massive_1, massive_2, massive_3}
+            \item Analog particles with non-zero quantum spin%\cite{massive_and_spin_4, massive_and_spin_5, massive_and_spin_6, massive_and_spin_7}
+            \item Analog universes with different expansion behavior%\cite{sudden_transition_1, sudden_transition_2, cyclic_cosmology, Experimental_interaction_strength_1}
+            \item Analog universes with non-zero background velocity%\cite{background_velocity_1, background_velocity_2, background_velocity_3, background_velocity_4, background_velocity_5}
+            \item Experimental realizations (some extremely relevant and recent)%\cite{Experimental_candidate_1, Experimental_candidate_2, Experimental_interaction_strength_1, Experimental_interaction_strength_2}
+        \end{enumerate}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{This Work}
+
+    My focus is on
+        \begin{enumerate}
+            \item (3+1)D analog universe with high-performance computing
+            \item linear dispersion \& phononic quasiparticle
+            \item analog massless particles
+            \item analog spin-0 particles
+            \item analog de Sitter expansion
+            \item no background velocity
+        \end{enumerate}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Physical Theory - The Analog}
+
+    The field equation describes the behavior of
+
+    \begin{itemize}
+        \item quantum system in the lab
+        \item particles produced just after the Big Bang
+    \end{itemize}
+
+    \begin{exampleblock}{\centering The Field Equation}
+        \begin{equation}
+            \begin{split}
+            \partial_\eta^2 \widetilde{\theta}_\mathbf{k} - \frac{1}{2} \frac{\dot{a}(\eta)}{a(\eta)} \partial_\eta \widetilde{\theta}_\mathbf{k} - c_0^2 k^2 \widetilde{\theta}_\mathbf{k} = 0 \\
+            \widetilde{\theta}_\mathbf{k}(0) = \widetilde{\theta}_{\mathbf{k}0} \quad \partial_\eta \widetilde{\theta}_\mathbf{k}(0) = -U_0/\hbar n_\mathbf{k}
+            \end{split}
+        \end{equation}
+    \end{exampleblock}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Physical Theory - Speed \& Expansion}
+
+    \begin{itemize}
+        \item Speed of sound in BEC = Speed of light in analog universe
+        \item Light speed decrease \& static universe $\iff$ constant light speed \& expanding universe
+        \item Sound speed decrease \& static gas      $\iff$ constant sound speed \& expanding gas
+        \item Example: $t = d/v$
+        \begin{itemize}
+            \item Distance to grocery store doubles $\implies$ time it takes doubles
+            \item Speed to the grocery store halves $\implies$ time it takes doubles
+        \end{itemize}
+    \end{itemize}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Results}
+
+    
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Discussion}
+
+    
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Conclusion}
+
+    
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Acknowledgements}
+
+    \begin{itemize}
+        \item Dr. Andy Piacsek
+        \item Dr. Szilard VAJDA
+        \item Dr. Micheal Braunstein
+    \end{itemize}
+
+\end{frame}
+
+\end{document}
