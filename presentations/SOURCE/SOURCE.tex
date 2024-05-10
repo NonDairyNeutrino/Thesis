@@ -48,7 +48,7 @@
 \begin{document}
 
 \frame{\titlepage}
-
+\section{Introduction}
 \begin{frame}
     \frametitle{Introduction}
 
@@ -91,30 +91,10 @@
         \end{enumerate}
 
 \end{frame}
-
+\section{Theory}
+\subsection{Speed \& Expansion}
 \begin{frame}
-    \frametitle{Physical Theory - The Analog}
-
-    The field equation describes the behavior of
-
-    \begin{itemize}
-        \item quantum system in the lab
-        \item particles produced just after the Big Bang
-    \end{itemize}
-
-    \begin{exampleblock}{\centering The Field Equation}
-        \begin{equation}
-            \begin{split}
-            \partial_\eta^2 \widetilde{\theta}_\mathbf{k} - \frac{1}{2} \frac{\dot{a}(\eta)}{a(\eta)} \partial_\eta \widetilde{\theta}_\mathbf{k} - c_0^2 k^2 \widetilde{\theta}_\mathbf{k} = 0 \\
-            \widetilde{\theta}_\mathbf{k}(0) = \widetilde{\theta}_{\mathbf{k}0} \quad \partial_\eta \widetilde{\theta}_\mathbf{k}(0) = -U_0/\hbar n_\mathbf{k}
-            \end{split}
-        \end{equation}
-    \end{exampleblock}
-
-\end{frame}
-
-\begin{frame}
-    \frametitle{Physical Theory - Speed \& Expansion}
+    \frametitle{Theory - Speed \& Expansion}
 
     \begin{itemize}
         \item Speed of sound in BEC = Speed of light in analog universe
@@ -122,9 +102,61 @@
         \item Sound speed decrease \& static gas      $\iff$ constant sound speed \& expanding gas
         \item Example: $t = d/v$
         \begin{itemize}
-            \item Distance to grocery store doubles $\implies$ time it takes doubles
-            \item Speed to the grocery store halves $\implies$ time it takes doubles
+            \item Distance to grocery store doubles $\implies$ travel time doubles
+            \item Speed to the grocery store halves $\implies$ travel time doubles
         \end{itemize}
+    \end{itemize}
+
+\end{frame}
+\subsection{Mathematical Model}
+\begin{frame}
+    \frametitle{Theory - The Field Equation}
+    
+    \begin{itemize}
+        \item The field equation describes the behavior of
+
+            \begin{itemize}
+                \item a gas of quantum particles made in the lab
+                \item particles produced just after the Big Bang
+            \end{itemize}
+
+        \item For each 3D wave vector $\mathbf{k}$ such that $||\mathbf{k}|| < k_c$ and $\hbar^2 k_c^2 / 2 m = U n_0$
+        \item Universe expansion starts and stops at finite times $\implies \eta_i \leq \eta \leq \eta_f$
+    \end{itemize}
+    
+
+    \begin{exampleblock}{\centering The Field Equation}
+        \begin{subequations}
+            \begin{equation}
+                \partial_\eta^2 \widetilde{\theta}_\mathbf{k} - \frac{1}{2} \frac{\dot{a}(\eta)}{a(\eta)} \partial_\eta \widetilde{\theta}_\mathbf{k} 
+            - c_0^2 k^2 \widetilde{\theta}_\mathbf{k} = 0
+            \end{equation}
+            \begin{equation}
+                \widetilde{\theta}_\mathbf{k}(0) = \widetilde{\theta}_{\mathbf{k}0} \quad \partial_\eta \widetilde{\theta}_\mathbf{k}(0) = -\frac{U_0}{\hbar} n_\mathbf{k}
+            \end{equation}
+        \end{subequations}
+    \end{exampleblock}
+
+\end{frame}
+\subsection{Computational Model}
+\begin{frame}
+    \frametitle{Theory - Numerical Integrator}
+
+    \begin{itemize}
+        \item Energy needs to be conserved $\implies$ use symplectic integrator (McAte5)
+        \item psuedo code for McAte5 algorithm2e
+        \item error calculations
+    \end{itemize}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Theory - Computational Implementation}
+
+    \begin{itemize}
+        \item Parallel - CPU
+        \item Parallel - GPU
+        \item Use supercomputer
     \end{itemize}
 
 \end{frame}
@@ -158,6 +190,13 @@
         \item Dr. Szilard VAJDA
         \item Dr. Micheal Braunstein
     \end{itemize}
+
+\end{frame}
+
+\begin{frame}[allowframebreaks,t]
+    \frametitle{\bibname}
+    \nocite{*}
+    \printbibliography
 
 \end{frame}
 
