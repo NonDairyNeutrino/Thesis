@@ -1,5 +1,6 @@
 \documentclass[aspectratio=169]{beamer}
 \beamertemplatenavigationsymbolsempty
+\usepackage{qrcode}
 
 \usepackage{parskip, setspace}
 \setstretch{1.25}
@@ -14,7 +15,7 @@
 \usepackage{hyperref}
 \usepackage{xcolor}
 \hypersetup{
-    colorlinks=true,
+    colorlinks=false,
     linkcolor=black,  
     urlcolor=blue,
     citecolor=blue,
@@ -48,7 +49,15 @@
 \begin{document}
 
 \frame{\titlepage}
+\begin{frame}
+    \frametitle{Table of Contents}
+
+    \tableofcontents
+
+\end{frame}
+
 \section{Introduction}
+\subsection{}
 \begin{frame}
     \frametitle{Introduction}
 
@@ -98,8 +107,7 @@
 
     \begin{itemize}
         \item Speed of sound in BEC = Speed of light in analog universe
-        \item Light speed decrease \& static universe $\iff$ constant light speed \& expanding universe
-        \item Sound speed decrease \& static gas      $\iff$ constant sound speed \& expanding gas
+        \item Speed decrease \& static volume $\iff$ constant speed \& expanding volume
         \item Example: $t = d/v$
         \begin{itemize}
             \item Distance to grocery store doubles $\implies$ travel time doubles
@@ -141,44 +149,109 @@
 \subsection{Computational Model}
 \begin{frame}
     \frametitle{Theory - Numerical Integrator}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{itemize}
+                \item Conserve energy $\implies$ Use symplectic integrator
+                \item $a_m, b_m$ define optimality
+                \item[]
+                \item $\dfrac{\text{5th order McAte5 error}}{\text{4th order Ruth (1990) error}} \approx 3\%$
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \centering McAte5 Symplectic Integrator \\ $1 \leq i \leq 5$
+            \begin{align}
+                \mathbf{p}_i &= \mathbf{p}_0 + k \sum_{m = 1}^i b_m \mathbf{F}(\mathbf{q}_{m - 1}) \\
+                \mathbf{q}_i &= \mathbf{q}_0 + k \sum_{m = 1}^i a_m \mathbf{P}(\mathbf{p}_{m})
+            \end{align}
+        \end{column}
+    \end{columns}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Theory - High-Performance Computing}
+
+    \begin{columns}
+        \column{0.5\textwidth}
+            \begin{itemize}
+                \item Field equation for each $k < k_c$
+                \item Solve in parallel with multiple GPUs
+                \item Use the CWU ``Turing'' supercomputer
+                \item 4x4 NVIDA P100 GPUs - Each 10.6 TFLOPS of single-precision (FP32) performance
+                \item 180 GBps GPU-GPU bandwidth
+                \item 80 GBps GPU-CPU bandwidth
+            \end{itemize}
+        \column{0.5\textwidth}
+            \begin{figure}[h]
+                \centering
+                \includegraphics[width=0.65\textwidth]{images/NVLink.png}
+                \caption{CPU to GPU and GPU to GPU interconnect using NVLink}
+            \end{figure}
+    \end{columns}
+
+\end{frame}
+\section{Analytic Results}
+\subsection{Final Time Distribution}
+\begin{frame}
+    \frametitle{Analytic Results - de Sitter Expansion}
+
+    de Sitter expansion: $a(t) = e^{-t/t_s}$
+    \begin{columns}
+        \begin{column}{.5\textwidth}
+            \vspace{-0.5in}
+            \begin{itemize}
+                \item Population distribution highly depends on length of expansion
+                \item Population is relatively high for low $k$
+                \item Population drops off quickly with $k$
+            \end{itemize}
+        \end{column}
+        \begin{column}{.5\textwidth}
+            \begin{figure}[h]
+                \centering
+                \includegraphics[width=\textwidth]{images/fig2.png}
+                \caption{The momentum distribution when the universe stops expanding for multiple effective \\ rates of expansion}
+                \label{fig:finalTime}
+            \end{figure}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\subsection{All Time Distribution}
+\begin{frame}
+    \frametitle{Analytic Results - de Sitter Expansion}
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.5\textwidth]{images/Analytic_Fig_4.png}
+        \caption{Momentum distribution throughout the expansion}
+        \label{fig:allTime}
+    \end{figure}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Discussion - Why High-Performance Computing?}
 
     \begin{itemize}
-        \item Energy needs to be conserved $\implies$ use symplectic integrator (McAte5)
-        \item psuedo code for McAte5 algorithm2e
-        \item error calculations
+        \item Analytic methods $\implies$ simple expansions
+        \item Numeric methods $\implies$ complex expansions
+        \item Complex expansions $\implies$ High-performance computational model
     \end{itemize}
-
-\end{frame}
-
-\begin{frame}
-    \frametitle{Theory - Computational Implementation}
-
-    \begin{itemize}
-        \item Parallel - CPU
-        \item Parallel - GPU
-        \item Use supercomputer
-    \end{itemize}
-
-\end{frame}
-
-\begin{frame}
-    \frametitle{Results}
-
-    
-
-\end{frame}
-
-\begin{frame}
-    \frametitle{Discussion}
-
-    
 
 \end{frame}
 
 \begin{frame}
     \frametitle{Conclusion}
 
-    
+    \begin{itemize}
+        \item A lot of work has been done into the theory of analog universes for different systems
+        \item A computational model is needed to provide guidance and support to both theory and experiment
+        \item The behavior of particles created from the expansion of the universe is the same as particles in the lab
+        \item Need to solve the equation of motion for many different parameters
+        \item Need to support a general, complex expansion
+        \item Use high-performance techniques and hardware for reasonable execution time
+    \end{itemize}
 
 \end{frame}
 
@@ -186,18 +259,36 @@
     \frametitle{Acknowledgements}
 
     \begin{itemize}
-        \item Dr. Andy Piacsek
-        \item Dr. Szilard VAJDA
-        \item Dr. Micheal Braunstein
+        \item Dr. Andy Piacsek (CWU)
+        \item Dr. Szilard VAJDA (CWU)
+        \item Dr. Micheal Braunstein (CWU)
+        \item Dr. Brandon Peden (WWU)
     \end{itemize}
 
 \end{frame}
 
-\begin{frame}[allowframebreaks,t]
+\begin{frame}{Thank you \& Code source}
+    \begin{columns}[onlytextwidth]
+        \begin{column}{.5\textwidth}
+            Thank you for your attention.
+            \vspace*{0.1\textheight} \\
+            The code for this project is available at:
+            \begin{itemize}
+                \item GitHub (QR code): \url{github.com/nondairyneutrino/thesis}
+                \item My website: \url{nathanwchapman.com}
+            \end{itemize}
+        \end{column}
+        \begin{column}{.5\textwidth}
+            \centering
+            \qrcode[height=0.67\textheight]{https://github.com/nondairyneutrino/thesis}
+        \end{column}
+    \end{columns}
+    \end{frame}
+
+\begin{frame}[allowframebreaks]
     \frametitle{\bibname}
     \nocite{*}
     \printbibliography
-
 \end{frame}
 
 \end{document}
