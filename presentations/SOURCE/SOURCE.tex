@@ -49,12 +49,12 @@
 \begin{document}
 
 \frame{\titlepage}
-\begin{frame}
-    \frametitle{Table of Contents}
+% \begin{frame}
+%     \frametitle{Table of Contents}
 
-    \tableofcontents
+%     \tableofcontents
 
-\end{frame}
+% \end{frame}
 
 \section{Introduction}
 \subsection{}
@@ -62,11 +62,11 @@
     \frametitle{Introduction}
 
     \begin{enumerate}
-        \item Big Bang and rapid expansion $\implies$ could observe particles
-        \item Big Bang was 14 billion years ago $\implies$ we can't observe particles
-        \item Condensed matter dynamics match particle dynamics (see Methods)
-        \item Can make condensed matter in the lab $\implies$ can effectively observe Big Bang particles
-        \item Lab based condensed matter system = ``analog universe''
+        \item Big Bang caused particles to be created out of nothing
+        \item Can't measure these now
+        \item The behavior of certain quantum systems matches the behavior of these particles
+        \item Can make these quantum systems in the lab $\implies$ can \emph{effectively} observe Big Bang particles
+        \item Lab based system = ``analog universe''
     \end{enumerate}
 
 \end{frame}
@@ -95,7 +95,7 @@
             \item linear dispersion \& phononic quasiparticle
             \item analog massless particles
             \item analog spin-0 particles
-            \item analog de Sitter expansion
+            % \item analog de Sitter expansion
             \item no background velocity
         \end{enumerate}
 
@@ -106,7 +106,7 @@
     \frametitle{Theory - Speed \& Expansion}
 
     \begin{itemize}
-        \item Speed of sound in BEC = Speed of light in analog universe
+        \item Speed of sound in quantum system = Speed of light in analog universe
         \item Speed decrease \& static volume $\iff$ constant speed \& expanding volume
         \item Example: $t = d/v$
         \begin{itemize}
@@ -128,8 +128,8 @@
                 \item particles produced just after the Big Bang
             \end{itemize}
 
-        \item For each 3D wave vector $\mathbf{k}$ such that $||\mathbf{k}|| < k_c$ and $\hbar^2 k_c^2 / 2 m = U n_0$
-        \item Universe expansion starts and stops at finite times $\implies \eta_i \leq \eta \leq \eta_f$
+        \item For each 3D wave vector $\mathbf{k}$ such that $||\mathbf{k}|| < k_c$ % and $\hbar^2 k_c^2 / 2 m = U n_0$
+        \item Universe expansion starts and stops at finite times % $\implies \eta_i \leq \eta \leq \eta_f$
     \end{itemize}
     
 
@@ -152,8 +152,8 @@
     \begin{columns}
         \begin{column}{0.5\textwidth}
             \begin{itemize}
-                \item Conserve energy $\implies$ Use symplectic integrator
-                \item $a_m, b_m$ define optimality
+                \item Conserve energy $\implies$ Use stable algorithm
+                \item $a_m, b_m$ are defined numerically for optimality
                 \item[]
                 \item $\dfrac{\text{5th order McAte5 error}}{\text{4th order Ruth (1990) error}} \approx 3\%$
             \end{itemize}
@@ -173,19 +173,20 @@
     \frametitle{Theory - High-Performance Computing}
 
     \begin{columns}
-        \column{0.5\textwidth}
+        \column{0.6\textwidth}
+            \setstretch{1.5}
             \begin{itemize}
                 \item Field equation for each $k < k_c$
-                \item Solve in parallel with multiple GPUs
+                \item Use Julia to solve in parallel with multiple GPUs
                 \item Use the CWU ``Turing'' supercomputer
-                \item 4x4 NVIDA P100 GPUs - Each 10.6 TFLOPS of single-precision (FP32) performance
+                \item 4x4 NVIDA P100 GPUs - Each 83\% performance of modern RTX 3060
                 \item 180 GBps GPU-GPU bandwidth
-                \item 80 GBps GPU-CPU bandwidth
+                \item 80 GBps (NVLink) GPU-CPU bandwidth
             \end{itemize}
-        \column{0.5\textwidth}
+        \column{0.4\textwidth}
             \begin{figure}[h]
                 \centering
-                \includegraphics[width=0.65\textwidth]{images/NVLink.png}
+                \includegraphics[width=0.8\textwidth]{images/NVLink.png}
                 \caption{CPU to GPU and GPU to GPU interconnect using NVLink}
             \end{figure}
     \end{columns}
@@ -201,6 +202,7 @@
         \begin{column}{.5\textwidth}
             \vspace{-0.5in}
             \begin{itemize}
+                \item Use Mathematica for simple analytic results
                 \item Population distribution highly depends on length of expansion
                 \item Population is relatively high for low $k$
                 \item Population drops off quickly with $k$
@@ -248,7 +250,7 @@
         \item A lot of work has been done into the theory of analog universes for different systems
         \item A computational model is needed to provide guidance and support to both theory and experiment
         \item The behavior of particles created from the expansion of the universe is the same as particles in the lab
-        \item Need to solve the equation of motion for many different parameters
+        \item Need to find the behavior for many different cases
         \item Need to support a general, complex expansion
         \item Use high-performance techniques and hardware for reasonable execution time
     \end{itemize}
