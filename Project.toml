@@ -1,3 +1,18 @@
+name = "ParticleProduction"
+uuid = "9bf43886-47a1-4200-8895-38046e749360"
+authors = ["nondairyneutrino <nathaniel.chapman@cwu.edu> and contributors"]
+version = "1.0.0-DEV"
+
 [deps]
-GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
+CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
+DiffEqGPU = "071ae1c0-96b5-11e9-1965-c90190d839ea"
 OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
