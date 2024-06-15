@@ -1,0 +1,11 @@
+- Physical
+	- Quantum fields in curved spacetime for massless, spin-0 ([[introduction]]) quasiparticles
+	- Bogoliubov mean field approach & the Gross-Pitaevskii with the density-phase representation
+- Mathematical
+	- Field equation
+	- phononic k < k_c
+	- 0 <= t <= t_f
+- Computational
+	- Symplectic integrator
+	- Parareal on GPU
+	- HPC Hardware including the CWU supercomputer and its 12 GPUs
