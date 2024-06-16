@@ -104,32 +104,102 @@
 
 \end{frame}
 
-\section{Theory}
-\subsection{Speed \& Expansion}
+\section{Methods}
+
 \begin{frame}
-    \frametitle{Methods - Speed \& Expansion}
+    \frametitle{Methods - Physical}
+
+    % \begin{itemize}
+    %     \item Excited quantum fields in curved spacetime: \\ massless, spin-0 quasiparticles arising from a non-unique Fock vacuum
+    %     \item Phase perturbations in ultra-cold quantum gas: \\ ground state Bose-Einstein condensate without thermal or quanutm fluctuations
+    %     \item Wave to particle transition: Trans-phononic cutoff (free-particle can be modeled by including quantum fluctuations)
+    %     \item Analog expansion comes from speed-space degeneracy
+    % \end{itemize}
+
     \begin{columns}
         \begin{column}{0.5\textwidth}
-            \begin{itemize}
-                \item <1->Speed of sound in quantum gas =\\ Speed of light in analog universe
-                \item <2->Speed decrease \& static volume $\iff$ constant speed \& expanding volume
-                \item <3->Example: $t = d/v$
-                \begin{itemize}
-                    \item Distance to grocery store doubles $\implies$ travel time doubles
-                    \item Speed to the grocery store halves $\implies$ travel time doubles
-                \end{itemize}
-            \end{itemize}
+            \centering \underline{Cosmological}
+            \begin{enumerate}
+                \item Spacetime
+                    \begin{itemize}
+                        \item increase in spatial-volume (inflation)
+                        \item constant speed of light
+                    \end{itemize}
+                \item Observer dependent quantum field excitations
+                \item Spontaneous particle production
+            \end{enumerate}
+            \begin{block}{}
+                Inflation determines particle momentum
+            \end{block}
         \end{column}
         \begin{column}{0.5\textwidth}
-            \vspace{0.3in}
-            \begin{figure}
-                \centering
-                \includegraphics[width=\textwidth]{images/Untitled presentation.png}
-                \caption{Travel time can be doubled by either doubling distance or halving speed}
-            \end{figure}
+            \centering \underline{Condensed Matter}
+            \begin{enumerate}
+                \item Bose-Einstein condensate
+                \begin{itemize}
+                    \item fixed volume
+                    \item decreasing speed of sound
+                \end{itemize}
+                \item Oscillatory phase perturbations
+                \item 
+            \end{enumerate}
+            \begin{block}{}
+                Phase perturbations are damped oscillators
+            \end{block}
         \end{column}
     \end{columns}
+
 \end{frame}
+
+\begin{frame}
+    \frametitle{Methods - Mathematical}
+
+    \begin{itemize}
+        \item The Field Equation
+        \item $k < k_c$
+        \item $0 \leq t \leq t_f$
+        \item initial conditions
+    \end{itemize}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Methods - Computational}
+
+    \begin{itemize}
+        \item Symplectic integrator e.g. leapfrog to minimize energy drift
+        \item Parareal for parallel-in-time i.e. predictor-corrector
+        \item GPU
+        \item Distributed on CWU's supercomputer with 12 P100 GPUs
+    \end{itemize}
+
+\end{frame}
+
+% \subsection{Speed \& Expansion}
+% \begin{frame}
+%     \frametitle{Methods - Speed \& Expansion}
+%     \begin{columns}
+%         \begin{column}{0.5\textwidth}
+%             \begin{itemize}
+%                 \item <1->Speed of sound in quantum gas =\\ Speed of light in analog universe
+%                 \item <2->Speed decrease \& static volume $\iff$ constant speed \& expanding volume
+%                 \item <3->Example: $t = d/v$
+%                 \begin{itemize}
+%                     \item Distance to grocery store doubles $\implies$ travel time doubles
+%                     \item Speed to the grocery store halves $\implies$ travel time doubles
+%                 \end{itemize}
+%             \end{itemize}
+%         \end{column}
+%         \begin{column}{0.5\textwidth}
+%             \vspace{0.3in}
+%             \begin{figure}
+%                 \centering
+%                 \includegraphics[width=\textwidth]{images/Untitled presentation.png}
+%                 \caption{Travel time can be doubled by either doubling distance or halving speed}
+%             \end{figure}
+%         \end{column}
+%     \end{columns}
+% \end{frame}
 
 \subsection{Mathematical Model}
 \begin{frame}
