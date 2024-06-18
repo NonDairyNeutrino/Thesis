@@ -151,16 +151,27 @@
 
 \end{frame}
 
+\subsection{Mathematical Model}
 \begin{frame}
     \frametitle{Methods - Mathematical}
-
+    \setstretch{1.25}
     \begin{itemize}
-        \item The Field Equation
-        \item $k < k_c$
-        \item $0 \leq t \leq t_f$
-        \item initial conditions
+        \item One equation describes both ultra-cold quantum gases and inflation particles
+        \item One equation for each phononic $k$
+        \item Universe expansion starts and stops at finite times
     \end{itemize}
-
+    
+    \begin{exampleblock}{\centering The Field Equation}
+        \begin{subequations}
+            \begin{equation*}
+                \partial_t^2 \widetilde{\theta}_\mathbf{k} - \frac{\dot{a}}{a} \partial_t \widetilde{\theta}_\mathbf{k} - a c_0^2 k^2 \widetilde{\theta}_\mathbf{k} = 0
+            \end{equation*}
+            \vspace{-0.2in}
+            \begin{equation*}
+                \widetilde{\theta}_\mathbf{k}(0) = \widetilde{\theta}_{\mathbf{k}0} \quad \partial_t \widetilde{\theta}_\mathbf{k}(0) = -U_0 n_{\mathbf{k}0} / \hbar
+            \end{equation*}
+        \end{subequations}
+    \end{exampleblock}
 \end{frame}
 
 \begin{frame}
@@ -173,55 +184,6 @@
         \item Distributed on CWU's supercomputer with 12 P100 GPUs
     \end{itemize}
 
-\end{frame}
-
-% \subsection{Speed \& Expansion}
-% \begin{frame}
-%     \frametitle{Methods - Speed \& Expansion}
-%     \begin{columns}
-%         \begin{column}{0.5\textwidth}
-%             \begin{itemize}
-%                 \item <1->Speed of sound in quantum gas =\\ Speed of light in analog universe
-%                 \item <2->Speed decrease \& static volume $\iff$ constant speed \& expanding volume
-%                 \item <3->Example: $t = d/v$
-%                 \begin{itemize}
-%                     \item Distance to grocery store doubles $\implies$ travel time doubles
-%                     \item Speed to the grocery store halves $\implies$ travel time doubles
-%                 \end{itemize}
-%             \end{itemize}
-%         \end{column}
-%         \begin{column}{0.5\textwidth}
-%             \vspace{0.3in}
-%             \begin{figure}
-%                 \centering
-%                 \includegraphics[width=\textwidth]{images/Untitled presentation.png}
-%                 \caption{Travel time can be doubled by either doubling distance or halving speed}
-%             \end{figure}
-%         \end{column}
-%     \end{columns}
-% \end{frame}
-
-\subsection{Mathematical Model}
-\begin{frame}
-    \frametitle{Methods - The Field Equation}
-    \setstretch{1.25}
-    \begin{itemize}
-        \item For wave-like perturbationsOne equation describes both ultra-cold quantum gases and inflation particles
-        \item One equation for each phononic $k$
-        \item Universe expansion starts and stops at finite times
-    \end{itemize}
-    
-    \begin{exampleblock}{\centering The Field Equation}
-        \begin{subequations}
-            \begin{equation*}
-                \partial_t^2 \widetilde{\theta}_\mathbf{k} - \frac{\dot{a}}{a} \partial_t \widetilde{\theta}_\mathbf{k} - a c_0^2 k^2 \widetilde{\theta}_\mathbf{k} = 0
-            \end{equation*}
-            \vspace{-0.2in}
-            \begin{equation*}
-                \widetilde{\theta}_\mathbf{k}(0) = \widetilde{\theta}_{\mathbf{k}0} \quad \partial_\eta \widetilde{\theta}_\mathbf{k}(0) = -U_0 n_{\mathbf{k}0} / \hbar
-            \end{equation*}
-        \end{subequations}
-    \end{exampleblock}
 \end{frame}
 
 \subsection{Computational Model}
