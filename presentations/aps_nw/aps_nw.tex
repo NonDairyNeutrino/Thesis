@@ -67,7 +67,7 @@
             \begin{enumerate}
                 \item <1->Inflation created particles
                 \item <2->Cannot directly observe these particles
-                \item <3->Theory suggests ultra-cold quantum gases behave similarily
+                \item <3->Theory suggests phase fluctuations of ultra-cold quantum gases behave similarily
                 \item <4->Can make gas in the lab $\implies$ can \emph{effectively} observe inflation particles
                 \item <5->Lab based system = ``analog universe''
             \end{enumerate}
@@ -76,10 +76,11 @@
             \begin{figure}
                 \centering
                 \includegraphics[width=\textwidth]{images/CMB_Timeline300_no_WMAP.jpg}
-                \caption{History of the universe highlighting period of rapid expansion (\href{https://upload.wikimedia.org/wikipedia/commons/6/6f/CMB_Timeline300_no_WMAP.jpg}{Source})}
+                \caption{History of the universe highlighting period of rapid expansion}
             \end{figure}
         \end{column}
     \end{columns}
+    \footnotesize Source: \url{https://upload.wikimedia.org/wikipedia/commons/6/6f/CMB_Timeline300_no_WMAP.jpg}
 \end{frame}
 
 \begin{frame}
@@ -88,8 +89,8 @@
     \begin{columns}
         \begin{column}{0.5\textwidth}
             \begin{itemize}
-                \item <1->Many investigations into analog universes
-                \item <2->Few into exact analogs
+                \item <1->Many investigations into analog universes e.g. Visser and Wienfurtner
+                \item <2->Few investigations into exact analogs
                 \item <3->Fewer into computational simulation
                 \item <4->Even fewer using high-performance computing
             \end{itemize}
@@ -155,7 +156,7 @@
     \frametitle{Methods - The Field Equation}
     \setstretch{1.25}
     \begin{itemize}
-        \item<1-> One equation describes both ultra-cold quantum gases and inflation ($a$) particles
+        \item<1-> One equation describes both the phase of ultra-cold quantum gases and inflation ($a$) particles
         \item<2-> $\psi(t, \mathbf{x}) = \sqrt{n_0 + \Delta n(t, \mathbf{x})} e^{i \left( \theta_0 + \Delta\theta(t, \mathbf{x}) \right)} \implies \widetilde{\theta}_\mathbf{k} = \mathcal{F}(\Delta \theta)(t, \mathbf{k})$
         \item<3-> One equation for each $k < k_c(t)$ the trans-phononic cutoff
     \end{itemize}
@@ -189,11 +190,11 @@
             \begin{figure}
                 \centering
                 \includegraphics[width=0.8\textwidth]{images/integrator-symplectic-stagger.png}
-                \caption{Symplectic integrator example: Velocity Verlet \href{https://www.av8n.com/physics/symplectic-integrator.htm}{(Source)}}
+                \caption{Symplectic integrator example: Velocity Verlet}
             \end{figure}
         \end{column}
     \end{columns}
-
+    \footnotesize Source: \url{https://www.av8n.com/physics/symplectic-integrator.htm}
 \end{frame}
 
 \begin{frame}
@@ -202,9 +203,9 @@
     \begin{columns}
         \begin{column}{0.4\textwidth}
             \begin{itemize}
-                \item<1-> Can't traditionally parallelize IVPs
-                \item<2-> Make 1 initial coarse solution
-                \item<3-> Make many fine solutions in parallel
+                \item<1-> Can't traditionally parallelize initial value problems (IVP)
+                \item<2-> Generate initial coarse solution
+                \item<3-> Generate fine solution for each coarse IVP in parallel
                 \item<4-> Correct coarse solution
                 \item<5-> Loop
             \end{itemize}
@@ -213,11 +214,12 @@
             \begin{figure}
                 \centering
                 \includegraphics[width=\textwidth]{images/Parareal.png}
-                \caption{Illustration of the first iteration in Parareal (\href{https://commons.wikimedia.org/wiki/File:Parareal.svg}{Source})}
+                \caption{Illustration of the first iteration in Parareal}
             \end{figure}
         \end{column}
     \end{columns}
-
+    \vfill
+    \footnotesize Source: \url{https://commons.wikimedia.org/wiki/File:Parareal.svg}
 \end{frame}
 
 \begin{frame}
@@ -226,9 +228,9 @@
     \begin{figure}[h]
         \centering
         \movie[autostart,loop,showcontrols]{\includegraphics[height=0.7\textheight]{images/parareal_thumbnail.png}}{images/Parareal_Animation.ogx}
-        \caption{The \textit{Parareal} approach to solving initial value problems in parallel.}
+        \caption{The \textit{Parareal} approach to solving initial value problems in parallel.\\ Coarse: $\bar{\varphi}$, Fine: $\varphi$}
     \end{figure}
-
+    \footnotesize Source: \url{https://en.wikipedia.org/wiki/File:Parareal_Animation.ogv}
 \end{frame}
 
 \begin{frame}
@@ -282,19 +284,6 @@
     \end{columns}
 \end{frame}
 
-\subsection{All Time Distribution}
-\begin{frame}
-    \frametitle{Analytic Results - Simple Expansion}
-
-    \begin{figure}[h]
-        \centering
-        \includegraphics[height=0.74\textheight]{images/Analytic_Fig_4.png}
-        \caption{Momentum distribution throughout the expansion}
-        \label{fig:allTime}
-    \end{figure}
-
-\end{frame}
-
 \begin{frame}
     \frametitle{Conclusion}
     \setstretch{1.25}
@@ -337,6 +326,19 @@
         \end{column}
     \end{columns}
     \end{frame}
+
+\subsection{All Time Distribution}
+\begin{frame}
+    \frametitle{Analytic Results - Simple Expansion}
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[height=0.74\textheight]{images/Analytic_Fig_4.png}
+        \caption{Momentum distribution throughout the expansion}
+        \label{fig:allTime}
+    \end{figure}
+
+\end{frame}
 
 % \begin{frame}[allowframebreaks]
 %     \frametitle{\bibname}
