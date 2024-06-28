@@ -9,6 +9,8 @@
 \usepackage{hyperref}
 \usepackage{multirow}
 
+\usepackage[ruled,lined,linesnumbered,noend,nosemicolon]{algorithm2e}
+
 \usepackage{biblatex}
 \addbibresource{bib.bib}
 
@@ -280,56 +282,21 @@
 
             It's more natural to implement physical quantities in terms of system-relevant references.
 
-        \subsubsection{Conformal Time Integration}
+        \subsubsection{The Parareal Algorithm}
 
-            Because the expansion of the universe is non-zero for a finite amount of (lab) time, the conformal time can be precomputed for all discretized time steps.  The conformal time $\eta$ is defined by the first order differential equation $\frac{d\eta}{dt} = \sqrt{a(t)}$.  As such, the conformal time can be simply integrated as 
+            \begin{itemize}
+                \item The base Parareal Algorithm doesn't conserve energy no matter if the coarse and fine propagators are symplectic
+            \end{itemize}
 
-            \begin{equation}
-                \eta(t) = \int_{0}^{t} \sqrt{b(\xi)} d\xi,
-            \end{equation}
+            The algorithm
 
-            which holds up to a constant.
-
-            This integral can be evluated numerically using an adaptive Gauss-Kronrod quadrature algorithm\cite{quadgk}.  Routines for Gauss-Kronrod quadrature are provided by the QUADPACK library, the GNU Scientific Library, the NAG Numerical Libraries, R, the C++ library Boost., as well as the Julia package QuadGK.jl (which can compute Gauss-Kronrod formulas to arbitrary precision).  The Wolfram Language's \verb|NIntegrate| function uses Gauss-Kronrod quadrature for one-dimensional integrals\cite{GKQuad}.
-
-            =======INCLUDE DISCUSSION ON ERROR=======
-
-\pagebreak
-
-        \subsubsection{Finite Difference Coefficients}
-
-            Find finite difference coefficients on non-uniform grids (because conformal time is non-uniform from integration) using algorithms from literature\cite{FiniteDifferences}.
-
-        \subsubsection{Discretized Operator}
-
-            Because the field equation (eq. \ref{eq:fieldEquationConformalFourier}) is linear, it can be rewritten in ``operator form'' as
-
-            \begin{equation} \label{eq:operator}
-                \left[\partial_\eta^2 - \frac{1}{2} \frac{\dot{a}(\eta)}{a(\eta)} \partial_\eta - c_0^2 k^2 \right] \widetilde{\theta}_\mathbf{k} = 0.
-            \end{equation}
-
-            Representating the field equation in operator form naturally lends itself to being discretized as
-
-            \begin{equation} \label{eq:operatordiscretized}
-                \begin{bmatrix}
-                    D_{00} & D_{01} & \ldots & D_{0N} \\
-                    D_{10} & D_{11} & \ldots & D_{1N} \\
-                    \vdots & \vdots & \vdots & \vdots \\
-                    D_{N0} & D_{N1} & \ldots & D_{NN} \\
-                \end{bmatrix} \begin{bmatrix}
-                    \widetilde{\theta}_\mathbf{k}(\eta_0) \\
-                    \widetilde{\theta}_\mathbf{k}(\eta_1) \\
-                    \vdots \\
-                    \widetilde{\theta}_\mathbf{k}(\eta_N) \\
-                \end{bmatrix} = \begin{bmatrix}
-                    0 \\
-                    0 \\
-                    \vdots \\
-                    0 \\
-                \end{bmatrix}.
-            \end{equation}
-
-            Can use GPU-based sparse matrix via \verb|cuSPARSE|
+            \begin{algorithm}
+                \caption{The Parareal Algorithm}
+                \KwIn{Coarse Propagator $\mathcal{C}$, Fine Propagator $\mathcal{F}$, Initial Condition $u_0$, Discretized Time Domain $\{T_0, T_1, \ldots, T_N\}$}
+                \KwOut{Solution $\{u_0, u_1, \ldots, u_N\}$}
+                \tcp*[l]{INITIALIZATION}
+                Initialize data with the coarse propagator 
+            \end{algorithm}
 
         \subsubsection{Field Matrix Equation}
 
