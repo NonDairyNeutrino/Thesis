@@ -16,7 +16,7 @@
 
 \renewcommand{\arraystretch}{1.5}
 
-\title{\Large \vspace{-0.625in} \emph{Production of Massless Spin-0 Phonons in Analog (3+1) Inflationary Cosmologies Using High-Performance Finite-Differences} \vspace{-0.15in}}
+\title{\Large \vspace{-0.625in} \emph{Using Distributed GPU-Based Parallel-in-Time Integration to \\ Model Particle Production in Analog Cosmologies} \vspace{-0.15in}}
 \author{Nathan Chapman \\ {\normalsize Central Washington University}}
 \date{\normalsize \vspace{-0.1in}\today}
 
@@ -285,17 +285,28 @@
         \subsubsection{The Parareal Algorithm}
 
             \begin{itemize}
-                \item The base Parareal Algorithm doesn't conserve energy no matter if the coarse and fine propagators are symplectic
+                \item The Parareal algorithm is used to solve initial value diferential equations in parallel.
+                \item It uses a computationally cheap ``coarse'' propagator $\mathcal{C}$ and a more computationally expensive ``fine'' propagator $\mathcal{F}$.
+                \item It is an iterative method along the likes of a predictor-corrector, or shooting method.
+                \item It converges linearly or superlinearly in iterations.
+                \item The basic Parareal algorithm doesn't conserve energy no matter if the coarse and fine propagators are symplectic
+                \item Because there are several drawbacks to the basic Parareal algorithm, variants have been developed to address some of these issues.  For example, ParaExp uses exponential matrix integration on linear problems, or so-caled ``Krylov-Enhanced'' methods use geometric methods to make the base algorithm more accurate and stable.
             \end{itemize}
-
-            The algorithm
 
             \begin{algorithm}
                 \caption{The Parareal Algorithm}
-                \KwIn{Coarse Propagator $\mathcal{C}$, Fine Propagator $\mathcal{F}$, Initial Condition $u_0$, Discretized Time Domain $\{T_0, T_1, \ldots, T_N\}$}
+                \KwIn{Coarse Propagator $\mathcal{C}$, Fine Propagator $\mathcal{F}$, Initial Condition $u_0$, Discretized Time Domain $T = \{T_0, T_1, \ldots, T_N\}$}
                 \KwOut{Solution $\{u_0, u_1, \ldots, u_N\}$}
                 \tcp*[l]{INITIALIZATION}
-                Initialize data with the coarse propagator 
+                Use the coarse propagator $\mathcal{C}$ and initial value $u_0$ to get data points $\{u_0, u_1, \ldots, u_N\}$ on the discretized time domain $T$\;
+                \tcp*[l]{BEGIN PARALLEL}
+                \tcp*[l]{parallelize over the temporal subdomains}
+                \For{$n = 0, 1, \ldots, N - 1$}{
+                    Use the fine propagator $\mathcal{F}$ and psuedo-initial value $u_n$ to get the data point $u_{n+1}^\mathcal{F}$\;
+                    Use the coarse propagator $\mathcal{C}$ and psuedo-initial value $u_n$ to get the data point $u_{n+1}^\mathcal{C}$\;
+                    $corrector_{n+1} \gets u_{n+1}^\mathcal{F} - u_{n+1}^\mathcal{C}$\;
+                }
+                
             \end{algorithm}
 
         \subsubsection{Field Matrix Equation}
