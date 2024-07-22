@@ -1,0 +1,11 @@
+Abstract for American Acoustical Society's meeting in Fall 2024
+
+Title: Using Distributed GPU-Based Parallel-in-Time Integration to Model Acoustics in Expanding Volumes
+
+Abstract: 
+A Fourier expansion can be applied onto the wave equation to transform it 
+from a PDE in space and time to a system of ODEs in wavenumber and time.
+As each of these ODEs are independent in wavenumber, they can be solved in parallel.
+While these ODEs are traditionally unable to be parallelized in time, the Parareal method
+for parallel-in-time integration can be used to potentially gain massive computational speed-ups. 
+With the use of a distributed network of GPUs, each GPU could evaluate 
