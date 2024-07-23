@@ -5,5 +5,5 @@ Title: Using Distributed GPU-Based Parallel-in-Time Integration to Model Acousti
 Abstract: 
 Initial-value problems describing physical systems have long suffered from their inablility to be parallelized.
 The Parareal algorithm and its variations provide a means for parallel-in-time integration of these initial-value problems, leading to significantly decreased computation time.
-Through the use of high-performance computing systems such as super-computers and distributed networks of GPUs, further parallelization and performance improvements can be achieved.
+Further parallelization and performance improvements can be achieved using distributed networks of GPUs.
 Due to its potential complexities, the case of expanding volumes with a temporally constant speed of sound is considered to highlight these methods.
