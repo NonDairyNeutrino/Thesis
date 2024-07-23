@@ -3,8 +3,7 @@ Abstract for American Acoustical Society's meeting in Fall 2024
 Title: Using Distributed GPU-Based Parallel-in-Time Integration to Model Acoustics in Expanding Volumes
 
 Abstract: 
-One of the biggest problems in modelling the dynamics of physical phenomena is the computational cost of more and more accurate time-stepping.
-The Parareal algorithm for parallel-in-time integration aims to eliminate this problem.  
-For oscillatory systems modelled via PDEs, such as the wave equation, a Fourier expansion can be applied to transform the model to a systme of ODEs.
-Using a distributed network of GPUs, the Parareal algorithm can be implemented for potentially massive computational speed-up.
-[APPLICATIONS TO ACOUSTICS HERE]
+Initial-value problems describing physical systems have long suffered from their inablility to be parallelized.
+The Parareal algorithm and its variations provide a means for parallel-in-time integration of these initial-value problems, leading to significantly decreased computation time.
+Through the use of high-performance computing systems such as super-computers and distributed networks of GPUs, further parallelization and performance improvements can be achieved.
+Due to its potential complexities, the case of expanding volumes with a temporally constant speed of sound is considered to highlight these methods.
