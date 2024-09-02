@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "../Parareal.jl"
+		},
+		{
+			"path": "../PararealGPU.jl"
 		}
 	],
 	"settings": {}
