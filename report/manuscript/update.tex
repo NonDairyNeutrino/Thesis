@@ -16,8 +16,8 @@
 
 \renewcommand{\arraystretch}{1.5}
 
-\title{\Large \vspace{-0.625in} \textit{A Scalable Implementation of Parallel-in-Time Integration for \\ Particle Production in Analog Cosmologies} \vspace{-0.15in}}
-\author{Nathan Chapman \\ {\normalsize Central Washington University}}
+\title{\Large \vspace{-0.625in} \textit{Scalable Parallel-in-Time Integration for \\ Particle Production in Analog Cosmologies} \vspace{-0.15in}}
+\author{Nathan Chapman \vspace{-0.15in}\\ {\normalsize Central Washington University}}
 \date{\normalsize \vspace{-0.1in}\today}
 
 \begin{document}
@@ -278,11 +278,7 @@
 
     \subsection{Computational Implementation}
 
-        \subsubsection{Non-Dimensionalized Parameters}
-
-            It's more natural to implement physical quantities in terms of system-relevant references.
-
-        \subsubsection{The Parareal Algorithm}
+        \subsubsection{Parallel-in-Time Integration \& The Parareal Algorithm}
 
             \begin{itemize}
                 \item The Parareal algorithm is used to solve initial value diferential equations in parallel.
@@ -309,29 +305,34 @@
                 
             \end{algorithm}
 
-        \subsubsection{Field Matrix Equation}
+        \subsubsection{Supercomputing with Julia}
 
-            solve discretized field equation using multi-GPU-based sparse-matrix equation solver (\verb|cuSOLVER|)
-
-        \subsubsection{Wave Function}
-
-            take the GPU-based GPU-based inverse-fft (\verb|cuFFT|) to get phase and density perturbations to get wave function
-
-        \subsubsection{Density Perturbation}
-
-            differentiate the solution using high-accuracy finite-differences to get density perturbation
-
-        \subsubsection{Particle Production}
-
-            combine to get particle production for a single k
-
-        \subsubsection{All phononic modes}
-
-            repeat/parallelize 4-8 for all k under critical $k_c$
+            \begin{itemize}
+                \item Distributed computing across nodes with \verb|Distributed.jl|
+                \item GPU computing with CUDA and multiple cards with \verb|CUDA.jl|
+            \end{itemize}
 
     \section{Results}
 
     \section{Discussion}
+            
+            \subsection{Physical Implications}
+
+            \subsection{Numerical Analysis}
+            
+                \subsubsection{Error}
+
+                \subsubsection{Convergence}
+
+                \subsubsection{Stability}
+
+            \subsection{Algorithm Analysis}
+
+                \subsubsection{Time Complexity}
+
+                \subsubsection{Space Complexity}
+
+            \subsection{Benchmarks}
 
     \section{Conclusion}
 
