@@ -35,6 +35,7 @@
 - Work in Progress
 
 == Acoustics in Expanding Volumes
+
 // TODO: add image e.g. maybe a sequence of expanding boxes with changing waves
 // TODO: highlight each part of the equation, especially the a term describing the expansion behavior
 - Wave $psi(t, bold(x))$ defined by its density $n$ and phase $theta$ with
@@ -43,15 +44,42 @@ $ psi(t, bold(x)) = sqrt(n_0 + Delta n(t, bold(x))) e^(i(theta_0 + Delta theta(t
 - Wave equation for an expanding volume:
 $ partial_t^2 theta - dot(a)/a partial_t theta - a c_0^2 nabla^2 theta = 0 $
 
-- Spectral decomposition in space $tilde(theta)_bold(k) = cal(F)(Delta theta)(t, bold(k))$ for $k < k_c (t)$
+- Spectral decomposition in space: $tilde(theta)_bold(k) = cal(F)(Delta theta)(t, bold(k))$ for $k < k_c (t)$
 #tblock(title: align(center, [The Field Equation]))[
   $ partial_t^2 tilde(theta)_bold(k) - dot(a)/a partial_t tilde(theta)_bold(k) - a c_0^2 k^2 tilde(theta)_bold(k) = 0 $
   $ tilde(theta)_bold(k)(0) = tilde(theta)_(bold(k) 0) "    " partial_t tilde(theta)_bold(k)(0) = -U_0 n_(bold(k) 0) \/ h $
 ]
 
+== Acoustics in Expanding Volumes
+
+// the combination of the pde and the spectral decomposition yields a system of odes
+// #align(center, [DIAGRAM WITH MATH GOES HERE])
+
+$ partial_t^2 theta - dot(a)/a partial_t theta - a c_0^2 nabla^2 theta = 0 
+limits(arrow.r.double.long)^(tilde(theta)_bold(k) = cal(F)(Delta theta)(t, bold(k)))
+$
+
 = Methods
 
 == The Parareal Algorithm
+
+The 3 cores steps of the Parareal Algorithm
+
++ Prepare the subproblems
++ Propagate each subproblem in parallel
++ Correct
+
+== The Parareal Algorithm - Subproblem Preperation
+
+#columns(2, [
+  + Choose number of subproblems\
+    (Suggest number of cores)
+  + 
+])
+
+== The Parareal Algorithm - Parallel Propagation
+
+== The Parareal Algorithm - Corrections
 
 // - What is the Parareal algorithm and how is it useful?
 // - Psuedo-code goes here
