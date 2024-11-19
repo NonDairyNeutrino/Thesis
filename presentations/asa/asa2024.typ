@@ -29,7 +29,9 @@
 = Introduction
 == Work in Progress
 - This is a work in progress
+
 - Should be finished and avavilable in the Spring!
+
 == The Equation of Motion and Causality
 // - IVPs can take a long time
 // - Parallelization is only becoming more accessible in many ways
@@ -38,15 +40,16 @@
 //   - Methods and types of problems
 // - Work in Progress
 
-- The equations of motion (EoM) is at the heart of physics
+- The equations of motion (EoM) are at the heart of physics
 #pause
-- Motion is causal
+
+- Numerical methods have been sequential to preserve causality
 #pause
-- Methods of solving the EoM have been sequential
+
+- These methods haven't been able to benefit from parallelism
 #pause
-- Calculations haven't been able to benefit from parallelism
-#pause
-- What if they could?
+
+- But what if they could?
 
 == Acoustics in Expanding Volumes
 
