@@ -1,3 +1,7 @@
+// THIS IS A CUSTOMIZED TEMPLATE
+// USE THIS FILE TO REPLACE THE ONE LOCATED AT
+// ~/.cache/typst/packages/preview/academic-conf.pre/0.1.0/themes/aus-beamer.typ
+
 // seu-beamer modified to fit Jun's presentations
 
 #import "@preview/touying:0.4.2": *
