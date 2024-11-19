@@ -14,7 +14,9 @@
   author: [Nathan Chapman#super[1], and Andy Piacsek#super[2]],
   short-author: [Chapman \& Piacsek],
   date: [Innovations in Computational Acoustics - ASA #datetime.today().year()],
-  institution: [#super[1]Department of Computer Science, Central Washington University\ #super[2]Department of Physics, Central Washington University],
+  institution: [#super[1]Department of Computer Science, Central Washington University\ 
+                // #super[2]Department of Science \& Engineering, Whatcom Community College\
+                #super[2]Department of Physics, Central Washington University]
 )
 
 #let (init, slides, touying-outline, alert, speaker-note, tblock) = utils.methods(s)
@@ -25,14 +27,26 @@
 #show: slides.with()
 
 = Introduction
+== Work in Progress
+- This is a work in progress
+- Should be finished and avavilable in the Spring!
+== The Equation of Motion and Causality
+// - IVPs can take a long time
+// - Parallelization is only becoming more accessible in many ways
+//   - Hardware
+//   - Effort
+//   - Methods and types of problems
+// - Work in Progress
 
-== Why should we care?
-- IVPs can take a long time
-- Parallelization is only becoming more accessible in many ways
-  - Hardware
-  - Effort
-  - Methods and types of problems
-- Work in Progress
+- The equations of motion (EoM) is at the heart of physics
+#pause
+- Motion is causal
+#pause
+- Methods of solving the EoM have been sequential
+#pause
+- Calculations haven't been able to benefit from parallelism
+#pause
+- What if they could?
 
 == Acoustics in Expanding Volumes
 // TODO: add image e.g. maybe a sequence of expanding boxes with changing waves
@@ -61,9 +75,9 @@ $ partial_t^2 theta - dot(a)/a partial_t theta - a c_0^2 nabla^2 theta = 0 $
 // #algo(
 //   title: "The Parareal Algorithm",
 //   parameters: (
-//     [Coarse Propagator $cal(C)$], 
-//     [Fine Propagator $cal(F)$], 
-//     [Initial Condition $u_0$], 
+//     [Coarse Propagator $cal(C)$],
+//     [Fine Propagator $cal(F)$],
+//     [Initial Condition $u_0$],
 //     [Discretized Time Domain $T = {T_0, T_1, dots, T_N}$]
 //   )
 // )[
