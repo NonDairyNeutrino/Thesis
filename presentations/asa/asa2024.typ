@@ -33,14 +33,10 @@
 - Should be finished and avavilable in the Spring!
 
 == The Equation of Motion and Causality
-// - IVPs can take a long time
-// - Parallelization is only becoming more accessible in many ways
-//   - Hardware
-//   - Effort
-//   - Methods and types of problems
-// - Work in Progress
-
 - The equations of motion (EoM) are at the heart of physics
+#tblock(title: align(center, "The Equations of Motion"))[
+  $ sum_i harpoon(F)_i = m harpoon(a) $
+]
 #pause
 
 - Numerical methods have been sequential to preserve causality
