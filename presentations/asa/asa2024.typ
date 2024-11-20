@@ -19,6 +19,16 @@
                 // #super[2]Department of Science \& Engineering, Whatcom Community College\
                 #super[2]Department of Physics, Central Washington University]
 )
+#let semi-transparent-cover(self: none, constructor: rgb, alpha: 85%, body) = {
+  cover-with-rect(
+    fill: update-alpha(
+      constructor: constructor,
+      self.page.fill,
+      alpha,
+    ),
+    body,
+  )
+}
 
 #let (init, slides, touying-outline, alert, speaker-note, tblock) = utils.methods(s)
 #let (slide, empty-slide, title-slide, outline-slide, new-section-slide, ending-slide) = utils.slides(s)
@@ -40,7 +50,7 @@
 ]
 #pause
 
-- Numerical methods have been sequential to preserve causality
+- Numerical methods have been sequential to follow causality
 #pause
 
 - These methods haven't been able to benefit from parallelism
@@ -117,24 +127,46 @@
   $
 )
 Similar to the method of lines
+#v(1fr)
 
 = Methods
 
-== The Parareal Algorithm
+== Parallel-in-time Integration and the Parareal Algorithm
 
-The 3 cores steps of the Parareal Algorithm
+- "Parallel-in-time integration" #sym.approx "Solving IVP in parallel"
+#pause
 
-+ Prepare the subproblems
-+ Propagate each subproblem in parallel
-+ Correct
+- Several algorithms
+  - Parareal
+  - Multigrid Reduction in Time (MGRIT)
+  - Parallel Full Approximation Scheme in Space and Time (PFASST)
+  - and more
+#pause
+
+- The 3 cores steps of the Parareal Algorithm
+
+  + Prepare the subproblems
+  + Solve each subproblem in parallel
+  + Correct
 
 == The Parareal Algorithm - Subproblem Preperation
 
-#columns(2, [
-  + Choose number of subproblems\
-    (Suggest number of cores)
-  + 
-])
++ Given an initial value problem (IVP) 
+  $ cal(L)(t, u, partial_t u, partial_t^2 u) = f(t); quad u(0) = u_0, partial_t u(0) = v_0; quad D = \[T, T + Delta T\) $
+  #pause
+
++ Choose number of subproblems $N$ (suggest number of compute cores)
+  #pause
+
++ Partition time domain for $i = 0, 1, dots, N - 1$ 
+  $ D = \[T, T + Delta T\) arrow.r D_i = \[T + i / N Delta T, T + (i + 1) / N Delta T\) = [T_i, T_(i + 1)] $
+  #pause
+
++ Choose coarse propagator $cal(C)_0$ (e.g. Verlet) to get initial solution $u_(cal(C_0)\i), partial_t u_(cal(C_0)\i)$
+  $ "initial value for subproblem" i arrow.r u_(i 0)^0 = u_(cal(C_0)\i) $
+
++  Subproblems $cal(L)(dots.c) = f(t); quad u(T_i) = u_(i 0)^0, partial_t u(T_i) = v_(i 0)^0; quad D_i = \[T_i, t, T_(i + 1)\)$
+// #v(1fr)
 
 == The Parareal Algorithm - Parallel Propagation
 
@@ -178,22 +210,24 @@ The 3 cores steps of the Parareal Algorithm
 == Some Basic Results
 - pictures of results
 
-= Discussion
+// = Discussion
 
-== Numerical Analysis
-- Error
-- Convergence
-- Stability
+// == Numerical Analysis
+// - Error
+// - Convergence
+// - Stability
 
-== Algorithm Analysis
-- Time Complexity
-- Space Complexity
+// == Algorithm Analysis
+// - Time Complexity
+// - Space Complexity
 
 = Conclusion
 == Conclusion
 // TODO: focus on what I did
-- Accessibility to parallelization is increasing
-- Problems only becoming more complex
+- Parallelism is only becoming more accessible
+
+- Parallel-in-time methods like Parareal can be reasonably used
+- With parallelism comes scalability onto high-performance platforms
 
 #ending-slide(title: [Thank you for your time.])[
   #v(10%)

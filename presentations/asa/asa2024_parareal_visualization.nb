@@ -1,0 +1,101 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 14.1' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[      3749,         93]
+NotebookOptionsPosition[      3310,         78]
+NotebookOutlinePosition[      3699,         94]
+CellTagsIndexPosition[      3656,         91]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"f", "[", "x_", "]"}], ":=", 
+  RowBox[{"Sqrt", "[", "x", "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{"domain", "=", 
+  RowBox[{"Range", "[", 
+   RowBox[{"0", ",", "1", ",", "0.2"}], "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{"coarse", "=", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"#", ",", 
+      RowBox[{"f", "@", "#"}]}], "}"}], "&"}], "/@", "domain"}]}]}], "Input",
+ CellChangeTimes->{{3.9410680828464403`*^9, 3.941068290783246*^9}, {
+   3.941068780682884*^9, 3.941068834996031*^9}, {3.9410688784020243`*^9, 
+   3.941068939107675*^9}, {3.941069012466913*^9, 3.94106914577556*^9}, {
+   3.941069178006864*^9, 3.941069307154707*^9}, 3.941069372427237*^9, {
+   3.941069462438615*^9, 3.941069470786826*^9}, 3.941069504279769*^9, {
+   3.9410700492234573`*^9, 3.941070061115011*^9}, 3.941070180680163*^9},
+ CellLabel->"In[55]:=",ExpressionUUID->"3b882ee5-4635-4bc9-8594-de5263426955"],
+
+Cell[BoxData[
+ RowBox[{"ListPlot", "[", "\[IndentingNewLine]", 
+  RowBox[{"coarse", ",", "\[IndentingNewLine]", 
+   RowBox[{"Epilog", "->", 
+    RowBox[{"{", "\[IndentingNewLine]", 
+     RowBox[{
+     "Dashed", ",", "\[IndentingNewLine]", "Thick", ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{"MapThread", "[", 
+       RowBox[{
+        RowBox[{"Line", "@*", "List"}], ",", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"Thread", "@", 
+           RowBox[{"{", 
+            RowBox[{"domain", ",", "0"}], "}"}]}], ",", "coarse"}], "}"}]}], 
+       "]"}]}], "\[IndentingNewLine]", 
+     RowBox[{"(*", 
+      RowBox[{
+       RowBox[{"PointSize", "[", "0.3", "]"}], ",", "\[IndentingNewLine]", 
+       RowBox[{"Point", "/@", "coarse"}]}], "*)"}], "\[IndentingNewLine]", 
+     "}"}]}], ",", "\[IndentingNewLine]", 
+   RowBox[{"PlotLegends", "->", 
+    RowBox[{"{", "\"\<True Solution\>\"", "}"}]}], ",", "\[IndentingNewLine]", 
+   RowBox[{"Mesh", "->", "All"}]}], "\[IndentingNewLine]", "]"}]], "Input",
+ CellChangeTimes->{{3.9410680828464403`*^9, 3.941068290783246*^9}, {
+   3.941068780682884*^9, 3.941068834996031*^9}, {3.9410688784020243`*^9, 
+   3.941068939107675*^9}, {3.941069012466913*^9, 3.94106914577556*^9}, {
+   3.941069178006864*^9, 3.941069307154707*^9}, 3.941069372427237*^9, {
+   3.941069462438615*^9, 3.941069470786826*^9}, 3.941069504279769*^9, {
+   3.9410700492234573`*^9, 3.941070061115011*^9}, 3.941070180680163*^9, {
+   3.941070406290221*^9, 3.941070439867996*^9}, {3.941070504742257*^9, 
+   3.941070506099481*^9}, {3.9410706007561274`*^9, 3.941070601428598*^9}, {
+   3.9410706360678883`*^9, 3.94107064483158*^9}, {3.941070693539083*^9, 
+   3.941070728679172*^9}, {3.941070785331114*^9, 3.941070785738155*^9}},
+ CellLabel->"In[78]:=",ExpressionUUID->"5bba31bd-2889-4d2b-a798-973321619bef"]
+},
+WindowSize->{954, 1050},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+FrontEndVersion->"14.1 for Linux x86 (64-bit) (July 16, 2024)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"68afe1a3-afb6-483d-82d8-8d6fb8bfd0be"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[554, 20, 928, 19, 75, "Input",ExpressionUUID->"3b882ee5-4635-4bc9-8594-de5263426955"],
+Cell[1485, 41, 1821, 35, 264, "Input",ExpressionUUID->"5bba31bd-2889-4d2b-a798-973321619bef"]
+}
+]
+*)
+
