@@ -162,13 +162,22 @@ Similar to the method of lines
   $ D = \[T, T + Delta T\) arrow.r D_i = \[T + i / N Delta T, T + (i + 1) / N Delta T\) = [T_i, T_(i + 1)] $
   #pause
 
-+ Choose coarse propagator $cal(C)_0$ (e.g. Verlet) to get initial solution $u_(cal(C_0)\i), partial_t u_(cal(C_0)\i)$
++ Choose coarse (i.e. cheap) propagator $cal(C)_0$ to get initial solution $u_(cal(C_0)\i), partial_t u_(cal(C_0)\i)$
   $ "initial value for subproblem" i arrow.r u_(i 0)^0 = u_(cal(C_0)\i) $
+  #pause
 
-+  Subproblems $cal(L)(dots.c) = f(t); quad u(T_i) = u_(i 0)^0, partial_t u(T_i) = v_(i 0)^0; quad D_i = \[T_i, t, T_(i + 1)\)$
-// #v(1fr)
++  Subproblems $cal(L)(dots.c) = f(t); quad u(T_i) = u_(i 0)^0, partial_t u(T_i) = v_(i 0)^0; quad D_i = \[T_i, T_(i + 1)\)$
+
+// == The Parareal Algorithm - Subproblem Preperation
+// TODO: DIAGRAM OF PREPARING THE SUBPROBLEMS
 
 == The Parareal Algorithm - Parallel Propagation
+
++ Choose coarse propagator $cal(C)$
+
++ Solve each subproblem $i$ in parallel to get $u_(i)^1 = \{u_(i j)^1\}$
++ Choose fine (i.e. expensive) propagator $cal(F)$ to get solution for each subproblem
++ Solve each subproblem in parallel
 
 == The Parareal Algorithm - Corrections
 
