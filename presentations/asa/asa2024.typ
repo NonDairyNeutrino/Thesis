@@ -4,6 +4,7 @@
 #import "@preview/academic-conf-pre:0.1.0" as theme-aus
 #import "@preview/cades:0.3.0": qr-code
 #import "@preview/algo:0.3.3": algo, i, d, comment, code
+#import "@preview/xarrow:0.3.1"
 
 #let s = theme-aus.register(aspect-ratio: "16-9") //4-3, 16-9
 #let s = (s.methods.info)(
@@ -28,7 +29,7 @@
 
 = Introduction
 == Work in Progress
-- This is a work in progress
+- Work in progress
 
 - Should be finished and avavilable in the Spring!
 
@@ -47,30 +48,75 @@
 
 - But what if they could?
 
-== Acoustics in Expanding Volumes
-
+// == Acoustics in Expanding Volumes
 // TODO: add image e.g. maybe a sequence of expanding boxes with changing waves
 // TODO: highlight each part of the equation, especially the a term describing the expansion behavior
-- Wave $psi(t, bold(x))$ defined by its density $n$ and phase $theta$ with
-$ psi(t, bold(x)) = sqrt(n_0 + Delta n(t, bold(x))) e^(i(theta_0 + Delta theta(t, bold(x)))) $
+// - Wave $psi(t, harpoon(x))$ defined by its density $n$ and phase $theta$ with
+// $ psi(t, harpoon(x)) = sqrt(n_0 + Delta n(t, harpoon(x))) e^(i(theta_0 + Delta theta(t, harpoon(x)))) $
 
-- Wave equation for an expanding volume:
-$ partial_t^2 theta - dot(a)/a partial_t theta - a c_0^2 nabla^2 theta = 0 $
+// - Wave equation for an expanding volume:
+// $ partial_t^2 theta - dot(a)/a partial_t theta - a c_0^2 nabla^2 theta = 0 $
 
-- Spectral decomposition in space: $tilde(theta)_bold(k) = cal(F)(Delta theta)(t, bold(k))$ for $k < k_c (t)$
-#tblock(title: align(center, [The Field Equation]))[
-  $ partial_t^2 tilde(theta)_bold(k) - dot(a)/a partial_t tilde(theta)_bold(k) - a c_0^2 k^2 tilde(theta)_bold(k) = 0 $
-  $ tilde(theta)_bold(k)(0) = tilde(theta)_(bold(k) 0) "    " partial_t tilde(theta)_bold(k)(0) = -U_0 n_(bold(k) 0) \/ h $
-]
+// - Spectral decomposition in space: $tilde(theta)_harpoon(k) = cal(F)(Delta theta)(t, harpoon(k))$ for $k < k_c (t)$
+// #tblock(title: align(center, [The Field Equation]))[
+//   $ partial_t^2 tilde(theta)_harpoon(k) - dot(a)/a partial_t tilde(theta)_harpoon(k) - a c_0^2 k^2 tilde(theta)_harpoon(k) = 0 $
+//   $ tilde(theta)_harpoon(k)(0) = tilde(theta)_(harpoon(k) 0) "    " partial_t tilde(theta)_harpoon(k)(0) = -U_0 n_(harpoon(k) 0) \/ h $
+// ]
 
 == Acoustics in Expanding Volumes
+#align(
+  top, 
+  [
+    Wave $psi(t, harpoon(x))$ defined by its density $n$ and phase $theta$ as
+    $ psi(t, harpoon(x)) = sqrt(n_0 + Delta n(t, harpoon(x))) e^(i(theta_0 + Delta theta(t, harpoon(x)))) $
+  ]
+)
 
-// the combination of the pde and the spectral decomposition yields a system of odes
-// #align(center, [DIAGRAM WITH MATH GOES HERE])
+#tblock(
+  $ overbrace(partial_t^2 theta - dot(a)/a partial_t theta - a c_0^2 nabla^2 theta = 0, "Wave Equation in Expanding Volume")  $
+)
 
-$ partial_t^2 theta - dot(a)/a partial_t theta - a c_0^2 nabla^2 theta = 0 
-limits(arrow.r.double.long)^(tilde(theta)_bold(k) = cal(F)(Delta theta)(t, bold(k)))
-$
+== Acoustics in Expanding Volumes
+#align(
+  top, 
+  [
+    Wave $psi(t, harpoon(x))$ defined by its density $n$ and phase $theta$ as
+    $ psi(t, harpoon(x)) = sqrt(n_0 + Delta n(t, harpoon(x))) e^(i(theta_0 + Delta theta(t, harpoon(x)))) $
+  ]
+)
+
+#tblock(
+  $ overbrace(partial_t^2 theta - dot(a)/a partial_t theta - a c_0^2 nabla^2 theta = 0, "Wave Equation in Expanding Volume")
+  underbrace(limits(arrow.r.double.long)^(tilde(theta)_harpoon(k) = cal(F)(Delta theta)(t, harpoon(k))), "Spectral decomposition")
+  $
+)
+
+== Acoustics in Expanding Volumes
+#align(
+  top, 
+  [
+    Wave $psi(t, harpoon(x))$ defined by its density $n$ and phase $theta$ as
+    $ psi(t, harpoon(x)) = sqrt(n_0 + Delta n(t, harpoon(x))) e^(i(theta_0 + Delta theta(t, harpoon(x)))) $
+  ]
+)
+
+#tblock(
+  $ overbrace(partial_t^2 theta - dot(a)/a partial_t theta - a c_0^2 nabla^2 theta = 0, "Wave Equation in Expanding Volume")
+  underbrace(limits(arrow.r.double.long)^(tilde(theta)_harpoon(k) = cal(F)(Delta theta)(t, harpoon(k))), "Spectral decomposition")
+  overbrace(
+    cases(delim: #none,
+      partial_t^2 tilde(theta)_harpoon(k) - dot(a)/a partial_t tilde(theta)_harpoon(k) &- a c_0^2 (0)^2 tilde(theta)_harpoon(k) = 0,
+      partial_t^2 tilde(theta)_harpoon(k) - dot(a)/a partial_t tilde(theta)_harpoon(k) &- a c_0^2 (1)^2 tilde(theta)_harpoon(k) = 0,
+      &dots.v,
+      partial_t^2 tilde(theta)_harpoon(k) - dot(a)/a partial_t tilde(theta)_harpoon(k) &- a c_0^2 #hide[\(] k^2 #hide[\)] tilde(theta)_harpoon(k) = 0,
+      &dots.v,
+      partial_t^2 tilde(theta)_harpoon(k) - dot(a)/a partial_t tilde(theta)_harpoon(k) &- a c_0^2 #hide[\(] k_c^2 #hide[\)] tilde(theta)_harpoon(k) = 0
+    ), 
+    "ODE for each wave number"
+  )
+  $
+)
+Similar to the method of lines
 
 = Methods
 
