@@ -238,8 +238,16 @@ Similar to the method of lines
   - *Very accurate*
 
 == Distributed Computing
-- 1 wave number per gpu
-- many machines with gpus can further parallelize the calculation
+
+- 1 machine #sym.arrow.double 1 wave number at a time
+#pause
+
+- What if we had multiple machines?
+#pause
+
+- Distributed computing e.g. MPI #sym.arrow.double *all* wave numbers at the _same time_
+
+- Can scale to clusters and supercomputers!
 
 = Results
 == Some Basic Results
@@ -259,20 +267,26 @@ Similar to the method of lines
 = Conclusion
 == Conclusion
 // TODO: focus on what I did
-- Parallelism is only becoming more accessible
 
-- Parallel-in-time methods like Parareal can be reasonably used
-- With parallelism comes scalability onto high-performance platforms
+- Equations of motion are no longer bound to sequential solvers
+
+- Certain problems can be divided conquered
+
+- "Doubly parallel" problems can benefit from
+  - local parallelism
+  - distributed parallelism
+  - High-performance systems
 
 #ending-slide(title: [Thank you for your time.])[
   #v(10%)
   #columns(2,
     [
-      - Code available on GitHub #sym.arrow.r.long
+      - #link("https:\/\/github.com/NonDairyNeutrino/Thesis", "Code available on GitHub") #sym.arrow.r.long
       - Let's collaborate! 
-      - #link("NChapman@whatcom.edu")
+      - #link("nathaniel.chapman@cwu.edu")
       - #link("nathanwchapman.com")
       #colbreak()
+      #v(-13%)
       #qr-code("https://github.com/NonDairyNeutrino/Thesis")
     ]
   )
