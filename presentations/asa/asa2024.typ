@@ -206,7 +206,7 @@ Similar to the method of lines
 
 == The Parareal Algorithm - Iterate
 
-- Iteration creates newsubproblems based on corrected initial values, and repeats
+- Iteration creates new subproblems based on corrected initial values, and repeats
   $ P^i equiv cal(L)(dots.c) = f(t) quad 
   underbrace(u(T_p) = u_p^i\, partial_t u(T_i) = v_p^i, "Subproblem initial values") quad 
   underbrace(D_p = \[T_p\, T_(p + 1)\], "Subproblem domain") $
@@ -229,7 +229,7 @@ Similar to the method of lines
   - Not very accurate
 #pause
 
-- Calculations only involve arithmetic!
+- These calculations only involve arithmetic!
 #pause
 
 - GPU parallelism
@@ -246,12 +246,13 @@ Similar to the method of lines
 #pause
 
 - Distributed computing e.g. MPI #sym.arrow.double *all* wave numbers at the _same time_
+#pause
 
 - Can scale to clusters and supercomputers!
 
 = Results
 == Some Basic Results
-- pictures of results
+#figure(image("figures/cos_24_48.svg"), caption: [Local CPU-based solution to $u^(prime prime) (t) = - u(t), u(0) = 1, u^prime (0) = 0$ evaluated on 24 threads])
 
 // = Discussion
 
@@ -270,18 +271,21 @@ Similar to the method of lines
 
 - Equations of motion are no longer bound to sequential solvers
 
-- Certain problems can be divided conquered
+- Certain problems can be divided and conquered
 
 - "Doubly parallel" problems can benefit from
   - local parallelism
   - distributed parallelism
   - High-performance systems
 
-#ending-slide(title: [Thank you for your time.])[
+- One day soon, used to model acoustics in expanding volumes
+
+#ending-slide(title: [Thank you for your time])[
   #v(10%)
+  
   #columns(2,
     [
-      - #link("https:\/\/github.com/NonDairyNeutrino/Thesis", "Code available on GitHub") #sym.arrow.r.long
+      - #link("https:\/\/github.com/NonDairyNeutrino", "Julia code available on GitHub") #sym.arrow.r.long
       - Let's collaborate! 
       - #link("nathaniel.chapman@cwu.edu")
       - #link("nathanwchapman.com")
