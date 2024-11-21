@@ -143,7 +143,7 @@ Similar to the method of lines
   - and more
 #pause
 
-- The 3 cores steps of the Parareal Algorithm
+- The 4 cores steps of the Parareal Algorithm
 
   + Prepare the subproblems
   + Solve each subproblem in parallel
@@ -166,8 +166,8 @@ Similar to the method of lines
 + Choose coarse propagator $cal(C)_0$ to get initial solution values $\{u_p^0\}_p, \{v_p^0\}_p$
   #pause
 
-+  Subproblem  
-  $ p equiv cal(L)(dots.c) = f(t) quad 
++  Problem  
+  $ P^0 equiv cal(L)(dots.c) = f(t) quad 
   underbrace(u(T_p) = u_p^0\, partial_t u(T_i) = v_p^0, "Subproblem initial values") quad 
   underbrace(D_p = \[T_p\, T_(p + 1)\], "Subproblem domain")$
 
@@ -193,35 +193,49 @@ Similar to the method of lines
 
 == The Parareal Algorithm - Corrections
 
-// - What is the Parareal algorithm and how is it useful?
-// - Psuedo-code goes here
-// - Picture goes here
+- Previous main coarse solution is "corrected" 
+#pause
 
-// TODO: get algo working; addressed in github issue https://github.com/platformer/typst-algorithms/issues/22
-// #algo(
-//   title: "The Parareal Algorithm",
-//   parameters: (
-//     [Coarse Propagator $cal(C)$],
-//     [Fine Propagator $cal(F)$],
-//     [Initial Condition $u_0$],
-//     [Discretized Time Domain $T = {T_0, T_1, dots, T_N}$]
-//   )
-// )[
-//   // Output: Solution ${u_0, u_1, ..., u_N}$
+// TODO: double check
+- Correctors: $eta_p^i = cal(F) u_p^i (T_(p + 1)) - cal(C) u_p^i (T_(p + 1))$
+  - Correct based on last value in each subproblem
+#pause
 
-//   #comment[INITIALIZATION]\
-//   use coarse propagator and initial values to generate ${u_0, u_1, ..., u_N}$ on the discretized time domain $T$\
-//   #comment[BEGIN PARALLEL]\
-//   #comment[parallelize over the temporal subdomains]\
-//   for $n = 0, 1, dots, N - 1$ do #i\
-//     Use the fine propagator and psuedo-initial value $u_n$ to get the data point $u_(n + 1)^cal(F)$\
-//     Use the coarse propagator and psuedo-initial value $u_n$ to get the data point $u_(n + 1)^cal(C)$\
-//     $"corrector"_(n + 1) arrow.l u_(n + 1)^cal(F) - u_(n + 1)^cal(C)$ #d\
-// ]
+- Correction: $u_(p + 1)^i (T_(p + 1)) = u_p^i (T_(p + 1)) + eta_p^i$
+  - Must be done sequentially
 
+== The Parareal Algorithm - Iterate
+
+- Iteration creates newsubproblems based on corrected initial values, and repeats
+  $ P^i equiv cal(L)(dots.c) = f(t) quad 
+  underbrace(u(T_p) = u_p^i\, partial_t u(T_i) = v_p^i, "Subproblem initial values") quad 
+  underbrace(D_p = \[T_p\, T_(p + 1)\], "Subproblem domain") $
+#pause
+
+- Loop until some stopping critera is met
+  - For example, iterations converge $abs(u_p^i - u_p^(i - 1)) < epsilon quad forall p <= N$
+#pause
+
+- Converges in *at most* $N$ iterations
+#pause
+
+- End result is same as applying the fine solver directly
 
 == GPU Computing
-- Each subproblem can be computed in parallel on each gpu core
+
+- CPU parallelism
+  - Well supported via OpenMP, MPI, etc.
+  - \~10 cores #sym.arrow \~10 subproblems
+  - Not very accurate
+#pause
+
+- Calculations only involve arithmetic!
+#pause
+
+- GPU parallelism
+  - Well supported by CUDA, OpenACC, etc.
+  - 15,000+ cores #sym.arrow 15,000+ subproblems
+  - *Very accurate*
 
 == Distributed Computing
 - 1 wave number per gpu
