@@ -148,36 +148,48 @@ Similar to the method of lines
   + Prepare the subproblems
   + Solve each subproblem in parallel
   + Correct
+  + Iterate
 
 == The Parareal Algorithm - Subproblem Preperation
 
-+ Given an initial value problem (IVP) 
-  $ cal(L)(t, u, partial_t u, partial_t^2 u) = f(t); quad u(0) = u_0, partial_t u(0) = v_0; quad D = \[T, T + Delta T\) $
++ Given an initial value problem $P$ 
+  $ cal(L)(t, u, partial_t u, partial_t^2 u) = f(t) quad u(0) = u_0, partial_t u(0) = v_0 quad D = \[T, T + Delta T\] $
   #pause
 
 + Choose number of subproblems $N$ (suggest number of compute cores)
   #pause
 
-+ Partition time domain for $i = 0, 1, dots, N - 1$ 
-  $ D = \[T, T + Delta T\) arrow.r D_i = \[T + i / N Delta T, T + (i + 1) / N Delta T\) = [T_i, T_(i + 1)] $
++ Partition time domain for $p = 0, 1, dots, N - 1$ 
+  $ D = \[T, T + Delta T\] arrow.r D_p = \[T + p / N Delta T, T + (p + 1) / N Delta T\] = [T_p, T_(p + 1)] $
   #pause
 
-+ Choose coarse (i.e. cheap) propagator $cal(C)_0$ to get initial solution $u_(cal(C_0)\i), partial_t u_(cal(C_0)\i)$
-  $ "initial value for subproblem" i arrow.r u_(i 0)^0 = u_(cal(C_0)\i) $
++ Choose coarse propagator $cal(C)_0$ to get initial solution values $\{u_p^0\}_p, \{v_p^0\}_p$
   #pause
 
-+  Subproblems $cal(L)(dots.c) = f(t); quad u(T_i) = u_(i 0)^0, partial_t u(T_i) = v_(i 0)^0; quad D_i = \[T_i, T_(i + 1)\)$
++  Subproblem  
+  $ p equiv cal(L)(dots.c) = f(t) quad 
+  underbrace(u(T_p) = u_p^0\, partial_t u(T_i) = v_p^0, "Subproblem initial values") quad 
+  underbrace(D_p = \[T_p\, T_(p + 1)\], "Subproblem domain")$
 
 // == The Parareal Algorithm - Subproblem Preperation
 // TODO: DIAGRAM OF PREPARING THE SUBPROBLEMS
 
 == The Parareal Algorithm - Parallel Propagation
 
-+ Choose coarse propagator $cal(C)$
++ Choose coarse propagator $cal(C)$ 
+  - For example, RK2 with a large time-step
+#pause
 
-+ Solve each subproblem $i$ in parallel to get $u_(i)^1 = \{u_(i j)^1\}$
-+ Choose fine (i.e. expensive) propagator $cal(F)$ to get solution for each subproblem
-+ Solve each subproblem in parallel
++ Choose fine propagator $cal(F)$ 
+  - For example, Velocity-Verlet with a small time-step
+#pause
+
++ On $i$-th iteration, use $cal(C)$ to solve each subproblem $p$ in parallel
+  - coarse solution is $cal(C) u_p^i$
+#pause
+
++ Use $cal(F)$ to solve each subproblem $p$ in parallel
+  - fine solution is $cal(F) u_p^i$
 
 == The Parareal Algorithm - Corrections
 
