@@ -1,0 +1,86 @@
+\begin{center}
+	{\Large Scalable Parallel-in-Time Integration}
+	\vspace{0.5in}
+% Nathaniel Chapman[1], Andy Piacsek[2] \\
+% \\[1\\]Department of Computer Science, Central Washington University
+
+	Abstract \\
+	stuff
+\end{center}
+
+\section{Introduction}
+
+	\begin{itemize}
+		\item The Equation of Motion
+		\item Acoustics in Expanding Volumes
+	\end{itemize}
+
+\section{Methods}
+
+	\subsection{The Parareal Algorithm}
+		
+		% - The 4 cores steps of the Parareal Algorithm
+		
+		% + Prepare the subproblems
+		% + Solve each subproblem in parallel
+		% + Correct
+		% + Iterate
+
+		\begin{itemize}
+			\item "Parallel-in-time integration" $\approx$ "Solving IVP in parallel"
+			\item Several algorithms 
+				\begin{itemize}
+					\item Parareal
+					\item Multigrid Reduction in Time (MGRIT)
+					\item Parallel Full Approximation Scheme in Space and Time (PFASST)
+					\item and more
+				\end{itemize}
+			\item 4 core steps
+				\begin{itemize}
+					\item Perpare the subproblems
+					\item Solve each subproblem
+					\item Correct
+					\item Iterate
+				\end{itemize}
+		\end{itemize}
+
+		\subsubsection{Subproblem Preperation}
+
+			Given an initial value problem $P$ 
+			\begin{equation}
+				\mathcal{L}\left(t, u, \partial_t u, \partial_t^2 u \right) = f(t) \quad u(0) = u_0, \partial_t u(0) = v_0 \quad D = [T, T + \Delta T]
+			\end{equation}
+		
+			Choose number of subproblems $N$ (suggest number of compute cores)
+		
+			Partition time domain for $p = 0, 1, \dots, N - 1$ 
+			\begin{equation}
+				D = [T, T + \Delta T] \to D_p = [T + p / N \Delta T, T + (p + 1) / N \Delta T] = [T_p, T_(p + 1)]
+			\end{equation}
+		
+			Choose coarse propagator $mathcal{C}_0$ to get initial solution values $\{u_p^0\}_p, \{v_p^0\}_p$
+			
+			\begin{equation}
+				P^0 \equiv
+				\mathcal{L}\left(t, u, \partial_t u, \partial_t^2 u \right) = f(t) \quad
+				\underbrace{u(0) = u_0, \partial_t u(0) = v_0}_\text{Subproblem initial values} \quad 
+				\underbrace{D = [T, T + \Delta T]}_\text{Subproblem domain}
+			\end{equation}
+
+		\subsubsection{Parallel Propagation}
+
+		\subsubsection{Corrections}
+
+		\subsubsection{Iterate}
+
+	\subsection{GPU Computing}
+
+	\subsection{Distributed Computing}
+
+\section{Results}
+
+\section{Discussion}
+
+\section{Conclusion}
+
+	\subsection{Future Work}
