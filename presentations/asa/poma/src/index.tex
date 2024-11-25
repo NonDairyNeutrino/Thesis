@@ -69,8 +69,16 @@
 
 		\subsubsection{Parallel Propagation}
 
-		\subsubsection{Corrections}
+			\begin{itemize}
+				\item Choose coarse propagator $\mathcal{C}$ - e.g. RK2 with a large time step
+				\item Choose fine propagator $\mathcal{F}$   - e.e. Velocity-Verlet with small time step
+				\item On $i$-th iteration, use $\mathcal{C}$ to solve each subproblem $p$ in parallel - coarse solution is $\mathcal{C} u_p^i$
+				\item On $i$-th iteration, use $\mathcal{F}$ to solve each subproblem $p$ in parallel - fine solution is $\mathcal{F} u_p^i$
+			\end{itemize}
 
+		\subsubsection{Corrections}
+			\begin{itemize}
+				\item Coarse propagate big-picture solution but with each term corrected
 		\subsubsection{Iterate}
 
 	\subsection{GPU Computing}
