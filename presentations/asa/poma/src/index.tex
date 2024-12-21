@@ -1,8 +1,12 @@
 \begin{center}
-	{\Large Scalable Parallel-in-Time Integration}
-	\vspace{0.5in}
+	{
+		\Large Scalable Parallel-in-Time Integration for \\
+		\vspace{0.1in} Acoustics with Time-Varying Wave Speed
+	}
+	\vspace{0.25in} \\
 % Nathaniel Chapman[1], Andy Piacsek[2] \\
-% \\[1\\]Department of Computer Science, Central Washington University
+% [1]Department of Computer Science, Central Washington University \\
+% [2]Department of Computer Science, Central Washington University \\
 
 	Abstract \\
 	stuff
@@ -11,8 +15,8 @@
 \section{Introduction}
 
 	\begin{itemize}
-		\item The Equation of Motion
-		\item Acoustics in Expanding Volumes
+		\item Rising interest in acoustic meta-materials requires more computaitonal support
+		\item Big problems demand high-performance solvers
 	\end{itemize}
 
 \section{Methods}
@@ -79,6 +83,7 @@
 		\subsubsection{Corrections}
 			\begin{itemize}
 				\item Coarse propagate big-picture solution but with each term corrected
+			\end{itemize}
 		\subsubsection{Iterate}
 
 	\subsection{GPU Computing}
@@ -92,3 +97,9 @@
 \section{Conclusion}
 
 	\subsection{Future Work}
+
+	\begin{itemize}
+		\item Krylov Enhanced Subspaces \cite{doi:10.1098/rsta.2023.0369}
+	\end{itemize}
+
+\printbibliography
