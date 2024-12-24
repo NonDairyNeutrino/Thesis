@@ -1,16 +1,15 @@
-\begin{center}
-	{
-		\Large Scalable Parallel-in-Time Integration for \\
-		\vspace{0.1in} Acoustics with Time-Varying Wave Speed
-	}
-	\vspace{0.25in} \\
-% Nathaniel Chapman[1], Andy Piacsek[2] \\
-% [1]Department of Computer Science, Central Washington University \\
-% [2]Department of Computer Science, Central Washington University \\
+% \begin{center}
+% 	{
+% 		\Large Scalable parallel-in-time integration for equations of motion
+% 	}
+% 	\vspace{0.25in} \\
+% % Nathaniel Chapman[1], Andy Piacsek[2] \\
+% % [1]Department of Computer Science, Central Washington University \\
+% % [2]Department of Computer Science, Central Washington University \\
 
-	Abstract \\
-	stuff
-\end{center}
+% 	Abstract \\
+	
+% \end{center}
 
 \section{Introduction}
 
@@ -21,55 +20,70 @@
 
 \section{Methods}
 
-	\subsection{The Parareal Algorithm}
-		
-		% - The 4 cores steps of the Parareal Algorithm
-		
-		% + Prepare the subproblems
-		% + Solve each subproblem in parallel
-		% + Correct
-		% + Iterate
+	There are 3 traditional ways to parallelize the solution of a computational problem: 
+	CPU parallelization, 
+	GPU parallelization, 
+	and Distributed computing.  
+	While CPU parallelization is more straightforward to implement, GPU parallelization can allow for runtimes to decrease by many orders of magnitudes.
+	Even lower run times can be achieved by combining either of these parallization schemes with running them on multiple machines.  This investigation focuses on parallelizing the solution of equations of motion using GPUs and multiple machines.
 
-		\begin{itemize}
-			\item "Parallel-in-time integration" $\approx$ "Solving IVP in parallel"
-			\item Several algorithms 
-				\begin{itemize}
-					\item Parareal
-					\item Multigrid Reduction in Time (MGRIT)
-					\item Parallel Full Approximation Scheme in Space and Time (PFASST)
-					\item and more
-				\end{itemize}
-			\item 4 core steps
-				\begin{itemize}
-					\item Perpare the subproblems
-					\item Solve each subproblem
-					\item Correct
-					\item Iterate
-				\end{itemize}
-		\end{itemize}
+	These approaches can offer massive increases in performance, but only for problems that are well-posed to be parallelized.  Traditionally, initial value problems have been unable to be parallelized due their dependance on causality.  Several methods have been created to overcome this limitation.  These methods include the Parareal algorithm, Multigrid Reduction in Time (MGRIT), Parallel Full Approximtaion Scheme in Space and Time (PFASST).  This investigation focuses on the Parareal algorithm.
+
+	\subsection{The Parareal Algorithm}
+
+		The Parareal algorithm does not solve a problem directly, but deconstructs the problem in to subproblems that can be solved with traditional methods in parallel, then recombines their solutions to yield a solution that is equivalent to what would have been produced sequentially.  The Parareal algorithm can be thought of as shooting-in-time due its predictor-corrector nature, or multi-grid-in-time due to its layered discretization in the time domain.
+
+		The Parareal algorithm can be broken down into four key steps
+
+		\begin{enumerate}
+			\item Prepare the subproblems
+			\item Solve each subproblem in parallel
+			\item Recombine and correct
+			\item Loop
+		\end{enumerate}
 
 		\subsubsection{Subproblem Preperation}
 
-			Given an initial value problem $P$ 
+			If the root problem $P$ can be described by a second-order differential equation 
+			$\mathcal{L}\left(t, u, \partial_t u, \partial_t^2 u \right) = f(t)$, 
+			initial values $u(0) = u_0, \partial_t u(0) = v_0$,
+			and time domain
+			$D = [T, T + \Delta T]$, then define $P$ as the initial value problem such that
 			\begin{equation}
-				\mathcal{L}\left(t, u, \partial_t u, \partial_t^2 u \right) = f(t) \quad u(0) = u_0, \partial_t u(0) = v_0 \quad D = [T, T + \Delta T]
+				P = \{\mathcal{L}\left(t, u, \partial_t u, \partial_t^2 u \right) = f(t), \quad u(0) = u_0, \partial_t u(0) = v_0, \quad [T, T + \Delta T]\}.
 			\end{equation}
-		
-			Choose number of subproblems $N$ (suggest number of compute cores)
-		
-			Partition time domain for $p = 0, 1, \dots, N - 1$ 
+
+			Then choose a natural number $N$ as the number of subproblems that root problem should be partitioned into;  this should probably be the number of compute cores (either CPU or GPU).
+
+			Then partition the time domain for $p = 0, 1, \dots, N - 1$ so that 
 			\begin{equation}
-				D = [T, T + \Delta T] \to D_p = [T + p / N \Delta T, T + (p + 1) / N \Delta T] = [T_p, T_(p + 1)]
+				D_p = [T + p  \Delta T / N,\, T + (p + 1)  \Delta T / N] = [T_p, T_{p + 1}]
 			\end{equation}
-		
-			Choose coarse propagator $mathcal{C}_0$ to get initial solution values $\{u_p^0\}_p, \{v_p^0\}_p$
+
+\pagebreak
+
+			Choose a \emph{coarse propagator} $\mathcal{C}_0$, e.g. Verlet, Runge-Kutta 2, and propagate the initial values according to the differential equation.  The result of this is 
+			
+			\begin{subequations}
+			\begin{equation}
+				\{u_p^0\}_p = \{u_0^0, u_1^0, u_2^0, \ldots, u_{N-1}^0\}
+			\end{equation}
+			\begin{equation}
+				\{v_p^0\}_p = \{v_0^0, v_1^0, v_2^0, \ldots, v_{N-1}^0\}
+			\end{equation}
+			\end{subequations}
+			where the superscript denotes that this is the zeroth-iteration.  Normally, this is where the story would end, but the Parareal algorithm is just getting started.
+
+			Now the subproblem $P_p^i$ for partition $p$ at iteration $i$ is defined such that 
 			
 			\begin{equation}
-				P^0 \equiv
-				\mathcal{L}\left(t, u, \partial_t u, \partial_t^2 u \right) = f(t) \quad
-				\underbrace{u(0) = u_0, \partial_t u(0) = v_0}_\text{Subproblem initial values} \quad 
-				\underbrace{D = [T, T + \Delta T]}_\text{Subproblem domain}
+				P_p^i =
+				\{\mathcal{L}\left(t, u, \partial_t u, \partial_t^2 u \right) = f(t), \quad
+				u(0) = u_p^i,\, \partial_t u(0) = v_p^i \quad 
+				D_p = \left[T_p, T_{p+1}\right]\}
 			\end{equation}
+			
+			The collection of subproblems at iteration $i$ is then $P^i = \{P_p^i\}_p$.
 
 		\subsubsection{Parallel Propagation}
 
@@ -79,6 +93,8 @@
 				\item On $i$-th iteration, use $\mathcal{C}$ to solve each subproblem $p$ in parallel - coarse solution is $\mathcal{C} u_p^i$
 				\item On $i$-th iteration, use $\mathcal{F}$ to solve each subproblem $p$ in parallel - fine solution is $\mathcal{F} u_p^i$
 			\end{itemize}
+
+			In addition to parallelizing, part of the magic of the Parareal algorithm lies in solving each subproblem not once, but twice with different solves or \emph{propagators}.  The next step in the process is to choose \emph{coarse} and \emph{fine} propagators.  It should be noted that this coarse propagator does not need to be the same as the coarse propagator that was chosen in preparing the subproblems.    Choices for these propagators/solvers/integrators include semi-implicit Euler for Coarse and Velocity-Verlet for fine.
 
 		\subsubsection{Corrections}
 			\begin{itemize}
@@ -99,7 +115,7 @@
 	\subsection{Future Work}
 
 	\begin{itemize}
-		\item Krylov Enhanced Subspaces \cite{doi:10.1098/rsta.2023.0369}
+		\item Krylov Enhanced Subspaces
 	\end{itemize}
 
-\printbibliography
+% \printbibliography
