@@ -72,7 +72,7 @@ I choose a gas with linear dispersion, analog massless and spin-0 particles, an 
 === BEC Analogs of FLRW Cosmologies
 The gas as is outlined is a ground-state Bose-Einstein condensate (BEC) without thermal or quantum fluctuations. The dynamics of the BEC are described by the Gross-Pitaevskii equation (GPE) under a Bogoliubov mean-field approximation (also known as the #text(style: "italic")[nonlinear Schr\u{00F6}dinger equation]),
 
-$ i planck diff_t psi (t, harpoon(x)) = [-planck^2 / (2 m) nabla^2 + V_"ext" (x) + U |psi(t, harpoon(x))|^2] psi(t, harpoon(x)). $ <GPE>
+$ i planck.reduce diff_t psi (t, harpoon(x)) = [-planck.reduce^2 / (2 m) nabla^2 + V_"ext" (x) + U |psi(t, harpoon(x))|^2] psi(t, harpoon(x)). $ <GPE>
 
 The wave function $psi$ can be expanded using a linearized Madelung density-phase representation
 
@@ -96,6 +96,10 @@ $ g_(mu nu) = (n_0 / c)^(2 / (d - 1)) mat(
 @metric can be interpreted as the covariant metric tensor (with determinant $g$) describing an analog, spatially flat, Friedmann-Lemaître-Robertson-Walker universe, $c$ is the speed of sound in the condensate, and $d$ is the number of spatial dimensions.  @KG describes both the phase-perturbations $Delta theta$ of oscillations with low spatial frequency (i.e. low momentum phonons) in the BEC and also the dynamics of a quantum field that produces massless, spin-0 particles.
 
 === Variable Speed of Sound and Inflation
+
+The time dependence of the system is completely captured in the speed of sound by 
+
+$ c(t)^2 = U(t) n_0 / m = 4 pi planck.reduce ^2 / m^2 n_0 ell(t), $ <speed>
 
 === The Field Equation
 
