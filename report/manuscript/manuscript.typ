@@ -1,5 +1,3 @@
-#let title = [Scalable Parallel-in-Time Integration for Equations of Motion:\ Particle Production in Analog Cosmologies]
-
 #set page(
   paper: "us-letter",
   margin: (top: auto, rest: 0.625in),
@@ -33,6 +31,7 @@
   #super[1]Department of Computer Science, Central Washington University\
   #datetime.today().display("[month repr:long] [day], [year]")
 ]
+
 #v(18pt)
 #align(center)[
   Abstract\
@@ -70,7 +69,7 @@ Studies have investigated gases with
 Computationally, simulations have had to investigate analog universes of reduced dimension due to the unreasonable time it takes to simulate full-dimensional systems without using high-performance computing.  These simulations have been deemed accurate enough as it is proposed that a full-dimensional simulation would yield qualitatively similar results.  In order to be confident in the level of accuracy of the reduced-dimensional simulations, those results need to be compared to those of a full-dimensional simulation.  This will not only allow a quantification of the error in the reduced-dimensional simulation, but also a measure of the error-to-resource efficiency of a full-dimensional simulation.
 
 Future insight into these analog systems and the fundamental properties of the early universe require computational support.  A readily-usable computational model will not only allow theoretical investigations to make predictions, but also allow experimental research to have a guide on where to go next and have something with which to compare.  The availability of this work is paramount to more efficient and more physically-accurate insight into our universe.
-#pagebreak()
+
 I choose a gas with linear dispersion, analog massless and spin-0 particles, an analog universe undergoing a de Sitter expansion with zero background velocity.  The de Sitter spacetime is chosen because of its significance to modern cosmology and previously predicted particle production (as done by Hawking) @de_Sitter_inhomogeneities @de_Sitter_particle_production_1 @de_Sitter_particle_production_2. Particle production will be calculated with standard methods @particle_production_1 @particle_production_2.  The numerical parameters chosen in this study also follow from previous studies @parameters.  Computational implementations will be done using high-performance methods.
 
 === BEC Analogs of FLRW Cosmologies
