@@ -142,7 +142,7 @@ The boundary between phononic and free-particle-like quasiparticles is described
 
 $ xi(t) = planck.reduce / (sqrt(2) m c) = xi_0 / sqrt(a(t)), $ <healing>
 
-$ k_c(t) = 1 / xi(t) = sqrt(a(t)) / xi_0 $ <critical>
+$ k_c (t) = 1 / xi(t) = sqrt(a(t)) / xi_0 $ <critical>
 
 Wave-vectors $harpoon(k)$ with wave-number $k = ||harpoon(k)||$ such that $k << k_c$ are called _phononic_#footnote[Phononic quasiparticles have linear dispersion $omega = c k$ characterized by neglecting quantum pressure.].  Likewise, those with $k >> k_c$ are called #text(style: "italic")[free-particle-like]#footnote[Free-particle-like quasiparticles have quadratic dispersion characterized by $omega_k (t)^2 = k^2 / (2 m) ((planck.reduce^2 k^2) / (2 m) + 2 U(t) n_0)$ characteried by including quantum-pressure].
 
@@ -167,7 +167,7 @@ where the initial derivative of the phase perturbation's Fourier amplitude (@con
 
 === Particle Production
 
-The number of particles $N_k(t)$ produced at time $t$ with wave-vector $harpoon(k)$ is described by the equation
+The number of particles $N_k (t)$ produced at time $t$ with wave-vector $harpoon(k)$ is described by the equation
 
 $ N_k(t) = |u_k^("out" *)(t) v_k^("exp" *)(t) - v_k^("out" *) u_k^("exp" *)(t)|^2 $ <particleProduction>
 
