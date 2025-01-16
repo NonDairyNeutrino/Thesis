@@ -194,9 +194,14 @@ To summarize, to calculate the number of particles produced at position $harpoon
 
 == Parallel-in-Time Integration
 
-- The Parareal Algorithm
-- PFASST
-- MGRIT
+There are 3 traditional ways to parallelize the solution of a computational problem: 
+CPU parallelization, 
+GPU parallelization, 
+and Distributed computing.  
+While CPU parallelization is more straightforward to implement, GPU parallelization can allow for runtimes to decrease by many orders of magnitudes.
+Even lower run times can be achieved by combining either of these parallization schemes with running them on multiple machines.  This investigation focuses on parallelizing the solution of equations of motion using GPUs and multiple machines.
+
+These approaches can offer massive increases in performance, but only for problems that are well-posed to be parallelized.  Traditionally, initial value problems have been unable to be parallelized due their dependance on causality.  Several methods have been created to overcome this limitation.  These methods include the Parareal algorithm, Multigrid Reduction in Time (MGRIT), Parallel Full Approximtaion Scheme in Space and Time (PFASST).  This investigation focuses on the Parareal algorithm.
 
 = Methods
 
