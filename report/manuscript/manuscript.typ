@@ -6,9 +6,9 @@
   numbering: "1",
   header: [Chapman Thesis #h(1fr) #line(length: 100%)]
 )
-#set par(justify: true)
-#set text(font: "New Computer Modern")
-#set enum(numbering: "1.a")
+#set par(justify: true, leading: 0.8em)
+#set text(font: "New Computer Modern", size: 11pt)
+#set enum(numbering: "1.")
 #set heading(numbering: "1.")
 #show outline.entry.where(
   level: 1
