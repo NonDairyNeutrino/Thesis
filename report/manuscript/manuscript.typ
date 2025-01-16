@@ -247,6 +247,8 @@ In addition to parallelizing, part of the magic of the Parareal algorithm lies i
 
 == GPU Computing
 
+GPUs, with their thousands of cores, allow solving 15,000+ subproblems concurrently, greatly enhancing accuracy compared to CPU parallelism, which typically supports only \~10 cores.
+
 == Distributed Computing
 
 = Results
