@@ -251,6 +251,8 @@ GPUs, with their thousands of cores, allow solving 15,000+ subproblems concurren
 
 == Distributed Computing
 
+Distributed computing frameworks like MPI enable computations across multiple machines, allowing all wave numbers to be solved simultaneously, scaling efficiently to clusters and supercomputers.
+
 = Results
 
 == Particle Production
