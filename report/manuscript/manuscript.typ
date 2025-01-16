@@ -26,9 +26,13 @@
 // #show link: lnk => underline(lnk)
 
 // TITLE
-#align(center)[#text(size: 14pt)[#title]]
-#align(center)[Nathaniel Chapman#super[1]]
-#align(center)[#super[1]Department of Computer Science, Central Washington University]
+#align(center)[
+  #text(size: 14pt)[Scalable Parallel-in-Time Integration for Equations of Motion:\ Particle Production in Analog Cosmologies]
+  #v(11pt)
+  Nathaniel Chapman#super[1]\
+  #super[1]Department of Computer Science, Central Washington University\
+  #datetime.today().display("[month repr:long] [day], [year]")
+]
 #v(18pt)
 #align(center)[
   Abstract\
