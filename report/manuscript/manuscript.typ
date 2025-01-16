@@ -207,6 +207,44 @@ These approaches can offer massive increases in performance, but only for proble
 
 == The Parareal Algorithm
 
+The four core steps of the parareal algorithm are as follows:
+
++ *Prepare the subproblems*
+
+  Given an initial value problem $P$:
+
+  $ P = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_0,  diff_t u(0) = v_0, #h(11pt) [T, T + Delta T]} $
+
+  where $D = [T, T + Delta T]$. Choose the number of subproblems $N$ (suggested: the number of compute cores). Partition the time domain $D$ into subdomains $D_p$:
+
+  $ D_p = [T + p / N Delta T, T + (p + 1) / N Delta T] = [T_p, T_(p+1)]. $
+
+  Use a coarse propagator $cal(C)_0$ to compute initial solutions ${u_p^0}_p$, ${v_p^0}_p$ defined such that
+
+  $ {u_p^0}_p = {u_0^0, u_1^0, u_2^0, dots, u_(N-1)^0} $
+  $ {v_p^0}_p = {v_0^0, v_1^0, v_2^0, dots, v_(N-1)^0} $
+
+  where the superscript denotes that this is the zeroth-iteration
+
++ *Solve each subproblem in parallel*
+
+  Use a coarse propagator $cal(C)$ (e.g., Symplectic-Euler with a large time step) and a fine propagator $cal(F)$ (e.g. Velocity-Verlet with a small time step). Solve each subproblem $p$ in parallel.
+
++ *Correct*
+
+  Compute corrections for the coarse solutions using:
+  $ eta_p^i = cal(F) u_p^i (T_(p+1)) - cal(C) u_p^i (T_(p+1)), $
+
+  and apply corrections sequentially:
+  $ u_{p+1}^i (T_(p+1)) = u_p^i (T_(p+1)) + eta_p^i. $
+
++ *Iterate*
+
+  Repeat the process for updated initial values until convergence, e.g.:
+  $ |u_p^i - u_p^{i-1}| < epsilon #h(11pt) forall p <= N. $
+
+In addition to parallelizing, part of the magic of the Parareal algorithm lies in solving each subproblem not once, but twice with different solves or _propagators_.  The next step in the process is to choose _coarse_, and _fine_. It should be noted that this coarse propagator does not need to be the same as the coarse propagator that was chosen in preparing the subproblems.  Possible propagators include the semi-implicit Euler method with a large time step for the corase propagator, and the velocity-verlet method with a small time step for the fine propagator; in order to satisfy energy-conservation, symplectic integrators should be used.  Without loss of generality, let the chosen coarse and fine propagators be denoted $cal(C), cal(F)$, respectively, and the $n_cal(S)$-th data point for propagator $cal(S)$ in the $p$-th subprobem at iteration $i$ be denoted $u_(p n_cal(S))^i$ and defined traditionally by $u_(p n_cal(S))^i = cal(S) u_(p n_cal(S) - 1)^i$, and the solution from propagator $cal(S)$ on subproblem $p$ is the ordered collection of points $cal(S) u_p^i = u_(p n_cal(S))^i_(n_cal(S))$.
+
 == GPU Computing
 
 == Distributed Computing
