@@ -279,6 +279,13 @@ Distributed computing frameworks like MPI enable computations across multiple ma
 
 = Conclusion
 
+- Equations of motion can now benefit from parallel solvers.
+
+- Certain problems are well-suited to a divide-and-conquer approach.
+- Problems with "doubly parallel" characteristics can leverage both local and distributed parallelism, achieving significant computational efficiency.
+- These advancements pave the way for modeling acoustics in expanding volumes.
+
+#pagebreak()
 #bibliography(
   "bib.bib",
   full: true,
