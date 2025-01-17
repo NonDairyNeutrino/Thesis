@@ -1,3 +1,5 @@
+#import "@preview/lovelace:0.3.0": *
+
 #set page(
   paper: "us-letter",
   margin: (top: auto, rest: 0.625in),
@@ -185,11 +187,46 @@ To summarize, to calculate the number of particles produced at position $harpoon
 + Calculate the number of particles at time $t$ with wave-vector $harpoon(k)$ as in @particleProduction
 
 == Computational Physics
+
+=== Symplectic Integration
 - Traditional Methods in evoling Equations of Motion
 - Def don't use Runge-Kutta methods
 - Symplectic Euler
 - Velocity Verlet
 - etc.
+
+One of the most important algorithms used in evolving equations of motion is the velocity Verlet method.
+
+// ```julia
+// # the velocity verlet method
+// function verlet(dt :: T, x0 :: Vector{T}, v0 :: Vector{T}, a :: Function) :: Tuple{Vector{T}, Vector{T}} where T <: Real
+//   x = x0 + v0 * dt
+//   v = v0 + a(t, x) * dt
+//   return x, v
+// end
+// ```
+
+#figure(
+  kind: "algorithm",
+  supplement: [Algorithm],
+  caption: [My cool algorithm],
+  pseudocode-list(
+    booktabs:true, 
+    numbered-title: smallcaps[Velocity Verlet]
+  )[
+    + do something
+    + do something else
+    + *while* still something to do
+      + do even more
+      + *if* not done yet *then*
+        + wait a bit
+        + resume working
+      + *else*
+        + go home
+      + *end*
+    + *end*
+  ]
+)
 
 == Parallel-in-Time Integration
 
