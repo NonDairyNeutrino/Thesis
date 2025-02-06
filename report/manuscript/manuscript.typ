@@ -1,10 +1,21 @@
 #import "@preview/lovelace:0.3.0": *
 
+#let title = "Scalable Parallel-in-Time Integration for Equations of Motion"
+
 #set page(
   paper: "us-letter",
   margin: (top: auto, rest: 0.625in),
-  numbering: "1",
-  header: [Chapman Thesis #h(1fr) #line(length: 100%)]
+  numbering: "1/1",
+  header: context {
+    let sections = query(
+      selector(heading.where(level: 2)).before(here())
+    )
+    if sections != () {
+      let lastSection = sections.last()
+      // let number = counter(heading).at(lastSection.location())
+      [#emph(smallcaps(title)) #h(1fr) #emph(smallcaps(lastSection.body)) #line(length: 100%)]
+    }
+  }
 )
 #set par(justify: true, leading: 0.8em)
 #set text(font: "New Computer Modern", size: 11pt)
