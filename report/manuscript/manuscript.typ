@@ -52,7 +52,21 @@
   Abstract\
   Abstracty things
 ]
+#v(1fr)
+#pagebreak()
 
+#v(1fr)
+#align(right, [_
+  This work is dedicated to\
+  my friends for sharing laughs and rants,\
+  Mr. Chris Lacey for making physics phun,\
+  Dr. Brandon Peden for showing me how to be a physicist,\
+  and Dr. Andy Piacsek for making sure I finish this damn thing.
+_])
+#v(1fr)
+#pagebreak()
+
+// TABLE OF CONTENTS
 #outline(indent: auto)
 #pagebreak()
 
