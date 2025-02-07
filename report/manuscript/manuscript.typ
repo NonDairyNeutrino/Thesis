@@ -1,6 +1,7 @@
 #import "@preview/lovelace:0.3.0": *
 
-#let title = "Scalable Parallel-in-Time Integration for Equations of Motion"
+#let title1 = "Scalable Parallel-in-Time Integration for Equations of Motion"
+#let title2 = "Particle Production in Analog Cosmologies"
 
 #set page(
   paper: "us-letter",
@@ -13,7 +14,7 @@
     if sections != () {
       let lastSection = sections.last()
       // let number = counter(heading).at(lastSection.location())
-      [#emph(smallcaps(title)) #h(1fr) #emph(smallcaps(lastSection.body)) #line(length: 100%)]
+      [#emph(smallcaps(title1)) #h(1fr) #emph(smallcaps(lastSection.body)) #line(length: 100%)]
     }
   }
 )
@@ -37,8 +38,9 @@
 // #show link: lnk => underline(lnk)
 
 // TITLE
+#v(1fr)
 #align(center)[
-  #text(size: 14pt)[Scalable Parallel-in-Time Integration for Equations of Motion:\ Particle Production in Analog Cosmologies]
+  #text(size: 14pt)[#title1:\ #title2]
   #v(11pt)
   Nathaniel Chapman#super[1]\
   #super[1]Department of Computer Science, Central Washington University\
