@@ -72,6 +72,30 @@ _])
 
 = Introduction
 
+== High-Performance Computing & Scalability
+
+== Parallel-in-Time Integration
+
+There are 3 traditional ways to parallelize the solution of a computational problem: 
+CPU parallelization, 
+GPU parallelization, 
+and Distributed computing.  
+While CPU parallelization is more straightforward to implement, GPU parallelization can allow for runtimes to decrease by many orders of magnitudes.
+Even lower run times can be achieved by combining either of these parallization schemes with running them on multiple machines.  This investigation focuses on parallelizing the solution of equations of motion using GPUs and multiple machines.
+
+These approaches can offer massive increases in performance, but only for problems that are well-posed to be parallelized.  Traditionally, initial value problems have been unable to be parallelized due their dependance on causality.  Several methods have been created to overcome this limitation.  These methods include the Parareal algorithm, Multigrid Reduction in Time (MGRIT), Parallel Full Approximtaion Scheme in Space and Time (PFASST).  This investigation focuses on the Parareal algorithm.
+
+== Equations of Motion
+
+- Symplectic Integration
+- Traditional Methods in evoling Equations of Motion
+- Def don't use Runge-Kutta methods
+- Symplectic Euler
+- Velocity Verlet
+- etc.
+
+One of the most important algorithms used in evolving equations of motion is the velocity Verlet method.
+
 == Analog Cosmology
 
 Directly measuring the properties of the universe just after the Big Bang is impossible, as that was almost 14 billion years ago.  Even _indirectly_ measuring these properties is extremely difficult via traditional means.  During these brief moments just after the Big Bang, the universe expanded rapidly in a particular way.  During this expansion there were particles popping in and out of existence, each with its own dynamics (e.g. position and momentum).
@@ -213,17 +237,6 @@ To summarize, to calculate the number of particles produced at position $harpoon
 + Combine $tilde(theta)_harpoon(k)(t)$ and $tilde(n)_harpoon(k)(t)$ as in equations (@mixedFourierAmplitudes)
 + Calculate the number of particles at time $t$ with wave-vector $harpoon(k)$ as in @particleProduction
 
-== Computational Physics
-
-=== Symplectic Integration
-- Traditional Methods in evoling Equations of Motion
-- Def don't use Runge-Kutta methods
-- Symplectic Euler
-- Velocity Verlet
-- etc.
-
-One of the most important algorithms used in evolving equations of motion is the velocity Verlet method.
-
 // ```julia
 // # the velocity verlet method
 // function verlet(dt :: T, x0 :: Vector{T}, v0 :: Vector{T}, a :: Function) :: Tuple{Vector{T}, Vector{T}} where T <: Real
@@ -254,17 +267,6 @@ One of the most important algorithms used in evolving equations of motion is the
     + *end*
   ]
 )
-
-== Parallel-in-Time Integration
-
-There are 3 traditional ways to parallelize the solution of a computational problem: 
-CPU parallelization, 
-GPU parallelization, 
-and Distributed computing.  
-While CPU parallelization is more straightforward to implement, GPU parallelization can allow for runtimes to decrease by many orders of magnitudes.
-Even lower run times can be achieved by combining either of these parallization schemes with running them on multiple machines.  This investigation focuses on parallelizing the solution of equations of motion using GPUs and multiple machines.
-
-These approaches can offer massive increases in performance, but only for problems that are well-posed to be parallelized.  Traditionally, initial value problems have been unable to be parallelized due their dependance on causality.  Several methods have been created to overcome this limitation.  These methods include the Parareal algorithm, Multigrid Reduction in Time (MGRIT), Parallel Full Approximtaion Scheme in Space and Time (PFASST).  This investigation focuses on the Parareal algorithm.
 
 = Methods
 
@@ -316,7 +318,15 @@ GPUs, with their thousands of cores, allow solving 15,000+ subproblems concurren
 
 Distributed computing frameworks like MPI enable computations across multiple machines, allowing all wave numbers to be solved simultaneously, scaling efficiently to clusters and supercomputers.
 
-= Results
+= Showcases
+
+== Wave on a String
+
+The wave equation is important
+
+- Sstart with the partial differential equation $partial_t^2 u = 1/c^2 partial_x^2 u$ with some initial and boundary conditions
+- Apply a spectral decomposition i.e. transform $u$ to its Fourier transform $tilde(u)$ so that the partial differential equation becomes a system of ordinary differential equations in the spatial-frequency domain
+- do the thing
 
 == Particle Production
 
@@ -341,12 +351,15 @@ Distributed computing frameworks like MPI enable computations across multiple ma
 == Benchmarks
 
 = Conclusion
-
 - Equations of motion can now benefit from parallel solvers.
-
 - Certain problems are well-suited to a divide-and-conquer approach.
 - Problems with "doubly parallel" characteristics can leverage both local and distributed parallelism, achieving significant computational efficiency.
 - These advancements pave the way for modeling acoustics in expanding volumes.
+
+== Future work
+- Krylov enhanced subspaces
+- CUDA dynamic parallelism
+- Implement with C, Fortran, CUDA, NVSHMEM, MPI
 
 #pagebreak()
 #bibliography(
