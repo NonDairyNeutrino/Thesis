@@ -70,11 +70,15 @@ _])
 #outline(indent: auto)
 #pagebreak()
 
-= Introduction
+= Background
 
-== High-Performance Computing & Scalability
+== High-Performance Computing
 
-== Parallel-in-Time Integration
+Some key aspects of high-performance computing (HPC) are:
+=== Multi-threading & GPU Computing
+=== Multi-processing & Distributed Computing
+
+== Parallel-in-Time Integration (PinT)
 
 There are 3 traditional ways to parallelize the solution of a computational problem: 
 CPU parallelization, 
@@ -85,8 +89,19 @@ Even lower run times can be achieved by combining either of these parallization 
 
 These approaches can offer massive increases in performance, but only for problems that are well-posed to be parallelized.  Traditionally, initial value problems have been unable to be parallelized due their dependance on causality.  Several methods have been created to overcome this limitation.  These methods include the Parareal algorithm, Multigrid Reduction in Time (MGRIT), Parallel Full Approximtaion Scheme in Space and Time (PFASST).  This investigation focuses on the Parareal algorithm.
 
+=== Parareal
+- The Parareal method has mostly been applied to first-order ordinary differential equations.
+- Part of the novelty of this work is that it focuses on building support for second-order ODES
+
+=== Multigrid Reduction in Time (MGRIT)
+
+=== Parallel Full Approximation Scheme in Space and Time (PFASST)
+
 == Equations of Motion
 
+=== Differential Equations
+
+=== Traditional Numerical Methods
 - Symplectic Integration
 - Traditional Methods in evoling Equations of Motion
 - Def don't use Runge-Kutta methods
@@ -318,29 +333,17 @@ GPUs, with their thousands of cores, allow solving 15,000+ subproblems concurren
 
 Distributed computing frameworks like MPI enable computations across multiple machines, allowing all wave numbers to be solved simultaneously, scaling efficiently to clusters and supercomputers.
 
-= Showcases
-
-== Wave on a String
-
-The wave equation is important
-
-- Sstart with the partial differential equation $partial_t^2 u = 1/c^2 partial_x^2 u$ with some initial and boundary conditions
-- Apply a spectral decomposition i.e. transform $u$ to its Fourier transform $tilde(u)$ so that the partial differential equation becomes a system of ordinary differential equations in the spatial-frequency domain
-- do the thing
-
-== Particle Production
-
 = Discussion
-
-== Physical Implications
 
 == Numerical Analysis
 
-=== Error
+- use the pendulum i.e. the simple harmonic oscillator to test numerical analysis properties since we know the analytic solutions and can compare.
 
 === Convergence
 
 === Stability
+
+=== Error
 
 == Algorithm Analysis
 
@@ -349,6 +352,25 @@ The wave equation is important
 === Space Complexity
 
 == Benchmarks
+
+= Showcases
+
+== Nonlinear ODE: The Pendulum
+- The pendulum equation without the small-angle approximation $dot.double(theta) + sin(theta) = 0$
+- Don't use distributed?
+
+== PDE: The Wave Equation
+
+The wave equation is important
+
+- Sstart with the partial differential equation $partial_t^2 u = 1/c^2 partial_x^2 u$ with some initial and boundary conditions
+- Apply a spectral decomposition i.e. transform $u$ to its Fourier transform $tilde(u)$ so that the partial differential equation becomes a system of ordinary differential equations in the spatial-frequency domain
+- do the thing
+
+== Particle Production in Analog Cosmologies
+- Solve the partial differential equation 
+- spectral decomposition
+- system of equations $partial_t^2 tilde(theta) - (dot(a) / a) partial_t tilde(theta) - a c^2 k^2 tilde(theta) = 0$ for wavenumber $k <= k_c$
 
 = Conclusion
 - Equations of motion can now benefit from parallel solvers.
