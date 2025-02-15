@@ -333,6 +333,26 @@ In addition to parallelizing, part of the magic of the Parareal algorithm lies i
 #figure(
   kind: "algorithm",
   supplement: [Algorithm],
+  caption: [GPU kernel to calculate the discretized points in a subdomain in-place],
+  pseudocode-list(
+    numbered-title: smallcaps[discretize_kernel],
+    booktabs: true, 
+    hooks: 0.5em
+  )[
+    - *INPUT:* Sequence of points in the subdomain `dompnts`
+    - *OUTPUT:* Nothing
+    + `npnts`   #gets number of points in `dompnts`
+    + `lb`      #gets lower bound of this subdomain `dompnts[1]`
+    + `ub`      #gets upper bound of this subdomain `dompnts[-1]`
+    + `step`    #gets (`ub` - `lb`) / `npnts`
+    + *for* `i` from 2 to (`npnts` - 1)
+      + `dompnts[i]` #gets `lb` + (`i` - 1) \* `step`
+  ]
+)
+
+#figure(
+  kind: "algorithm",
+  supplement: [Algorithm],
   caption: [Main kernel],
   pseudocode-list(
     numbered-title: smallcaps[kernel],
@@ -342,20 +362,16 @@ In addition to parallelizing, part of the magic of the Parareal algorithm lies i
     - *INPUT:* Solver function `sol`, Acceleration function `acc`, Sequence of sequenes of domain points `dss`, Sequence of sequences of positions `pss`, Sequence of sequences of velocities `vss`
     - *OUTPUT:* Nothing
 
-    + `nsols`  #gets number of subproblems or subdomains
-    + `npnts`   #gets number of points in each subdomain
+    + `nsols`   #gets number of subproblems or subdomains
 
     - \/\/      INDEX STRIDING // make gray to more directly show it's a comment
     + `index`  #gets (block_id - 1) \* block_dim + thread_id
     + `stride` #gets grid_dim \* block_dim
-    + *for* `i` from `index` to `solutionCount` in steps of `stride`
+    + *for* `i` from `index` to `nsols` in steps of `stride`
 
       - \/\/    DISCRETIZE DOMAINS
       + `dompnts` #gets sequence of points in this subdomain `dss[i]`
-      + `lb`      #gets lower bound of this subdomain `dompnts[1]`
-      + `ub`      #gets upper bound of this subdomain `dompnts[-1]`
-      + `step`    #gets (`ub` - `lb`) / `npts`
-      + `discretize_kernel`(`dompnts`, `step`)
+      + `discretize_kernel`(`dompnts`)
 
       - \/\/      ALLOCATE SOLUTIONS
       + `pos_seq` #gets sequence of positions for this subproblem `pss[i]`
