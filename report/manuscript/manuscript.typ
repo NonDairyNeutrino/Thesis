@@ -2,6 +2,7 @@
 
 #let title1 = "Scalable Parallel-in-Time Integration for Equations of Motion"
 #let title2 = "Particle Production in Analog Cosmologies"
+#let gets   = sym.arrow.l
 
 #set page(
   paper: "us-letter",
@@ -325,13 +326,43 @@ The four core steps of the parareal algorithm are as follows:
 
 In addition to parallelizing, part of the magic of the Parareal algorithm lies in solving each subproblem not once, but twice with different solves or _propagators_.  The next step in the process is to choose _coarse_, and _fine_. It should be noted that this coarse propagator does not need to be the same as the coarse propagator that was chosen in preparing the subproblems.  Possible propagators include the semi-implicit Euler method with a large time step for the corase propagator, and the velocity-verlet method with a small time step for the fine propagator; in order to satisfy energy-conservation, symplectic integrators should be used.  Without loss of generality, let the chosen coarse and fine propagators be denoted $cal(C), cal(F)$, respectively, and the $n_cal(S)$-th data point for propagator $cal(S)$ in the $p$-th subprobem at iteration $i$ be denoted $u_(p n_cal(S))^i$ and defined traditionally by $u_(p n_cal(S))^i = cal(S) u_(p n_cal(S) - 1)^i$, and the solution from propagator $cal(S)$ on subproblem $p$ is the ordered collection of points $cal(S) u_p^i = u_(p n_cal(S))^i_(n_cal(S))$.
 
-== GPU Computing
+== The Parareal Algorithm at Scale
 
-GPUs, with their thousands of cores, allow solving 15,000+ subproblems concurrently, greatly enhancing accuracy compared to CPU parallelism, which typically supports only \~10 cores.
+- The subproblems are evaluated in parallel on the cores of the GPU using the following kernel
 
-== Distributed Computing
+#figure(
+  kind: "algorithm",
+  supplement: [Algorithm],
+  caption: [Main kernel],
+  pseudocode-list(
+    numbered-title: smallcaps[kernel],
+    booktabs: true, 
+    hooks: 0.5em
+  )[
+    - *INPUT:* Solver function `sol`, Acceleration function `acc`, Sequence of sequenes of domain points `dss`, Sequence of sequences of positions `pss`, Sequence of sequences of velocities `vss`
+    - *OUTPUT:* Nothing
 
-Distributed computing frameworks like MPI enable computations across multiple machines, allowing all wave numbers to be solved simultaneously, scaling efficiently to clusters and supercomputers.
+    + `nsols`  #gets number of subproblems or subdomains
+    + `npnts`   #gets number of points in each subdomain
+
+    - \/\/      INDEX STRIDING // make gray to more directly show it's a comment
+    + `index`  #gets (block_id - 1) \* block_dim + thread_id
+    + `stride` #gets grid_dim \* block_dim
+    + *for* `i` from `index` to `solutionCount` in steps of `stride`
+
+      - \/\/    DISCRETIZE DOMAINS
+      + `dompnts` #gets sequence of points in this subdomain `dss[i]`
+      + `lb`      #gets lower bound of this subdomain `dompnts[1]`
+      + `ub`      #gets upper bound of this subdomain `dompnts[-1]`
+      + `step`    #gets (`ub` - `lb`) / `npts`
+      + `discretize_kernel`(`dompnts`, `step`)
+
+      - \/\/      ALLOCATE SOLUTIONS
+      + `pos_seq` #gets sequence of positions for this subproblem `pss[i]`
+      + `vel_seq` #gets sequence of velocities for this subproblem `vss[i]`
+      + `propagate_kernel`()
+  ]
+)
 
 = Discussion
 
