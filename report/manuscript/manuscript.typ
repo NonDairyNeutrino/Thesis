@@ -353,6 +353,27 @@ In addition to parallelizing, part of the magic of the Parareal algorithm lies i
 #figure(
   kind: "algorithm",
   supplement: [Algorithm],
+  caption: [GPU kernel to propagate solutions in-place],
+  pseudocode-list(
+    numbered-title: smallcaps[propagate_kernel],
+    booktabs: true, 
+    hooks: 0.5em
+  )[
+    - *INPUT:* Solver function `sol`, Acceleration function `acc`, Domain points `dompnts`, Position sequence `pos_seq`, Velocity sequence `vel_seq`
+    - *OUTPUT:* Nothing
+    + `npnts` #gets number of points in domain `dompnts`
+    + *for* `i` from 2 to (`npnts` - 1)
+      + `op` #gets old position `pos_seq[i - 1]`
+      + `ov` #gets old velocity `vel_seq[i - 1]`
+      + `np` #gets new position `pos_seq[i]`
+      + `nv` #gets new velocity `vel_seq[i]`
+      + `np`, `nv` #gets `solver`(`op`, `ov`, `acc`, `step`) // FIXME: find call to step
+  ]
+)
+
+#figure(
+  kind: "algorithm",
+  supplement: [Algorithm],
   caption: [Main kernel],
   pseudocode-list(
     numbered-title: smallcaps[kernel],
@@ -376,7 +397,7 @@ In addition to parallelizing, part of the magic of the Parareal algorithm lies i
       - \/\/      ALLOCATE SOLUTIONS
       + `pos_seq` #gets sequence of positions for this subproblem `pss[i]`
       + `vel_seq` #gets sequence of velocities for this subproblem `vss[i]`
-      + `propagate_kernel`()
+      + `propagate_kernel`(`sol`, `acc`, `dompnts`, `pos_seq`, `vel_seq`)
   ]
 )
 
