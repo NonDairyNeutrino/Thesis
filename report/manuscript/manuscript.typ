@@ -307,6 +307,33 @@ The four core steps of the parareal algorithm are as follows:
 
   where the superscript denotes that this is the zeroth-iteration
 
+#figure(
+  kind: "algorithm",
+  supplement: [Algorithm],
+  caption: [Prepare the subproblems],
+  pseudocode-list(
+    numbered-title: smallcaps[Prepare the subproblems],
+    booktabs: true, 
+    hooks: 0.5em
+  )[
+    - *INPUT:* Second order initial value problem `P`, Coarse solver `C`
+    - *OUTPUT:* Solution for `P` made from `pos_seq` and `vel_seq`, and array of subproblems `subproblems`
+    - \/\/ _choose discretization_
+    + `N` #gets number of subproblems \/\/ _e.g. \# of computer cores_
+    - \/\/ _partition the domain of P into N subdomains e.g. [a, b] -> {[a, c], [c, b]}_
+    + `subdomains` #gets `partition(P.domain)`
+    - \/\/ _use coarse solver to get positions and velocities for the root problem_
+    + `pos_seq`, `vel_seq` #gets `propagate(P, C)`
+    - \/\/ _create subproblems_
+    + *for* `i` from 1 to `N`
+      + `subdomain` #gets `i`-th domain partition `subdomains[i]`
+      + `pos0` #gets initial position for `i`-th subproblem `pos_seq[i]`
+      + `vel0` #gets initial velocity for `i`-th subproblem `vel_seq[i]`
+      + `subproblems[i]` #gets ivp on `subdomain` with initial values `pos0` and `vel0` for acceleration `P.acc`
+    + *return* Solution for root problem with `pos_seq` and `vel_seq`, and array of subproblems `subproblems`
+  ]
+)
+
 + *Solve each subproblem in parallel*
 
   Use a coarse propagator $cal(C)$ (e.g., Symplectic-Euler with a large time step) and a fine propagator $cal(F)$ (e.g. Velocity-Verlet with a small time step). Solve each subproblem $p$ in parallel.
