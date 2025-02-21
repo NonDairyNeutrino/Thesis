@@ -325,13 +325,15 @@ The four core steps of the parareal algorithm are as follows:
 
 In addition to parallelizing, part of the magic of the Parareal algorithm lies in solving each subproblem not once, but twice with different solves or _propagators_.  The next step in the process is to choose _coarse_, and _fine_. It should be noted that this coarse propagator does not need to be the same as the coarse propagator that was chosen in preparing the subproblems.  Possible propagators include the semi-implicit Euler method with a large time step for the corase propagator, and the velocity-verlet method with a small time step for the fine propagator; in order to satisfy energy-conservation, symplectic integrators should be used.  Without loss of generality, let the chosen coarse and fine propagators be denoted $cal(C), cal(F)$, respectively, and the $n_cal(S)$-th data point for propagator $cal(S)$ in the $p$-th subprobem at iteration $i$ be denoted $u_(p n_cal(S))^i$ and defined traditionally by $u_(p n_cal(S))^i = cal(S) u_(p n_cal(S) - 1)^i$, and the solution from propagator $cal(S)$ on subproblem $p$ is the ordered collection of points $cal(S) u_p^i = u_(p n_cal(S))^i_(n_cal(S))$.
 
-== GPU Computing
-
-GPUs, with their thousands of cores, allow solving 15,000+ subproblems concurrently, greatly enhancing accuracy compared to CPU parallelism, which typically supports only \~10 cores.
-
-== Distributed Computing
-
-Distributed computing frameworks like MPI enable computations across multiple machines, allowing all wave numbers to be solved simultaneously, scaling efficiently to clusters and supercomputers.
+== The Parareal Algorithm at Scale
+- How did I glue GPU and Distributed computing together with the Parareal algorithm to make it scalable?
+  - GPU Computing: solve each subproblem on a each gpu core
+    - make stuff into arrays
+    - thread indexing blocks streaming multiprocessors
+  - Distributed Computing: solve each root problem on each node
+    - "Just add another machine"
+    - Automatically determine number of devices on each node
+    - Sharing data across processes
 
 = Discussion
 
