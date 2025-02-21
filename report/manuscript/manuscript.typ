@@ -2,6 +2,7 @@
 
 #let title1 = "Scalable Parallel-in-Time Integration for Equations of Motion"
 #let title2 = "Particle Production in Analog Cosmologies"
+#let gets   = sym.arrow.l
 
 #set page(
   paper: "us-letter",
@@ -320,6 +321,33 @@ The four core steps of the parareal algorithm are as follows:
 
   where the superscript denotes that this is the zeroth-iteration
 
+  #figure(
+    kind: "algorithm",
+    supplement: [Algorithm],
+    caption: [Prepare the subproblems],
+    pseudocode-list(
+      numbered-title: smallcaps[Prepare the subproblems],
+      booktabs: true, 
+      hooks: 0.5em
+    )[
+      - *INPUT:* Second order initial value problem `P`, Coarse solver `C`
+      - *OUTPUT:* Solution for `P` made from `pos_seq` and `vel_seq`, and array of subproblems `subproblems`
+      - \/\/ _choose discretization_
+      + `N` #gets number of subproblems \/\/ _e.g. multiple of \# of computer cores_
+      - \/\/ _partition the domain of P into N subdomains e.g. [a, b] -> {[a, c], [c, b]}_
+      + `subdomains` #gets `partition(P.domain)`
+      - \/\/ _use coarse solver to get positions and velocities for the root problem_
+      + `pos_seq`, `vel_seq` #gets `propagate(P, C)`
+      - \/\/ _create subproblems_
+      + *for* `i` from 1 to `N`
+        + `subdomain` #gets `i`-th domain partition `subdomains[i]`
+        + `pos0` #gets initial position for `i`-th subproblem `pos_seq[i]`
+        + `vel0` #gets initial velocity for `i`-th subproblem `vel_seq[i]`
+        + `subproblems[i]` #gets ivp on `subdomain` with initial values `pos0` and `vel0` for acceleration `P.acc`
+      + *return* Solution for root problem with `pos_seq` and `vel_seq`, and array of subproblems `subproblems`
+    ]
+  )
+
 + *Solve each subproblem in parallel*
 
   Use a coarse propagator $cal(C)$ (e.g., Symplectic-Euler with a large time step) and a fine propagator $cal(F)$ (e.g. Velocity-Verlet with a small time step). Solve each subproblem $p$ in parallel.
@@ -348,6 +376,79 @@ In addition to parallelizing, part of the magic of the Parareal algorithm lies i
     - "Just add another machine"
     - Automatically determine number of devices on each node
     - Sharing data across processes
+
+- The subproblems are evaluated in parallel on the cores of the GPU using the following kernel
+
+#figure(
+  kind: "algorithm",
+  supplement: [Algorithm],
+  caption: [GPU kernel to calculate the discretized points in a subdomain in-place],
+  pseudocode-list(
+    numbered-title: smallcaps[discretize_kernel],
+    booktabs: true, 
+    hooks: 0.5em
+  )[
+    - *INPUT:* Sequence of points in the subdomain `dompnts`
+    - *OUTPUT:* Nothing
+    + `npnts`   #gets number of points in `dompnts`
+    + `lb`      #gets lower bound of this subdomain `dompnts[1]`
+    + `ub`      #gets upper bound of this subdomain `dompnts[-1]`
+    + `step`    #gets (`ub` - `lb`) / `npnts`
+    + *for* `i` from 2 to (`npnts` - 1)
+      + `dompnts[i]` #gets `lb` + (`i` - 1) \* `step`
+  ]
+)
+
+#figure(
+  kind: "algorithm",
+  supplement: [Algorithm],
+  caption: [GPU kernel to propagate solutions in-place],
+  pseudocode-list(
+    numbered-title: smallcaps[propagate_kernel],
+    booktabs: true, 
+    hooks: 0.5em
+  )[
+    - *INPUT:* Solver function `sol`, Acceleration function `acc`, Domain points `dompnts`, Position sequence `pos_seq`, Velocity sequence `vel_seq`
+    - *OUTPUT:* Nothing
+    + `npnts` #gets number of points in domain `dompnts`
+    + *for* `i` from 2 to (`npnts` - 1)
+      + `op` #gets old position `pos_seq[i - 1]`
+      + `ov` #gets old velocity `vel_seq[i - 1]`
+      + `np` #gets new position `pos_seq[i]`
+      + `nv` #gets new velocity `vel_seq[i]`
+      + `np`, `nv` #gets `solver`(`op`, `ov`, `acc`, `step`) // FIXME: find call to step
+  ]
+)
+
+#figure(
+  kind: "algorithm",
+  supplement: [Algorithm],
+  caption: [Main kernel],
+  pseudocode-list(
+    numbered-title: smallcaps[kernel],
+    booktabs: true, 
+    hooks: 0.5em
+  )[
+    - *INPUT:* Solver function `sol`, Acceleration function `acc`, Sequence of sequenes of domain points `dss`, Sequence of sequences of positions `pss`, Sequence of sequences of velocities `vss`
+    - *OUTPUT:* Nothing
+
+    + `nsols`   #gets number of subproblems or subdomains
+
+    - \/\/      INDEX STRIDING // make gray to more directly show it's a comment
+    + `index`  #gets (block_id - 1) \* block_dim + thread_id
+    + `stride` #gets grid_dim \* block_dim
+    + *for* `i` from `index` to `nsols` in steps of `stride`
+
+      - \/\/    DISCRETIZE DOMAINS
+      + `dompnts` #gets sequence of points in this subdomain `dss[i]`
+      + `discretize_kernel`(`dompnts`)
+
+      - \/\/      ALLOCATE SOLUTIONS
+      + `pos_seq` #gets sequence of positions for this subproblem `pss[i]`
+      + `vel_seq` #gets sequence of velocities for this subproblem `vss[i]`
+      + `propagate_kernel`(`sol`, `acc`, `dompnts`, `pos_seq`, `vel_seq`)
+  ]
+)
 
 = Discussion
 
