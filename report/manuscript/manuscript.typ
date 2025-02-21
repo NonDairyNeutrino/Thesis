@@ -70,6 +70,8 @@ _])
 #outline(indent: auto)
 #pagebreak()
 
+= Introduction
+
 = Background
 
 == High-Performance Computing
@@ -100,14 +102,23 @@ These approaches can offer massive increases in performance, but only for proble
 == Equations of Motion
 
 === Differential Equations
+- Ordinary Differential Equations (ODE)
+- Systems of ODEs e.g. N-Body
+  - uncoupled
+  - coupled
+- Partial Differential Equations (PDE) e.g. wave equation
 
 === Traditional Numerical Methods
-- Symplectic Integration
-- Traditional Methods in evoling Equations of Motion
-- Def don't use Runge-Kutta methods
-- Symplectic Euler
-- Velocity Verlet
-- etc.
+- ODEs
+  - Symplectic Integration
+  - Traditional Methods in evoling Equations of Motion
+  - Def don't use Runge-Kutta methods
+  - Symplectic Euler
+  - Velocity Verlet
+  - etc.
+- PDEs
+  - Method of Lines
+  - Method of Relaxation
 
 One of the most important algorithms used in evolving equations of motion is the velocity Verlet method.
 
@@ -117,7 +128,7 @@ Directly measuring the properties of the universe just after the Big Bang is imp
 
 What is less difficult is cooling down gases to near absolute-zero (about a billion times colder than empty space).  Gases made of certain atoms or molecules have properties that can be changed to almost any value we want.  Because of this, we can turn our knobs in the lab to make the gas behave in a way that matches a certain mathematical model.
 
-For some types of gases, we can choose how strongly the particles in the gas interact with each other.  It turns out that we can choose a certain interaction strength so that the mathematical model that describes how the gas behaves "bf(exactly) matches the mathematical model of how particles are produced in the universe in the moments just after the Big Bang!  When this happens, we can call this ultra-cold gas an "analog universe".
+For some types of gases, we can choose how strongly the particles in the gas interact with each other.  It turns out that we can choose a certain interaction strength so that the mathematical model that describes how the gas behaves *exactly* matches the mathematical model of how particles are produced in the universe in the moments just after the Big Bang!  When this happens, we can call this ultra-cold gas an "analog universe".
 
 Because of this mathematical equality, we can effectively observe the particles in the moments just after the Big Bang, but in the lab. Moreover, these observations can be made using a tried-and-true system that has been developed and used over the past thirty years@firstBEC.
 
@@ -247,10 +258,13 @@ $ v_k (t) = 1 / (2 sqrt(n_0)) tilde(n)_k (t) - i sqrt(n_0) tilde(theta)_k (t), $
 
 To summarize, to calculate the number of particles produced at position $harpoon(x)$ and time $t$ with wave-vector $harpoon(k)$ looks like the following:
 
-+ Solve the field equation (@fieldEquationConformalFourier) for $tilde(theta)_harpoon(k)(t)$
-+ Differentiate $tilde(theta)_harpoon(k)(t)$ to get $tilde(n)_harpoon(k)(t)$ as in equation (@conditionDerivative)
-+ Combine $tilde(theta)_harpoon(k)(t)$ and $tilde(n)_harpoon(k)(t)$ as in equations (@mixedFourierAmplitudes)
-+ Calculate the number of particles at time $t$ with wave-vector $harpoon(k)$ as in @particleProduction
+#align(center, [
+  + Solve the field equation (@fieldEquationConformalFourier) for $tilde(theta)_harpoon(k)(t)$
+  + Differentiate $tilde(theta)_harpoon(k)(t)$ to get $tilde(n)_harpoon(k)(t)$ as in equation (@conditionDerivative)
+  + Combine $tilde(theta)_harpoon(k)(t)$ and $tilde(n)_harpoon(k)(t)$ as in equations (@mixedFourierAmplitudes)
+  + Calculate the number of particles at time $t$ with wave-vector $harpoon(k)$ as in @particleProduction
+]
+)
 
 // ```julia
 // # the velocity verlet method
@@ -384,6 +398,8 @@ The wave equation is important
 - Krylov enhanced subspaces
 - CUDA dynamic parallelism
 - Implement with C, Fortran, CUDA, NVSHMEM, MPI
+- Make gpu-backend-agnostic with KernelAbstractions.jl
+- this physics could be better done with PFASST
 
 #pagebreak()
 #bibliography(
