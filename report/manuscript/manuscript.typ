@@ -20,7 +20,7 @@
   }
 )
 #set par(justify: true, leading: 0.8em)
-#set text(font: "New Computer Modern", size: 11pt)
+#set text(font: "New Computer Modern", size: 10pt)
 #set enum(numbering: "1.")
 #set heading(numbering: "1.")
 #show outline.entry.where(
@@ -41,17 +41,22 @@
 // TITLE
 #v(1fr)
 #align(center)[
-  #text(size: 14pt)[#title1:\ #title2]
-  #v(11pt)
+  #text(size: 15pt)[*#title1:\ #title2*]
+  #v(1em)
   Nathaniel Chapman#super[1]\
   #super[1]Department of Computer Science, Central Washington University\
   #datetime.today().display("[month repr:long] [day], [year]")
 ]
 
-#v(18pt)
+#v(1em)
 #align(center)[
-  Abstract\
-  Abstracty things
+  #set par(justify: false)
+  *Abstract*\
+  Simulating time-dependent physics has traditionally been constrained to using sequential algorithms, thus not benefiting from advances in parallel computing.
+  Parallel-in-time integration attempts to address this limitation with methods such as the Parareal algorithm.
+  As the performance of the Parareal algorithm scales with the number of processors, it is well-suited to use the massively-parallel nature of graphics processing units.
+  Additional performance gains are seen when the physics is wave-like, as using a spectral method allows for each node in a distributed system to evaluate the Parareal algorithm.
+  Particle production in different cosmologies is used to highlight the performance gains from these methods.
 ]
 #v(1fr)
 #pagebreak()
@@ -75,12 +80,6 @@ _])
 
 = Background
 
-== High-Performance Computing
-
-Some key aspects of high-performance computing (HPC) are:
-=== Multi-threading & GPU Computing
-=== Multi-processing & Distributed Computing
-
 == Parallel-in-Time Integration (PinT)
 
 There are 3 traditional ways to parallelize the solution of a computational problem: 
@@ -99,6 +98,12 @@ These approaches can offer massive increases in performance, but only for proble
 === Multigrid Reduction in Time (MGRIT)
 
 === Parallel Full Approximation Scheme in Space and Time (PFASST)
+
+== High-Performance Computing
+
+Some key aspects of high-performance computing (HPC) are:
+=== Multi-threading & GPU Computing
+=== Multi-processing & Distributed Computing
 
 == Equations of Motion
 
