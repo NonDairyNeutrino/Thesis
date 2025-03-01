@@ -1,9 +1,15 @@
-Thesis for Master's of Science in Computational Science
+# Scalable Parallel-in-Time Integration for Equations of Motion: Particle Production in Analog Cosmologies
 
-Central Washington University
+The work here, using the functionality of [Parareal.jl](https://github.com/nondairyneutrino/Parareal.jl) and [PararealGPU.jl](https://github.com/nondairyneutrino/PararealGPU.jl), is part of my master's thesis in computational science, finished June 2025.
 
-2024
+## Abstract
 
-During the moments just after the Big Bang, particles were produced due to the rapid expansion of the universe. Because direct observation of the universe at this time is impossible, a lab-based ultra-cold quantum gas can be used as an analog.  Previous research has been done to computationally model these gases while restricted to a quasi-two-dimensional geometry.  This restriction yields an analog universe with two only spatial dimensions and a description of a reduced momentum distribution of the created particles.  A computational model simulating an unrestricted gas and an analog universe with three spatial dimensions requires the use of high-performance computing.  I aim to use high-performance computing to simulate the full-dimensional system. This will allow me to measure the error associated with using a reduced-dimensional model, and determine the cost-benefit ratio to using a high-performance implementation.
+Simulating time-dependent physics has traditionally been constrained to using sequential algorithms, thus not benefiting from advances in parallel computing.
+Parallel-in-time integration attempts to address this limitation with methods such as the Parareal algorithm.
+As the performance of the Parareal algorithm scales with the number of processors, it is well-suited to use the massively-parallel nature of graphics processing units.
+Additional performance gains are seen when the physics is wave-like, as using a spectral method allows for each node in a distributed system to evaluate the Parareal algorithm.
+Particle production in different cosmologies is used to highlight the performance gains from these methods.
 
-[![Build Status](https://github.com/nondairyneutrino/ParticleProduction.jl/actions/workflows/CI.yml/badge.svg?branch=trunk)](https://github.com/nondairyneutrino/ParticleProduction.jl/actions/workflows/CI.yml?query=branch%3Atrunk)
+## Outline
+
+[](https://github.com/nondairyneutrino/Thesis/report/manuscript/toc.pdf "@embed")
