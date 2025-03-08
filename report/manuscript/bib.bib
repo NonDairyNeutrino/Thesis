@@ -453,3 +453,63 @@ author = {Jianping Li},
 keywords = {Numerical differentiation, Explicit finite difference formula, Generalized Vandermonde determinant, Taylor series, Higher derivatives},
 abstract = {Through introducing the generalized Vandermonde determinant, the linear algebraic system of a kind of Vandermonde equations is solved analytically by use of the basic properties of this determinant, and then we present general explicit finite difference formulas with arbitrary order accuracy for approximating first and higher derivatives, which are applicable to unequally or equally spaced data. Comparing with other finite difference formulas, the new explicit difference formulas have some important advantages. Basic computer algorithms for the new formulas are given, and numerical results show that the new explicit difference formulas are quite effective for estimating first and higher derivatives of equally and unequally spaced data.}
 }
+
+@article{StablePararealWave,
+title = {A stable parareal-like method for the second order wave equation},
+journal = {Journal of Computational Physics},
+volume = {405},
+pages = {109156},
+year = {2020},
+issn = {0021-9991},
+doi = {https://doi.org/10.1016/j.jcp.2019.109156},
+url = {https://www.sciencedirect.com/science/article/pii/S0021999119308617},
+author = {Hieu Nguyen and Richard Tsai},
+keywords = {Parallel-in-time, Wave equation, Procrustes problem},
+abstract = {A new parallel-in-time iterative method is proposed for solving the homogeneous second-order wave equation. The new method involves a coarse scale propagator, allowing for larger time steps, and a fine scale propagator which fully resolves the medium using finer spatial grid and uses shorter time steps. The fine scale propagator is run in parallel for short time intervals. The two propagators are coupled in an iterative way that resembles the standard parareal method [24]. We present a data-driven strategy in which the computed data gathered from each iteration are re-used to stabilize the coupling by minimizing the wave energy residual of the fine and coarse propagated solutions. Several examples, including a wave speed with discontinuities, are provided to demonstrate the effectiveness of the proposed method.}
+}
+
+@article{StablePararealHyperbolic,
+author = {Dai, Xiaoying and Maday, Yvon},
+title = {Stable Parareal in Time Method for First- and Second-Order Hyperbolic Systems},
+journal = {SIAM Journal on Scientific Computing},
+volume = {35},
+number = {1},
+pages = {A52-A78},
+year = {2013},
+doi = {10.1137/110861002},
+
+URL = {https://doi.org/10.1137/110861002},
+eprint = {https://doi.org/10.1137/110861002},
+abstract = {The parareal in time algorithm allows one to perform parallel simulations of time-dependent problems. This algorithm has been implemented on many types of time-dependent problems with some success. Recent contributions have allowed one to extend the domain of application of the parareal in time algorithm so as to handle long-time simulations of Hamiltonian systems. This improvement has managed to avoid the fatally large lack of accuracy of the plain parareal in time algorithm, which does not conserve invariant quantities. A somewhat similar difficulty occurs for problems where the solution lacks regularity, either initially or during the evolution, as is the case for hyperbolic systems of conservation laws. In this paper we identify the reasons for instabilities of the parareal in time algorithm and propose a simple way to cure them. We use the new method to solve a linear wave equation and a nonlinear Burgers' equation. The results illustrate the stability of this variant of the parareal in time algorithm.}
+}
+
+@article{doi:10.1137/05064607X,
+author = { Gander, Martin J. and  Vandewalle, Stefan},
+title = {Analysis of the Parareal Time-Parallel Time-Integration Method},
+journal = {SIAM Journal on Scientific Computing},
+volume = {29},
+number = {2},
+pages = {556-578},
+year = {2007},
+doi = {10.1137/05064607X},
+
+URL = {https://doi.org/10.1137/05064607X},
+eprint = {https://doi.org/10.1137/05064607X},
+abstract = { The parareal algorithm is a method to solve time-dependent problems parallel in time: it approximates parts of the solution later in time simultaneously to parts of the solution earlier in time. In this paper the relation of the parareal algorithm to space‐time multigrid and multiple shooting methods is first briefly discussed. The focus of the paper is on new convergence results that show superlinear convergence of the algorithm when used on bounded time intervals, and linear convergence for unbounded intervals. }
+}
+
+@article{doi:10.1137/110856137,
+author = {Gander, Martin J. and G\"{u}ttel, Stefan},
+title = {PARAEXP: A Parallel Integrator for Linear Initial-Value Problems},
+journal = {SIAM Journal on Scientific Computing},
+volume = {35},
+number = {2},
+pages = {C123-C142},
+year = {2013},
+doi = {10.1137/110856137},
+URL = {https://doi.org/10.1137/110856137},
+eprint = {https://doi.org/10.1137/110856137},
+abstract = { A novel parallel algorithm for the integration of linear initial-value problems is proposed. This algorithm is based on the simple observation that homogeneous problems can typically be integrated much faster than inhomogeneous problems. An overlapping time-domain decomposition is utilized to obtain decoupled inhomogeneous and homogeneous subproblems, and a near-optimal Krylov method is used for the fast exponential integration of the homogeneous subproblems. We present an error analysis and discuss the parallel scaling of our algorithm. The efficiency of this approach is demonstrated with numerical examples. }
+}
+
+
