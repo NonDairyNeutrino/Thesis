@@ -307,9 +307,9 @@ To summarize, to calculate the number of particles produced at position $harpoon
 
 == The Parareal Algorithm
 
-The four core steps of the parareal algorithm are as follows:
+The main idea of the Parareal algorithm (PA) is to break up a single IVP into many smaller IVPs using some low-accuracy solution, solve those in parallel using high-accuracy methods, correct your initial solution using the sub-solutions, then make a new low-accuracy solution based on the corrected data, and repeat this process until the solution doesn't change.  The end result of this procedure is a solution identical to one produced by directly using the high-accuracy method *CITATION NEEDED*) while taking a less time.  Because the PA wraps traditional (sequential) solvers, it could be considered a "meta-" or "higher-order" method to solve IVPs.
 
-+ *Prepare the subproblems*
+=== Subproblem Preparation
 
   Given an initial value problem $P$:
 
@@ -353,11 +353,11 @@ The four core steps of the parareal algorithm are as follows:
     ]
   )
 
-+ *Solve each subproblem in parallel*
+=== Parallel Propagation
 
   Use a coarse propagator $cal(C)$ (e.g., Symplectic-Euler with a large time step) and a fine propagator $cal(F)$ (e.g. Velocity-Verlet with a small time step). Solve each subproblem $p$ in parallel.
 
-+ *Correct*
+=== Corrections
 
   Compute corrections for the coarse solutions using:
   $ eta_p^i = cal(F) u_p^i (T_(p+1)) - cal(C) u_p^i (T_(p+1)), $
@@ -365,7 +365,7 @@ The four core steps of the parareal algorithm are as follows:
   and apply corrections sequentially:
   $ u_{p+1}^i (T_(p+1)) = u_p^i (T_(p+1)) + eta_p^i. $
 
-+ *Iterate*
+=== Iteration & Convergence
 
   Repeat the process for updated initial values until convergence, e.g.:
   $ |u_p^i - u_p^{i-1}| < epsilon #h(11pt) forall p <= N. $
@@ -455,6 +455,7 @@ In addition to parallelizing, part of the magic of the Parareal algorithm lies i
   ]
 )
 
+#pagebreak()
 = Discussion
 
 == Numerical Analysis
