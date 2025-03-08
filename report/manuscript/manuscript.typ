@@ -272,7 +272,12 @@ To summarize, to calculate the number of particles produced at position $harpoon
 ]
 )
 
+#pagebreak()
 = Methods
+
+// What is covered in this section?
+// Why am I using the Parareal algorithm for this particular problem?
+// // How is the problem and the algorithm fed into each other.
 
 == The Parareal Algorithm
 
@@ -424,6 +429,7 @@ In addition to parallelizing, part of the magic of the Parareal algorithm lies i
   ]
 )
 
+#pagebreak()
 = Discussion
 
 == Numerical Analysis
