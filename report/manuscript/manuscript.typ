@@ -272,37 +272,6 @@ To summarize, to calculate the number of particles produced at position $harpoon
 ]
 )
 
-// ```julia
-// # the velocity verlet method
-// function verlet(dt :: T, x0 :: Vector{T}, v0 :: Vector{T}, a :: Function) :: Tuple{Vector{T}, Vector{T}} where T <: Real
-//   x = x0 + v0 * dt
-//   v = v0 + a(t, x) * dt
-//   return x, v
-// end
-// ```
-
-#figure(
-  kind: "algorithm",
-  supplement: [Algorithm],
-  caption: [My cool algorithm],
-  pseudocode-list(
-    booktabs:true, 
-    numbered-title: smallcaps[Velocity Verlet]
-  )[
-    + do something
-    + do something else
-    + *while* still something to do
-      + do even more
-      + *if* not done yet *then*
-        + wait a bit
-        + resume working
-      + *else*
-        + go home
-      + *end*
-    + *end*
-  ]
-)
-
 = Methods
 
 == The Parareal Algorithm
