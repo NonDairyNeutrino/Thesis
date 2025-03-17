@@ -472,6 +472,10 @@ In addition to parallelizing, part of the magic of the Parareal algorithm lies i
   ]
 )
 
+#figure(
+  image("../../images/parallel_propagation_gpu.png", width: 100%),
+  caption: [Sequential solutions (blue) are sent to the GPU to be finely-propagated (red) in parallel; true solutions (black) are shown for comparison.]
+)
 #pagebreak()
 = Discussion
 
