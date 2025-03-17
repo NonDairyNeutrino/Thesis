@@ -21,7 +21,7 @@
 )
 #set par(justify: true, leading: 0.8em)
 #set text(font: "New Computer Modern", size: 10pt)
-#set enum(numbering: "1.")
+#set enum(numbering: "1)")
 #set heading(numbering: "1.")
 #show outline.entry.where(
   level: 1
@@ -230,7 +230,7 @@ $ k_c (t) = 1 / xi(t) = sqrt(a(t)) / xi_0 $ <critical>
 
 Wave-vectors $harpoon(k)$ with wave-number $k = ||harpoon(k)||$ such that $k << k_c$ are called _phononic_#footnote[Phononic quasiparticles have linear dispersion $omega = c k$ characterized by neglecting quantum pressure.].  Likewise, those with $k >> k_c$ are called #text(style: "italic")[free-particle-like]#footnote[Free-particle-like quasiparticles have quadratic dispersion characterized by $omega_k (t)^2 = k^2 / (2 m) ((planck.reduce^2 k^2) / (2 m) + 2 U(t) n_0)$ characteried by including quantum-pressure].
 
-For phononic quasiparticles, the analog between a BEC and an inflationary cosmology is exact.  Inlcuding free-particle-like quasiparticles forces the analog to include "trans-Planckian" effects and analog Lorentz violation@Jain.  For these reasons, this investigation focuses only on phononic quasiparticles; namely wave-vectors $harpoon(k)$ such that $||harpoon(k)|| << k_c$.  Additionally, the free-particle-like regime has nonlinear dispersion which significantly increases the complexity of the field equation@Jain.
+For phononic quasiparticles, the analog between a BEC and an inflationary cosmology is exact.  Including free-particle-like quasiparticles forces the analog to include "trans-Planckian" effects and analog Lorentz violation@Jain.  For these reasons, this investigation focuses only on phononic quasiparticles; namely wave-vectors $harpoon(k)$ such that $||harpoon(k)|| << k_c$.  Additionally, the free-particle-like regime has nonlinear dispersion which significantly increases the complexity of the field equation@Jain.
 
 Only considering phononic modes, the two-dimensional field (@fieldEquationConformal) then becomes
 
@@ -292,6 +292,7 @@ Things covered in this chapter:
     - Automatic cluster topology identification
 
 == The Parareal Algorithm
+
 #v(2em)
 #align(right, [_The Parareal Algorithm aimed to solve the problem of physics taking too long to simulate; it didn't._])
 #v(2em)
