@@ -476,6 +476,18 @@ In addition to parallelizing, part of the magic of the Parareal algorithm lies i
   image("../../images/parallel_propagation_gpu.png", width: 100%),
   caption: [Sequential solutions (blue) are sent to the GPU to be finely-propagated (red) in parallel; true solutions (black) are shown for comparison.]
 )
+
+=== The Parareal Algorithm on Multiple GPUs
+
+- How did I glue GPU and Distributed computing together with the Parareal algorithm to make it scalable?
+  - GPU Computing: solve each subproblem on a each gpu core
+    - make stuff into arrays
+    - thread indexing blocks streaming multiprocessors
+  - Distributed Computing: solve each root problem on each node
+    - "Just add another machine"
+    - Automatically determine number of devices on each node
+    - Sharing data across processes
+
 #pagebreak()
 = Discussion
 
