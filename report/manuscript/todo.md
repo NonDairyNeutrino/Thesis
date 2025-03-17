@@ -1,0 +1,49 @@
+- [ ] Introduction
+- [ ] Background
+	- [ ] Parallel-in-Time Integration
+	- [ ] High-Performance Computing
+		- [ ] Multi-threading & GPU Computing
+		- [ ] Multi-processing & Distributed Computing
+	- [ ] Equations of Motion
+		- [ ] Differential Equations
+		- [ ] Traditional Numerical Methods
+	- [x] Analog Cosmology ✅ 2025-03-16
+		- [x] BEC Analogs of FLRW Cosmologies ✅ 2025-03-16
+		- [x] Variable Speed of Sound and Inflation ✅ 2025-03-16
+		- [x] The Field Equation ✅ 2025-03-16
+		- [x] Phononic & Free Particle Modes ✅ 2025-03-16
+		- [x] Initial Conditions ✅ 2025-03-16
+		- [x] Particle Production ✅ 2025-03-16
+- [ ] Methods
+	- [ ] Introduction
+	- [ ] The Parareal Algorithm
+		- [ ] Introduction
+		- [ ] Subproblem Preparation
+			- [ ] Psuedo-code
+		- [ ] Parallel Propagation
+		- [ ] Sequential Corrections
+		- [ ] Iterations & Convergence
+	- [ ] The Parareal Algorithm at Scale
+		- [ ] Introduction
+		- [ ] The Parareal Algorithm on the GPU
+		- [ ] The Parareal Algorithm on Multiple GPUs
+- [ ] Discussion
+	- [ ] Numerical Analysis
+		- [ ] Convergence
+			- [ ] Code
+			- [ ] Write
+		- [ ] Stability
+			- [ ] Code
+			- [ ] Write
+		- [ ] Error
+			- [ ] Code
+			- [ ] Write
+	- [ ] Algorithm Analysis
+		- [ ] Time Complexity
+		- [ ] Space Complexity
+	- [ ] Benchmarks
+		- [ ] Code
+		- [ ] Write
+- [ ] Particle Production in Analog Cosmology
+- [ ] Conclusion
+	- [ ] Future Work
