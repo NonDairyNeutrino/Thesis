@@ -3,6 +3,7 @@
 #let title1 = "Scalable Parallel-in-Time Integration for Equations of Motion"
 #let title2 = "Particle Production in Analog Cosmologies"
 #let gets   = sym.arrow.l
+#let cn     = [*\[CITATION NEEDED\]*]
 
 #set page(
   paper: "us-letter",
@@ -290,6 +291,10 @@ Things covered in this chapter:
     - MORE CORES -> MORE FAST
   - The Parareal Algorithm on Multiple GPUs
     - Automatic cluster topology identification
+
+Simulating physical processes has traditionally been done sequentially; even during the modern age of hardware supporting parallel execution, using computers to calculate the evolution of physical phenomena has been sequential.  Why haven't scientists just started doing things in parallel? Because of that pesky thing call _causality_; _the ball must go up before it can come down_.  Because of this temporal dependence (spatial dependence has had its own workarounds e.g. the Barnes-Hut algorithm @Barnes1986 @Hamada2009), simulation of large-time-scale physics has thus taken a long time to execute.  The Parareal algorithm, and other parallel-in-time integration algorithms, have been developed in the last few decades #cn to specifically address this issue.  Many details and variations of the Parareal algorithm have been investigated to find and address issues such as stability #cn, convergence rates #cn, application to higher-order differential equations #cn.  This main goal of this investigation is to contribute another variation: an implementation of the Parareal algorithm using high-performance computing methods.  The methods developed here could be used to minimize the runtime of even the largest scale time-dependent physical phenomena.
+
+The key parts to this implementation is interpreting the Parareal algorithm as recursively creating subproblems, and how those subproblems can each be solved on high-performance systems such as graphics processing units and distributed systems.  
 
 == The Parareal Algorithm
 
