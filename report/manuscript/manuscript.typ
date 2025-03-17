@@ -392,6 +392,15 @@ In addition to parallelizing, part of the magic of the Parareal algorithm lies i
   image("../../images/cluster_topology.png"),
   caption: [A representative cluster topology.]
 )
+
+=== The Parareal Algorithm on the GPU
+
+- Execute the parallel propagation on the GPU
+  - Requires transforming "regular code" into a "kernel" that's evaluated on every computer core
+  - Make solution data an array that is copied to the device which can then just write to the appropriate index
+  - Use thread-local variables (e.g. `threadidx.x`, `blockIdx.x`, etc.) to identify the appropriate index
+  - "Don't overwrite your neighbor" by index striding.
+
 #figure(
   kind: "algorithm",
   supplement: [Algorithm],
