@@ -275,9 +275,21 @@ To summarize, to calculate the number of particles produced at position $harpoon
 #pagebreak()
 = Methods
 
-// What is covered in this section?
-// Why am I using the Parareal algorithm for this particular problem?
-// // How is the problem and the algorithm fed into each other.
+Things covered in this chapter:
+- It's about runtime!
+- The Parareal Algorithm
+  - Subproblem interpretation
+    - Leads to recursive implementation
+  - The Main steps of the Parareal Algorithm:
+    - Subproblem preparation
+    - Parallel Propagation
+    - Sequential Corrections
+    - Iteration & Convergence
+- The Parareal Algorithm at Scale
+  - The Parareal Algorithm on the GPU
+    - MORE CORES -> MORE FAST
+  - The Parareal Algorithm on Multiple GPUs
+    - Automatic cluster topology identification
 
 == The Parareal Algorithm
 
