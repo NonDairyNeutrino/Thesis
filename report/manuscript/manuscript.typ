@@ -362,16 +362,31 @@ where the superscript denotes that this is the zeroth-iteration
 In addition to parallelizing, part of the magic of the Parareal algorithm lies in solving each subproblem not once, but twice with different solves or _propagators_.  The next step in the process is to choose _coarse_, and _fine_. It should be noted that this coarse propagator does not need to be the same as the coarse propagator that was chosen in preparing the subproblems.  Possible propagators include the semi-implicit Euler method with a large time step for the corase propagator, and the velocity-verlet method with a small time step for the fine propagator; in order to satisfy energy-conservation, symplectic integrators should be used.  Without loss of generality, let the chosen coarse and fine propagators be denoted $cal(C), cal(F)$, respectively, and the $n_cal(S)$-th data point for propagator $cal(S)$ in the $p$-th subprobem at iteration $i$ be denoted $u_(p n_cal(S))^i$ and defined traditionally by $u_(p n_cal(S))^i = cal(S) u_(p n_cal(S) - 1)^i$, and the solution from propagator $cal(S)$ on subproblem $p$ is the ordered collection of points $cal(S) u_p^i = u_(p n_cal(S))^i_(n_cal(S))$.
 
 == The Parareal Algorithm at Scale
-- How did I glue GPU and Distributed computing together with the Parareal algorithm to make it scalable?
-  - GPU Computing: solve each subproblem on a each gpu core
-    - make stuff into arrays
-    - thread indexing blocks streaming multiprocessors
-  - Distributed Computing: solve each root problem on each node
-    - "Just add another machine"
-    - Automatically determine number of devices on each node
-    - Sharing data across processes
 
-- The subproblems are evaluated in parallel on the cores of the GPU using the following kernel
+- Parallelize on the GPU instead of the CPU
+  - Port functionality to kernel calls
+    - Technical: Instead of objects with properties, it's just the same index for a bunch of different arrays
+    - Vibes: Makes logic less understandable comp
+  + From the host, launch the Parareal kernel on the device
+    + Each core on the device executes the same sequence of instructions (kernel), but uses different thread-local variables such as their thread id, block id, etc.
+    + Use traditional and sequential solvers on each core for each subproblem
+    + Write the final point to an array
+  + Send solution data back to host for sequential correction
+  + Host corrects and loops
+
+- Distribute problems over multiple processes/devices
+  - Preparing the Cluster
+    - Currently only works for an ssh-cluster i.e. a collection of machines that can all be accessed via ssh from the head node
+    - A "remote node" could also be a single process on a single machine, the differences are straightforward
+    - Given a head node and a collection of remote nodes
+    + Spawn a worker, or "sub-manager", process on each remote node
+    + Each sub-manager identifies how many devices are avavilable to the node, and send that information back to the manager process
+    + The manager process spawns a worker process on the appropriate node for each device on that node
+    + Each process aquires a device
+  + For each problem:
+    + Send it to a process
+    + Execute the parareal algorithm on that problem using the assigned device
+    + Send the result to the manager process to be used in corrections
 
 #figure(
   kind: "algorithm",
