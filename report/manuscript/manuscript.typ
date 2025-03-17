@@ -389,6 +389,10 @@ In addition to parallelizing, part of the magic of the Parareal algorithm lies i
     + Send the result to the manager process to be used in corrections
 
 #figure(
+  image("../../images/cluster_topology.png"),
+  caption: [A representative cluster topology.]
+)
+#figure(
   kind: "algorithm",
   supplement: [Algorithm],
   caption: [GPU kernel to calculate the discretized points in a subdomain in-place],
