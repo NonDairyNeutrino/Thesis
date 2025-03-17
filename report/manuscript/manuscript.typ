@@ -300,47 +300,47 @@ The main idea of the Parareal algorithm (PA) is to break up a single IVP into ma
 
 === Subproblem Preparation
 
-  Given an initial value problem $P$:
+Given an initial value problem $P$:
 
-  $ P = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_0,  diff_t u(0) = v_0, #h(11pt) [T, T + Delta T]} $
+$ P = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_0,  diff_t u(0) = v_0, #h(11pt) [T, T + Delta T]} $
 
-  where $D = [T, T + Delta T]$. Choose the number of subproblems $N$ (suggested: the number of compute cores). Partition the time domain $D$ into subdomains $D_p$:
+where $D = [T, T + Delta T]$. Choose the number of subproblems $N$ (suggested: the number of compute cores). Partition the time domain $D$ into subdomains $D_p$:
 
-  $ D_p = [T + p / N Delta T, T + (p + 1) / N Delta T] = [T_p, T_(p+1)]. $
+$ D_p = [T + p / N Delta T, T + (p + 1) / N Delta T] = [T_p, T_(p+1)]. $
 
-  Use a coarse propagator $cal(C)_0$ to compute initial solutions ${u_p^0}_p$, ${v_p^0}_p$ defined such that
+Use a coarse propagator $cal(C)_0$ to compute initial solutions ${u_p^0}_p$, ${v_p^0}_p$ defined such that
 
-  $ {u_p^0}_p = {u_0^0, u_1^0, u_2^0, dots, u_(N-1)^0} $
-  $ {v_p^0}_p = {v_0^0, v_1^0, v_2^0, dots, v_(N-1)^0} $
+$ {u_p^0}_p = {u_0^0, u_1^0, u_2^0, dots, u_(N-1)^0} $
+$ {v_p^0}_p = {v_0^0, v_1^0, v_2^0, dots, v_(N-1)^0} $
 
-  where the superscript denotes that this is the zeroth-iteration
+where the superscript denotes that this is the zeroth-iteration
 
-  #figure(
-    kind: "algorithm",
-    supplement: [Algorithm],
-    caption: [Prepare the subproblems],
-    pseudocode-list(
-      numbered-title: smallcaps[Prepare the subproblems],
-      booktabs: true, 
-      hooks: 0.5em
-    )[
-      - *INPUT:* Second order initial value problem `P`, Coarse solver `C`
-      - *OUTPUT:* Solution for `P` made from `pos_seq` and `vel_seq`, and array of subproblems `subproblems`
-      - \/\/ _choose discretization_
-      + `N` #gets number of subproblems \/\/ _e.g. multiple of \# of computer cores_
-      - \/\/ _partition the domain of P into N subdomains e.g. [a, b] -> {[a, c], [c, b]}_
-      + `subdomains` #gets `partition(P.domain)`
-      - \/\/ _use coarse solver to get positions and velocities for the root problem_
-      + `pos_seq`, `vel_seq` #gets `propagate(P, C)`
-      - \/\/ _create subproblems_
-      + *for* `i` from 1 to `N`
-        + `subdomain` #gets `i`-th domain partition `subdomains[i]`
-        + `pos0` #gets initial position for `i`-th subproblem `pos_seq[i]`
-        + `vel0` #gets initial velocity for `i`-th subproblem `vel_seq[i]`
-        + `subproblems[i]` #gets ivp on `subdomain` with initial values `pos0` and `vel0` for acceleration `P.acc`
-      + *return* Solution for root problem with `pos_seq` and `vel_seq`, and array of subproblems `subproblems`
-    ]
-  )
+#figure(
+  kind: "algorithm",
+  supplement: [Algorithm],
+  caption: [Prepare the subproblems],
+  pseudocode-list(
+    numbered-title: smallcaps[Prepare the subproblems],
+    booktabs: true, 
+    hooks: 0.5em
+  )[
+    - *INPUT:* Second order initial value problem `P`, Coarse solver `C`
+    - *OUTPUT:* Solution for `P` made from `pos_seq` and `vel_seq`, and array of subproblems `subproblems`
+    - \/\/ _choose discretization_
+    + `N` #gets number of subproblems \/\/ _e.g. multiple of \# of computer cores_
+    - \/\/ _partition the domain of P into N subdomains e.g. [a, b] -> {[a, c], [c, b]}_
+    + `subdomains` #gets `partition(P.domain)`
+    - \/\/ _use coarse solver to get positions and velocities for the root problem_
+    + `pos_seq`, `vel_seq` #gets `propagate(P, C)`
+    - \/\/ _create subproblems_
+    + *for* `i` from 1 to `N`
+      + `subdomain` #gets `i`-th domain partition `subdomains[i]`
+      + `pos0` #gets initial position for `i`-th subproblem `pos_seq[i]`
+      + `vel0` #gets initial velocity for `i`-th subproblem `vel_seq[i]`
+      + `subproblems[i]` #gets ivp on `subdomain` with initial values `pos0` and `vel0` for acceleration `P.acc`
+    + *return* Solution for root problem with `pos_seq` and `vel_seq`, and array of subproblems `subproblems`
+  ]
+)
 
 === Parallel Propagation
 
