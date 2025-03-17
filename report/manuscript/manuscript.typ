@@ -509,21 +509,7 @@ In addition to parallelizing, part of the magic of the Parareal algorithm lies i
 
 == Benchmarks
 
-= Showcases
-
-== Nonlinear ODE: The Pendulum
-- The pendulum equation without the small-angle approximation $dot.double(theta) + sin(theta) = 0$
-- Don't use distributed?
-
-== PDE: The Wave Equation
-
-The wave equation is important
-
-- Sstart with the partial differential equation $partial_t^2 u = 1/c^2 partial_x^2 u$ with some initial and boundary conditions
-- Apply a spectral decomposition i.e. transform $u$ to its Fourier transform $tilde(u)$ so that the partial differential equation becomes a system of ordinary differential equations in the spatial-frequency domain
-- do the thing
-
-== Particle Production in Analog Cosmologies
+= Particle Production in Analog Cosmologies
 - Solve the partial differential equation 
 - spectral decomposition
 - system of equations $partial_t^2 tilde(theta) - (dot(a) / a) partial_t tilde(theta) - a c^2 k^2 tilde(theta) = 0$ for wavenumber $k <= k_c$
