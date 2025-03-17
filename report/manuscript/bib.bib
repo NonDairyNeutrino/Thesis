@@ -409,7 +409,7 @@ author = {C W Gardiner and  J R Anglin and  T I A Fudge},
 title = {The stochastic
 Gross-Pitaevskii equation},
 journal = {Journal of Physics B: Atomic, Molecular and Optical Physics},
-abstract = {We show how to adapt the ideas of local energy and momentum conservation in order to derive modifications to the Gross-Pitaevskii equation which can be used phenomenologically to describe irreversible effects in a Bose-Einstein condensate. Our approach involves the derivation of a simplified  quantum kinetic theory, in which all processes are treated locally.   It is shown that this kinetic theory can then be transformed into a number of phase-space representations, of which the  Wigner function description, although approximate, is shown to be the most advantageous.  In this description, the quantum kinetic master  equation takes the form of a Gross-Pitaevskii equation with noise and damping added  according to a well defined prescription - an equation we call the  stochastic Gross-Pitaevskii equation. From this, a very  simplified description we call the phenomenological growth equation can be derived.  We use this equation to study (i) the nucleation and  growth of vortex lattices, and (ii) nonlinear losses in a hydrogen condensate, which it is shown can lead to a curious instability phenomenon.}
+abstract = {We show how to adapt the ideas of local energy and momentum conservation in order to derive modifications to the Gross-Pitaevskii equation which can be used phenomenologically to describe irreversible effects in a Bose-Einstein condensate. Our approach involves the derivation of a simplified  quantum kinetic theory, in which all processes are treated locally.   It is shown that this kinetic theory can then be transformed into a number of phase-space representations, of which the  Wigner function description, although approximate, is shown to be the most advantageous.  In this description, the quantum kinetic master  equation takes the form of a Gross-Pitaevskii equation with noise and damping added  according to a well defined prescription - an equation we call the  stochastic Gross-Pitaevskii equation. From this, a very  simplified description we call the phenomenological growth equation can be derived.  We use this equation to study (i) the nucleation and  growth of vortex lattices, and (ii) nonlinear losses in a hydrogen condensate, which it is shown can lead to a curious instability phenomenon.}
 }
 
 @article{
@@ -512,4 +512,44 @@ eprint = {https://doi.org/10.1137/110856137},
 abstract = { A novel parallel algorithm for the integration of linear initial-value problems is proposed. This algorithm is based on the simple observation that homogeneous problems can typically be integrated much faster than inhomogeneous problems. An overlapping time-domain decomposition is utilized to obtain decoupled inhomogeneous and homogeneous subproblems, and a near-optimal Krylov method is used for the fast exponential integration of the homogeneous subproblems. We present an error analysis and discuss the parallel scaling of our algorithm. The efficiency of this approach is demonstrated with numerical examples. }
 }
 
+@article{Barnes1986,
+author={Barnes, Josh
+and Hut, Piet},
+title={A hierarchical O(N log N) force-calculation algorithm},
+journal={Nature},
+year={1986},
+month={Dec},
+day={01},
+volume={324},
+number={6096},
+pages={446-449},
+abstract={Until recently the gravitational N-body problem has been modelled numerically either by direct integration, in which the computation needed increases as N2, or by an iterative potential method in which the number of operations grows as N log N. Here we describe a novel method of directly calculating the force on N bodies that grows only as N log N. The technique uses a tree-structured hierarchical subdivision of space into cubic cells, each of which is recursively divided into eight subcells whenever more than one particle is found to occupy the same cell. This tree is constructed anew at every time step, avoiding ambiguity and tangling. Advantages over potential-solving codes are: accurate local interactions; freedom from geometrical assumptions and restrictions; and applicability to a wide class of systems, including (proto-)planetary, stellar, galactic and cosmological ones. Advantages over previous hierarchical tree-codes include simplicity and the possibility of rigorous analysis of error. Although we concentrate here on stellar dynamical applications, our techniques of efficiently handling a large number of long-range interactions and concentrating computational effort where most needed have potential applications in other areas of astrophysics as well.},
+issn={1476-4687},
+doi={10.1038/324446a0},
+url={https://doi.org/10.1038/324446a0}
+}
+
+@article{Hamada2009,
+author={Hamada, Tsuyoshi
+and Nitadori, Keigo
+and Benkrid, Khaled
+and Ohno, Yousuke
+and Morimoto, Gentaro
+and Masada, Tomonari
+and Shibata, Yuichiro
+and Oguri, Kiyoshi
+and Taiji, Makoto},
+title={A novel multiple-walk parallel algorithm for the Barnes--Hut treecode on GPUs -- towardscost effective, high performance N-body simulation},
+journal={Computer Science - Research and Development},
+year={2009},
+month={Sep},
+day={01},
+volume={24},
+number={1},
+pages={21-31},
+abstract={Recently, general-purpose computation on graphics processing units (GPGPU) has become an increasinglypopular field of study as graphics processing units (GPUs) continue to be proposed as high performanceand relatively low cost implementation platforms for scientific computing applications. Among theseapplications figure astrophysical N-bodysimulations, which form one of the most challenging problemsin computational science. However, in most reported studies, a simple{\$} {\backslash}mathcal{\{}O{\}}(N^{\{}2{\}}){\$}algorithmwas used for GPGPUs, and the resulting performances were not observed to be better than those of conventionalCPUs that were based on more optimized{\$} {\backslash}mathcal{\{}O{\}}(N {\backslash}log N){\$}algorithmssuch as the tree algorithm or the particle-particle particle-mesh algorithm. Because of the difficultyin getting efficient implementations of such algorithms on GPUs, a GPU cluster had no practicaladvantage over general-purpose PC clusters for N-bodysimulations. In this paper, we report a newmethod for efficient parallel implementation of the tree algorithm on GPUs. Our novel tree code allowsthe realization of an N-bodysimulation on a GPU cluster at a much higher performance thanthat on general PC clusters. We practically performed a cosmological simulation with 562 millionparticles on a GPU cluster using 128 NVIDIA GeForce 8800GTS GPUs at an overall cost of 168172 {\$}.We obtained a sustained performance of 20.1 Tflops, which when normalized against a general-purposeCPU implementation leads to a performance of 8.50 Tflops. The achieved cost/performance washence a mere {\$}19.8 /Gflops which shows the high competitiveness of GPGPUs.},
+issn={1865-2042},
+doi={10.1007/s00450-009-0089-1},
+url={https://doi.org/10.1007/s00450-009-0089-1}
+}
 
