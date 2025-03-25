@@ -3,7 +3,7 @@
 #let title1 = "Scalable Parallel-in-Time Integration for Equations of Motion"
 #let title2 = "Particle Production in Analog Cosmologies"
 #let gets   = sym.arrow.l
-#let cn     = [*\[CITATION NEEDED\]*]
+#let cn     = [*CN*]
 
 #set page(
   paper: "us-letter",
