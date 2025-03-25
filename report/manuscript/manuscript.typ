@@ -276,25 +276,11 @@ To summarize, to calculate the number of particles produced at position $harpoon
 #pagebreak()
 = Methods
 
-Things covered in this chapter:
-- It's about runtime!
-- The Parareal Algorithm
-  - Subproblem interpretation
-    - Leads to recursive implementation
-  - The Main steps of the Parareal Algorithm:
-    - Subproblem preparation
-    - Parallel Propagation
-    - Sequential Corrections
-    - Iteration & Convergence
-- The Parareal Algorithm at Scale
-  - The Parareal Algorithm on the GPU
-    - MORE CORES -> MORE FAST
-  - The Parareal Algorithm on Multiple GPUs
-    - Automatic cluster topology identification
+Simulating physical processes has traditionally been done sequentially; even during the modern age of hardware supporting parallel execution, using computers to calculate the evolution of physical phenomena has been sequential.  Why haven't scientists just started doing things in parallel? Because of that pesky thing call _causality_; _the ball must go up before it can come down_.  Because of this temporal dependence (spatial dependence has had its own workarounds e.g. the Barnes-Hut algorithm @Barnes1986 @Hamada2009), simulation of large-time-scale physics has thus taken a long time to execute.  The Parareal algorithm (PA), and other parallel-in-time integration algorithms, have been developed in the last few decades #cn to specifically address this issue.  Many details and variations of the Parareal algorithm have been investigated to find and address issues such as stability #cn, convergence rates #cn, application to higher-order differential equations #cn.  This main goal of this investigation is to contribute another variation: an implementation of the Parareal algorithm using methods from high-performance computing.
 
-Simulating physical processes has traditionally been done sequentially; even during the modern age of hardware supporting parallel execution, using computers to calculate the evolution of physical phenomena has been sequential.  Why haven't scientists just started doing things in parallel? Because of that pesky thing call _causality_; _the ball must go up before it can come down_.  Because of this temporal dependence (spatial dependence has had its own workarounds e.g. the Barnes-Hut algorithm @Barnes1986 @Hamada2009), simulation of large-time-scale physics has thus taken a long time to execute.  The Parareal algorithm, and other parallel-in-time integration algorithms, have been developed in the last few decades #cn to specifically address this issue.  Many details and variations of the Parareal algorithm have been investigated to find and address issues such as stability #cn, convergence rates #cn, application to higher-order differential equations #cn.  This main goal of this investigation is to contribute another variation: an implementation of the Parareal algorithm using high-performance computing methods.  The methods developed here could be used to minimize the runtime of even the largest scale time-dependent physical phenomena.
+Before the PA can be implemented using these high-performance methods, the algorithm must be decomposed into its central components.  The Parareal algorithm begins by partitioning a single IVP into several IVPs on smaller domains via an initial, inaccurate, "root" solution.  Then each of the "subproblems" are solved using a sequential, accurate method on different threads at the same time.  The final data for each of the subsolutions is then combined with the respective data of the root solution to yield a more accurate (i.e. "corrected") root solution.  This new root solution is then used to repeat the process until convergence.
 
-The key parts to this implementation is interpreting the Parareal algorithm as recursively creating subproblems, and how those subproblems can each be solved on high-performance systems such as graphics processing units and distributed systems.  
+The interpretation of the PA in terms of these recursive subproblems makes the algorithm _almost_ embarrassingly parallel; the corrections to the root solution need to be done sequentially.  In addition to this structure, the algorithms being evaluated in parallel manifestly depend on simple arithmetic; because of this simplicity, the PA is well-suited to be evaluated on the GPU.  Likewise, distributed methods can be combined with GPU evaluation for further parallelization for either a single model (taking advantaged of the recursive nature of the PA) or a system of models.
 
 == The Parareal Algorithm
 
