@@ -20,7 +20,7 @@
     }
   }
 )
-#set par(justify: true, leading: 0.8em)
+#set par(justify: true, leading: 1em)
 #set text(font: "New Computer Modern", size: 10pt)
 #set enum(numbering: "1)")
 #set heading(numbering: "1.")
