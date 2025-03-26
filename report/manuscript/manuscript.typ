@@ -294,20 +294,28 @@ The main idea of the Parareal algorithm (PA) is to break up a single IVP into ma
 
 === Subproblem Preparation
 
-Given an initial value problem $P$:
+Let the second-order initial value problem $P$ be defined such that
 
-$ P = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_0,  diff_t u(0) = v_0, #h(11pt) [T, T + Delta T]} $
+$ P = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_0,  diff_t u(0) = v_0, #h(11pt) [t_0, t_0 + Delta t]}, $ <IVP>
 
-where $D = [T, T + Delta T]$. Choose the number of subproblems $N$ (suggested: the number of compute cores). Partition the time domain $D$ into subdomains $D_p$:
+and $D = [t_0, t_0 + Delta t]$. The discretization $N$ of $P$ should be determined by the number of available threads $N_t$ such that $N = m N_t$, for some positive integer $m$.  The discretization should be chosen in this manner for maximum performance and efficiency; if $N = m N_t + r$, and $0 < r < N_t$, each thread will solve a subproblem $m$ times until on the $m+1$ iteration where only $r$ threads would be active while $N_t - r$ threads idle.  This type of optimization is sometimes referred to as "_flooding the threadpool_" to mitigate _thread starvation_ #cn.
 
-$ D_p = [T + p / N Delta T, T + (p + 1) / N Delta T] = [T_p, T_(p+1)]. $
+With the discretization decided, partition the time domain $D$ into subdomains $D_p$ such that
 
-Use a coarse propagator $cal(C)_0$ to compute initial solutions ${u_p^0}_p$, ${v_p^0}_p$ defined such that
+$ D_p = [t_0 + p / N Delta t, t_0 + (p + 1) / N Delta t] = [t_p, t_(p+1)]. $
+
+Use a coarse propagator $cal(C)_0$ (such as the Euler method) to compute initial (represented by the $0$ subscript) root solutions ${u_p^0}_p$, ${v_p^0}_p$ defined such that
 
 $ {u_p^0}_p = {u_0^0, u_1^0, u_2^0, dots, u_(N-1)^0} $
 $ {v_p^0}_p = {v_0^0, v_1^0, v_2^0, dots, v_(N-1)^0} $
 
-where the superscript denotes that this is the zeroth-iteration
+and ${u_p^0, v_p^0} = cal(C)_0(Delta t, u_(p-1)^0, v_(p-1)^0, diff_t^2 u)$.
+
+Subproblems $P_p$ take the same from as in @IVP, but instead using initial conditions defined by those in the initial root solution.  For example, the subproblem $P_1$ for the second ($p = 1$) subdomain, takes the form
+
+$ P_1 = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_1^0,  diff_t u(0) = v_1^0, #h(11pt) [t_0, t_0 + Delta t]}. $
+
+@prep_subproblems shows the steps of this process for a given IVP and integration algorithm i.e. "propagator", resulting in root solutions and and the collected subproblems.  With these subproblems in hand, the PA continues to its next stage: propagating these problems in parallel.
 
 #figure(
   kind: "algorithm",
@@ -334,7 +342,7 @@ where the superscript denotes that this is the zeroth-iteration
       + `subproblems[i]` #gets ivp on `subdomain` with initial values `pos0` and `vel0` for acceleration `P.acc`
     + *return* Solution for root problem with `pos_seq` and `vel_seq`, and array of subproblems `subproblems`
   ]
-)
+) <prep_subproblems>
 
 === Parallel Propagation
 
