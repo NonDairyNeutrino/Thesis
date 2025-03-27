@@ -277,7 +277,7 @@ To summarize, to calculate the number of particles produced at position $harpoon
 = Methods
 
 Simulating physical processes has traditionally been done sequentially; even during the modern age of hardware supporting parallel execution, using computers to calculate the evolution of physical phenomena has been sequential.  Why haven't scientists just started doing things in parallel? Because of that pesky thing call _causality_; _the ball must go up before it can come down_.  Because of this temporal dependence (spatial dependence has had its own workarounds such as the Barnes-Hut algorithm @Barnes1986 @Hamada2009), simulation of large-time-scale physics has thus taken a long time to execute.  The Parareal algorithm (PA), and other parallel-in-time integration algorithms, have been developed in the last few decades #cn to specifically address this issue.  
-
+// These paragraphs should be squished together, after the above gets trimmed down
 Many details and variations of the Parareal algorithm have been investigated to find and address issues such as stability #cn, convergence rates #cn, application to higher-order differential equations #cn.  The main goal of this investigation is to contribute another variation: an implementation of the Parareal algorithm using methods from high-performance computing.
 
 Before the PA can be implemented using these high-performance methods, the algorithm must be decomposed into its central components.  The Parareal algorithm begins by partitioning a single IVP into several IVPs on smaller domains via an initial, inaccurate, "root" solution.  Then each of the "subproblems" are solved using a sequential, accurate method on different threads at the same time.  The final data for each of the subsolutions is then combined with the respective data of the root solution to yield a more accurate (i.e. "corrected") root solution.  This new root solution is then used to repeat the process until convergence.
@@ -292,14 +292,14 @@ $ P = {
     "Acceleration"
   ), #h(11pt)  
   underbrace(
-    theta(0) = pi/8\,  v(0) = 0 "rad/s", 
+    theta(0) = pi/8\, #h(5pt) omega(0) = 0 "rad/s", 
     "Initial values"
   ), #h(11pt) 
   underbrace(
     [0 "s", 10 "s"], 
     "time span"
   )
-}. $
+}. $ <ex_eq>
 
 == The Parareal Algorithm
 
@@ -334,9 +334,22 @@ $ P_1 = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_1^0,  dif
 
 @prep_subproblems shows the steps of this process for a given IVP and integration algorithm i.e. "propagator", resulting in root solutions and and the collected subproblems.  With these subproblems in hand, the PA continues to its next stage: propagating these problems in parallel.
 
+*Example:* Given the example IVP (@ex_eq) and the available threads,
+
++ I know I want to have 10 subproblems because I have 10 available threads.
++ I create the 10 time sub-domains $[0, 1], [1, 2], ..., [9, 10]$.
++ I use the initial position and velocity to quickly solve the root problem via the Euler method to give a sequence of 10 positions $theta_p^0$ and a sequence of 10 velocities $omega_p^0$.
++ I use the calculated positions and velocities as initial positions and velocities to create 10 subproblems on the associated subdomains following the form
+
+$ P_p^0 = {
+  diff_t^2 theta = -g/ell theta, #h(11pt)  
+  theta(0) = theta_p^0\, #h(5pt) omega(0) = omega_p^0, #h(11pt) 
+  [p, p+1]
+}. $ 
+
 #figure(
   kind: "algorithm",
-  supplement: [Algorithm],
+  supplement: [Alg],
   caption: [Prepare the subproblems],
   pseudocode-list(
     numbered-title: smallcaps[Prepare the subproblems],
