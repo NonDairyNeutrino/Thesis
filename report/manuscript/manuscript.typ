@@ -284,6 +284,23 @@ Before the PA can be implemented using these high-performance methods, the algor
 
 The interpretation of the PA in terms of these recursive subproblems makes the algorithm _almost_ embarrassingly parallel; the corrections to the root solution need to be done sequentially.  In addition to this structure, the algorithms being evaluated in parallel manifestly depend on simple arithmetic; because of this simplicity, the PA is well-suited to be evaluated on the GPU.  Likewise, distributed methods can be combined with GPU evaluation for further parallelization for either a single model (taking advantaged of the recursive nature of the PA) or a system of models.
 
+*Example Parameters:* Consider the motion of a simple pendulum over the course of 10 seconds, starting at rest with an angle of $pi/8$, is to be simulated on a machine with 10 available threads.  The root initial value problem for this physical scenario can be modeled by:
+
+$ P = {
+  underbrace(
+    diff_t^2 theta = -g/ell theta, 
+    "Acceleration"
+  ), #h(11pt)  
+  underbrace(
+    theta(0) = pi/8\,  v(0) = 0 "rad/s", 
+    "Initial values"
+  ), #h(11pt) 
+  underbrace(
+    [0 "s", 10 "s"], 
+    "time span"
+  )
+}. $
+
 == The Parareal Algorithm
 
 #v(2em)
@@ -343,27 +360,6 @@ $ P_1 = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_1^0,  dif
     + *return* Solution for root problem with `pos_seq` and `vel_seq`, and array of subproblems `subproblems`
   ]
 ) <prep_subproblems>
-
-#underline[*Example:*] I want to simulate the motion of a simple pendulum for 10 seconds starting at rest with an angle of $pi/8$.  The root initial value problem for this physical scenario can be modeled by:
-
-$ P = {
-  underbrace(
-    diff_t^2 theta = -g/ell theta, 
-    "Acceleration"
-  ), #h(11pt)  
-  underbrace(
-    theta(0) = pi/8\,  v(0) = 0 "m/s", 
-    "Initial values"
-  ), #h(11pt) 
-  underbrace(
-    [0 "s", 10 "s"], 
-    "time span"
-  )
-}. $
-
-Now, because I have a CPU with 10 cores, I choose to partition the root problem into 10 subproblems so they all will evaluate in a single iteration.  The root problem could be partitioned into e.g. 20 subproblems for more accuracy in the final result, but evaluation will take longer.
-
-Then, 
 
 === Parallel Propagation
 
