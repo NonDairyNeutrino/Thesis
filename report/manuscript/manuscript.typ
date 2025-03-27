@@ -284,15 +284,16 @@ Before the PA can be implemented using these high-performance methods, the algor
 
 The interpretation of the PA in terms of these recursive subproblems makes the algorithm _almost_ embarrassingly parallel; the corrections to the root solution need to be done sequentially.  In addition to this structure, the algorithms being evaluated in parallel manifestly depend on simple arithmetic; because of this simplicity, the PA is well-suited to be evaluated on the GPU.  Likewise, distributed methods can be combined with GPU evaluation for further parallelization for either a single model (taking advantaged of the recursive nature of the PA) or a system of models.
 
-*Example Parameters:* Consider the motion of a simple pendulum over the course of 10 seconds, starting at rest with an angle of $pi/8$, is to be simulated on a machine with 10 available threads.  The root initial value problem for this physical scenario can be modeled by:
+*Example Parameters:* Consider the motion of a thrown ball just after it leaves the hand over the course of 10 seconds (of course ignoring air resistance). This is going to be simulated on a machine with 10 available threads.  The root initial value problem for this physical scenario can be modeled by:
 
 $ P = {
   underbrace(
-    diff_t^2 theta = -g/ell theta, 
+    diff_t^2 harpoon(r) = harpoon(g) , 
     "Acceleration"
   ), #h(11pt)  
   underbrace(
-    theta(0) = pi/8\, #h(5pt) omega(0) = 0 "rad/s", 
+    harpoon(r)(0) = harpoon(r)_0 \, #h(5pt) 
+    harpoon(v)(0) = harpoon(v)_0, 
     "Initial values"
   ), #h(11pt) 
   underbrace(
@@ -338,14 +339,15 @@ $ P_1 = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_1^0,  dif
 
 + I know I want to have 10 subproblems because I have 10 available threads.
 + I create the 10 time sub-domains $[0, 1], [1, 2], ..., [9, 10]$.
-+ I use the initial position and velocity to quickly solve the root problem via the Euler method to give a sequence of 10 positions $theta_p^0$ and a sequence of 10 velocities $omega_p^0$.
++ I use the initial position and velocity to quickly solve the root problem via the Euler method to give a sequence of 10 positions $harpoon(r)_p^0$ and a sequence of 10 velocities $harpoon(v)_p^0$.
 + I use the calculated positions and velocities as initial positions and velocities to create 10 subproblems on the associated subdomains following the form
 
-$ P_p^0 = {
-  diff_t^2 theta = -g/ell theta, #h(11pt)  
-  theta(0) = theta_p^0\, #h(5pt) omega(0) = omega_p^0, #h(11pt) 
-  [p, p+1]
-}. $ 
+$ P_p = {
+  diff_t^2 harpoon(r) = harpoon(g), #h(11pt)
+  harpoon(r)(0) = harpoon(r)_p^0 \, #h(5pt)
+  harpoon(v)(0) = harpoon(v)_p^0,   #h(11pt)
+  [0 "s", 10 "s"]
+}. $
 
 #figure(
   kind: "algorithm",
