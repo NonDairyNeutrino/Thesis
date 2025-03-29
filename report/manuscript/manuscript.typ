@@ -113,6 +113,8 @@ Some key aspects of high-performance computing (HPC) are:
 #pagebreak()
 == Equations of Motion
 
+According to classical mechanics, the motion for any and every object in the universe can be determined for all time using only its current position, current velocity, and the forces acting on it @Landau1976Mechanics .
+
 === Differential Equations
 - Ordinary Differential Equations (ODE)
 - Systems of ODEs e.g. N-Body
