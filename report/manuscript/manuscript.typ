@@ -374,7 +374,7 @@ $ P_p = {
     - \/\/ _use coarse solver to get positions and velocities for the root problem_
     + `pos_seq`, `vel_seq` #gets `propagate(P, C)`
     - \/\/ _create subproblems_
-    + *for* `i` from 1 to `N`
+    + *for* `i` from 1 to `N - 1`
       + `subdomain` #gets `i`-th domain partition `subdomains[i]`
       + `pos0` #gets initial position for `i`-th subproblem `pos_seq[i]`
       + `vel0` #gets initial velocity for `i`-th subproblem `vel_seq[i]`
