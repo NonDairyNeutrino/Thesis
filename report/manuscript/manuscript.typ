@@ -7,7 +7,7 @@
 
 #set page(
   paper: "us-letter",
-  margin: (top: auto, rest: 0.625in),
+  margin: (top: auto, rest: 1in),
   numbering: "1/1",
   header: context {
     let sections = query(
@@ -20,7 +20,7 @@
     }
   }
 )
-#set par(justify: true, leading: 1em)
+#set par(justify: true, leading: 1em) // "leading" == "line spacing"
 #set text(font: "New Computer Modern", size: 10pt)
 #set enum(numbering: "1)")
 #set heading(numbering: "1.")
@@ -79,8 +79,11 @@ _])
 
 = Introduction
 
+#pagebreak()
+
 = Background
 
+#pagebreak()
 == Parallel-in-Time Integration (PinT)
 
 There are 3 traditional ways to parallelize the solution of a computational problem: 
@@ -100,12 +103,14 @@ These approaches can offer massive increases in performance, but only for proble
 
 === Parallel Full Approximation Scheme in Space and Time (PFASST)
 
+#pagebreak()
 == High-Performance Computing
 
 Some key aspects of high-performance computing (HPC) are:
 === Multi-threading & GPU Computing
 === Multi-processing & Distributed Computing
 
+#pagebreak()
 == Equations of Motion
 
 === Differential Equations
