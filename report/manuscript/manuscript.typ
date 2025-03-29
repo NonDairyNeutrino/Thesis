@@ -421,9 +421,9 @@ In addition to parallelizing, part of the magic of the Parareal algorithm lies i
     - A "remote node" could also be a single process on a single machine, the differences are straightforward
     - Given a head node and a collection of remote nodes
     + Spawn a worker, or "sub-manager", process on each remote node
-    + Each sub-manager identifies how many devices are avavilable to the node, and send that information back to the manager process
+    + Each sub-manager identifies how many devices are available to the node, and send that information back to the manager process
     + The manager process spawns a worker process on the appropriate node for each device on that node
-    + Each process aquires a device
+    + Each process acquires a device
   + For each problem:
     + Send it to a process
     + Execute the parareal algorithm on that problem using the assigned device
