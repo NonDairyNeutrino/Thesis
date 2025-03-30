@@ -23,7 +23,7 @@
 )
 #set par(justify: true, leading: 1em) // "leading" == "line spacing"
 #set text(font: "New Computer Modern", size: 10pt)
-#set enum(numbering: "1)")
+#set enum(numbering: "1.1)", full: true)
 #set heading(numbering: "1.")
 #show outline.entry.where(
   level: 1
