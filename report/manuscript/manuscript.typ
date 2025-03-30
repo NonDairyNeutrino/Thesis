@@ -292,7 +292,7 @@ Before the PA can be implemented using these high-performance methods, the algor
 
 The interpretation of the PA in terms of these recursive subproblems makes the algorithm _almost_ embarrassingly parallel; the corrections to the root solution need to be done sequentially.  In addition to this structure, the algorithms being evaluated in parallel manifestly depend on simple arithmetic; because of this simplicity, the PA is well-suited to be evaluated on the GPU.  Likewise, distributed methods can be combined with GPU evaluation for further parallelization for either a single model (taking advantaged of the recursive nature of the PA) or a system of models.
 
-*Example Parameters:* Consider the motion of a thrown ball just after it leaves the hand over the course of 10 seconds (of course ignoring air resistance). This is going to be simulated on a machine with 10 available threads.  The root initial value problem for this physical scenario can be modeled by:
+#ex Consider the motion of a thrown ball just after it leaves the hand over the course of 10 seconds (of course ignoring air resistance). This is going to be simulated on a machine with 10 available threads.  The root initial value problem for this physical scenario can be modeled by:
 
 $ P = {
   underbrace(
@@ -343,19 +343,19 @@ $ P_1 = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_1^0,  dif
 
 @alg:prep_subproblems shows the pseudocode of this process for a given IVP and integration algorithm i.e. "propagator", resulting in root solutions and and the collected subproblems.  With these subproblems in hand, the PA continues to its next stage: propagating these problems in parallel.
 
-*Example:* Given the example IVP (@eq:example_ivp) and the available threads,
+#ex Given the example IVP (@eq:example_ivp) and the available threads,
 
-+ I know I want to have 10 subproblems because I have 10 available threads.
-+ I create the 10 time sub-domains $[0, 1], [1, 2], ..., [9, 10]$.
-+ I use the initial position and velocity to quickly solve the root problem via the Euler method to give a sequence of 10 positions $harpoon(r)_p^0$ and a sequence of 10 velocities $harpoon(v)_p^0$.
-+ I use the calculated positions and velocities as initial positions and velocities to create 10 subproblems on the associated subdomains following the form
++ There should be 10 subproblems because there are 10 available threads.
++ Create the 10 time sub-domains $[0, 1], [1, 2], ..., [9, 10]$.
++ Use the initial position and velocity to quickly solve the root problem via the Euler method to give a sequence of 10 positions $harpoon(r)_p^0$ and a sequence of 10 velocities $harpoon(v)_p^0$.
++ Use the calculated positions and velocities as initial positions and velocities to create 10 subproblems on the associated subdomains following the form
 
 $ P_p = {
   diff_t^2 harpoon(r) = harpoon(g), #h(11pt)
   harpoon(r)(0) = harpoon(r)_p^0 \, #h(5pt)
   harpoon(v)(0) = harpoon(v)_p^0,   #h(11pt)
   [0 "s", 10 "s"]
-}. $
+}. $ <eq:example_subproblem>
 
 #figure(
   kind: "algorithm",
@@ -402,6 +402,38 @@ Each propagator has two parts: the integration algorithm, and the step-size $Del
 
 Before each subproblem can be solved in parallel, they must first be discretized.  While this discretization can be achieved in many ways, the method used here is chosen with the foresight of the requirements for hardware-dependent variations of the PA (see #lower([@sec:single_gpu]) on #ref(<sec:single_gpu>, form: "page")). The discretized domain shall thus take the initial form of a 1-dimensional array whose first and last elements are the lower and upper bounds of the subproblem's domain, respectively; the other elements are arbitrary as they are going to be immediately overwritten.  The intermediate elements are then overwritten by simply stepping uniformly from the lower bound to the upper bound.  This process is shown in @alg:disc_kernel via slightly different implementation, but the result is the same.
 
+The subproblems can be solved by applying a traditional, sequential solver on each subproblem in its own thread.  Much like discretization process (@alg:disc_kernel), solving the subproblems is done in-place with respect to the position and velocity sequences.  This process is shown in @alg:prop_kernel and visually in @diag:disc_prop.
+
+#ex I want to solve each of the subproblems described by @eq:example_subproblem, each taking the form
+
+#math.equation(block: true, numbering: none,
+$ P_p = {
+  diff_t^2 harpoon(r) = harpoon(g), #h(11pt)
+  harpoon(r)(0) = harpoon(r)_p^0 \, #h(5pt)
+  harpoon(v)(0) = harpoon(v)_p^0,   #h(11pt)
+  [0 "s", 10 "s"]
+} $
+)
+
+for subproblem $p$.
+
++ I "assign" subproblem $p$ to thread $p$ e.g. thread 1 will work solve subproblem 1, thread 2 will
+  subproblem 2\
+  *Note:* If there 
++ Each thread then simultaneously discretizes its assigned subdomain into 
++ Each thread then simultaneously uses the coarse propagator $cal(C)$ to propagate the initial 
+  values ${harpoon(r)_p^0, harpoon(v)_p^0}$ defined by 
+  ${harpoon(r)_(p j)^0, harpoon(v)_(p j)^0} = cal(C)(Delta t, harpoon(r)_(p j-1)^0, harpoon(v)_(p j-1)^0, diff_t^2 harpoon(r))$
++ The result of these simultaneous propagations
+
+ resulting in
+  the coarse solution  (sequences of positions and velocities).
+
+// $ {u_p^0}_p = {u_0^0, u_1^0, u_2^0, dots, u_(N-1)^0} $
+// $ {v_p^0}_p = {v_0^0, v_1^0, v_2^0, dots, v_(N-1)^0} $
+
+// and .
+
 #figure(
   kind: "algorithm",
   supplement: [Alg],
@@ -411,7 +443,8 @@ Before each subproblem can be solved in parallel, they must first be discretized
     booktabs: true, 
     hooks: 0.5em
   )[
-    - *INPUT:* An empty list `dom` of length `N`, the lower `a` and upper `b` bounds of the subproblem domain
+    - *INPUT:* An empty list `dom` of length `N`, \
+      the lower `a` and upper `b` bounds of the subproblem domain
     - *OUTPUT:* Nothing
     + step #gets (`b` - `a`) / 2
     + `dom[0]` #gets `a`
@@ -421,8 +454,6 @@ Before each subproblem can be solved in parallel, they must first be discretized
     + *return*
   ]
 ) <alg:disc_kernel>
-\
-The subproblems can be solved by applying a traditional, sequential solver on each subproblem in its own thread.  Much like discretization process (@alg:disc_kernel), solving the subproblems is done in-place with respect to the position and velocity sequences.  This process is shown in @alg:prop_kernel and visually in 
 
 #figure(
   kind: "algorithm",
@@ -433,7 +464,8 @@ The subproblems can be solved by applying a traditional, sequential solver on ea
     booktabs: true, 
     hooks: 0.5em
   )[
-    - *INPUT:* A solver `solve`, acceleration function `acc`, \
+    - *INPUT:* A solver `solve`, \
+      acceleration function `acc`, \
       sequence of `N` empty position vectors `pos_seq`, \
       sequence of `N` empty velocity vectors `vel_seq`
     - *OUTPUT:* Nothing
@@ -453,11 +485,9 @@ The subproblems can be solved by applying a traditional, sequential solver on ea
   //   width: 100%,
   //   alt: ""
   // ),
-  square(width: 50%, [some stuff]),
+  square(width: 40%, [some stuff]),
   caption: [This is an image showing how each subproblem is solved at the same time.]
-)
-\
-*Example:* 
+) <diag:disc_prop>
 
 #pagebreak()
 === Corrections <sec:corrections>
