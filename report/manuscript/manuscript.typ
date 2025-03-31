@@ -4,7 +4,7 @@
 #let gets  = sym.arrow.l
 #let cn    = text(red)[*CN*] // citation needed
 #let us    = h(2pt)          // unit space
-#let ex    = [*Example:*]
+#let ex    = underline[*Example:*]
 
 #set page(
   paper: "us-letter",
@@ -396,48 +396,16 @@ $ P_p = {
 #pagebreak()
 === Parallel Discretization & Propagation
 
-Because each of these subproblems is independent of the others, each can be solved in parallel; #lower([@sec:corrections]) addresses recombining their solutions to produce a larger solution to the root problem.  Though the subproblems are solved in parallel not once, but twice using a "_fine propagator_" $cal(F)$, and again using a "_coarse propagator_" $cal(C)$.  It should be noted that this coarse propagator $cal(C)$ does not need to be the same as what was used to construct the initial root solution $cal(C)_0$. 
+Because each of these subproblems is independent of the others, each can be solved in parallel; #lower([@sec:corrections]) addresses recombining their solutions to produce a larger solution to the root problem.  Though the subproblems are solved in parallel not once, but twice using a "_fine propagator_" $cal(F)$, and again using a "_coarse propagator_" $cal(C)$.  It should be noted that this coarse propagator $cal(C)$ does not need to be the same as what was used to construct the initial root solution $cal(C)_0$.
 
-Each propagator has two parts: the integration algorithm, and the step-size $Delta t$.  The integration algorithms considered here are restricted to those that are _symplectic_ (as defined in #lower([@sec:trad_methods]) on #ref(<sec:trad_methods>, form: "page")).  The step-size considered here represents a simple finite interval of time; non-dimensionalization (i.e. scaling input in terms of "intrinsic parameters" of the problem) could be used to increase implementation performance @langtangen2016scaling.  The difference between the coarse and fine propagators can thus come from any combination of low or high-accuracy integration algorithms such as symplectic-Euler or an eighth-order Yoshida integrator @YOSHIDA1990262, and a low or high step size (relative to the problem).
+Each propagator has two parts: the integration algorithm, and the discretization.  The integration algorithms considered here are restricted to those that are _symplectic_ (as defined in #lower([@sec:trad_methods]) on #ref(<sec:trad_methods>, form: "page")).  The _discretization_ here is the number of data points the integration algorithm will produce.  Using the discretization instead of an explicit time-step allows for scale-independence i.e. the percentage of time between data points is the same regardless of the size of the domain; the time-step could be used explicitly used if non-dimensionalization is first applied (i.e. scaling input in terms of "intrinsic parameters" of the problem) @langtangen2016scaling.  The difference between the coarse and fine propagators can thus come from any combination of low or high-accuracy integration algorithms such as symplectic-Euler or an eighth-order Yoshida integrator @YOSHIDA1990262, and a low or high step size (relative to the problem).
 
 Before each subproblem can be solved in parallel, they must first be discretized.  While this discretization can be achieved in many ways, the method used here is chosen with the foresight of the requirements for hardware-dependent variations of the PA (see #lower([@sec:single_gpu]) on #ref(<sec:single_gpu>, form: "page")). The discretized domain shall thus take the initial form of a 1-dimensional array whose first and last elements are the lower and upper bounds of the subproblem's domain, respectively; the other elements are arbitrary as they are going to be immediately overwritten.  The intermediate elements are then overwritten by simply stepping uniformly from the lower bound to the upper bound.  This process is shown in @alg:disc_kernel via slightly different implementation, but the result is the same.
-
-The subproblems can be solved by applying a traditional, sequential solver on each subproblem in its own thread.  Much like discretization process (@alg:disc_kernel), solving the subproblems is done in-place with respect to the position and velocity sequences.  This process is shown in @alg:prop_kernel and visually in @diag:disc_prop.
-
-#ex I want to solve each of the subproblems described by @eq:example_subproblem, each taking the form
-
-#math.equation(block: true, numbering: none,
-$ P_p = {
-  diff_t^2 harpoon(r) = harpoon(g), #h(11pt)
-  harpoon(r)(0) = harpoon(r)_p^0 \, #h(5pt)
-  harpoon(v)(0) = harpoon(v)_p^0,   #h(11pt)
-  [0 "s", 10 "s"]
-} $
-)
-
-for subproblem $p$.
-
-+ I "assign" subproblem $p$ to thread $p$ e.g. thread 1 will work solve subproblem 1, thread 2 will
-  subproblem 2\
-  *Note:* If there 
-+ Each thread then simultaneously discretizes its assigned subdomain into 
-+ Each thread then simultaneously uses the coarse propagator $cal(C)$ to propagate the initial 
-  values ${harpoon(r)_p^0, harpoon(v)_p^0}$ defined by 
-  ${harpoon(r)_(p j)^0, harpoon(v)_(p j)^0} = cal(C)(Delta t, harpoon(r)_(p j-1)^0, harpoon(v)_(p j-1)^0, diff_t^2 harpoon(r))$
-+ The result of these simultaneous propagations
-
- resulting in
-  the coarse solution  (sequences of positions and velocities).
-
-// $ {u_p^0}_p = {u_0^0, u_1^0, u_2^0, dots, u_(N-1)^0} $
-// $ {v_p^0}_p = {v_0^0, v_1^0, v_2^0, dots, v_(N-1)^0} $
-
-// and .
 
 #figure(
   kind: "algorithm",
   supplement: [Alg],
-  caption: [Each subproblem can be discretized in parallel.],
+  caption: [Each subdomain is discretized into a sequence of times],
   pseudocode-list(
     numbered-title: smallcaps[Parallel Discretization Kernel],
     booktabs: true, 
@@ -455,10 +423,12 @@ for subproblem $p$.
   ]
 ) <alg:disc_kernel>
 
+The subproblems can be solved by applying a traditional, sequential solver on each subproblem in its own thread.  Much like discretization process (@alg:disc_kernel), solving the subproblems is done in-place with respect to the position and velocity sequences.
+
 #figure(
   kind: "algorithm",
   supplement: [Alg],
-  caption: [Each subproblem can be propagated in parallel using a given solver.],
+  caption: [Each subproblem is solved using traditional, sequential methods],
   pseudocode-list(
     numbered-title: smallcaps[Parallel Propagation Kernel],
     booktabs: true, 
@@ -469,15 +439,13 @@ for subproblem $p$.
       sequence of `N` empty position vectors `pos_seq`, \
       sequence of `N` empty velocity vectors `vel_seq`
     - *OUTPUT:* Nothing
-    + 
     + *for* `i` from 2 to `N - 1`
-      + `old_pos` #gets `pos_seq[i - 1]`
-      + `old_vel` #gets `vel_seq[i - 1]`
-      + `new_pos`, `new_vel` #gets `solve(old_pos, old_vel, acc, step)`
-      + `pos_seq[i]` #gets `new_pos`
-      + `vel_seq[i]` #gets `new_vel`
+      + `old_pos, old_vel` #gets `pos_seq[i - 1], vel_seq[i - 1]`
+      + `pos_seq[i], vel_seq[i]` #gets `solve(old_pos, old_vel, acc, step)`
   ]
 ) <alg:prop_kernel>
+
+This process is shown algorithmically in @alg:prop_kernel, and visually in @diag:disc_prop.
 
 #figure(
   // image(
@@ -489,14 +457,56 @@ for subproblem $p$.
   caption: [This is an image showing how each subproblem is solved at the same time.]
 ) <diag:disc_prop>
 
+#ex Solve each of the subproblems described by @eq:example_subproblem, each taking the form
+
+#math.equation(block: true, numbering: none,
+$ P_p = {
+  diff_t^2 harpoon(r) = harpoon(g), #h(11pt)
+  harpoon(r)(0) = harpoon(r)_p^0 \, #h(5pt)
+  harpoon(v)(0) = harpoon(v)_p^0,   #h(11pt)
+  [0 "s", 10 "s"]
+} $
+)
+
+for subproblem $p$.
+
++ Choose the coarse propagator $cal(C)$ to be the Symplectic-Euler method with a discretization of 10, and
+  the fine propagator $cal(F)$ to be the Velocity-Verlet method with a discretization of 100.
++ Assign subproblem $p$ to thread $p$ e.g. thread 1 solves subproblem 1, thread 2 solves subproblem
+  2, etc.\
+  *Note:* If there are more subproblems than threads, their assignment can be determined via index
+  striding @Harris2013; more on this in @sec:single_gpu.
++ *Coarse Propagation*
+  + $cal(C)$ discretizes subdomain $p$ on thread $p$
+  + $cal(C)$ propagates subproblem $p$ on thread $p$
++ *Fine Propagation*
+  + $cal(F)$ discretizes subdomain $p$ on thread $p$
+  + $cal(F)$ propagates subproblem $p$ on thread $p$
+
+
++ Each thread then simultaneously uses the coarse propagator $cal(C)$ to propagate the initial 
+  values ${harpoon(r)_p^0, harpoon(v)_p^0}$ defined by 
+  ${harpoon(r)_(p j)^0, harpoon(v)_(p j)^0} = cal(C)(Delta t, harpoon(r)_(p j-1)^0, harpoon(v)_(p j-1)^0, diff_t^2 harpoon(r))$
++ The result of these simultaneous propagations
+
+ resulting in
+  the coarse solution  (sequences of positions and velocities).
+
+// $ {u_p^0}_p = {u_0^0, u_1^0, u_2^0, dots, u_(N-1)^0} $
+// $ {v_p^0}_p = {v_0^0, v_1^0, v_2^0, dots, v_(N-1)^0} $
+
+// and .
+
 #pagebreak()
 === Corrections <sec:corrections>
 
-  Compute corrections for the coarse solutions using:
-  $ eta_p^i = cal(F) u_p^i (T_(p+1)) - cal(C) u_p^i (T_(p+1)), $
+Once the subsolutions have been found, only the final data is kept
 
-  and apply corrections sequentially:
-  $ u_{p+1}^i (T_(p+1)) = u_p^i (T_(p+1)) + eta_p^i. $
+Compute corrections for the coarse solutions using:
+$ eta_p^i = cal(F) u_p^i (T_(p+1)) - cal(C) u_p^i (T_(p+1)), $
+
+and apply corrections sequentially:
+$ u_{p+1}^i (T_(p+1)) = u_p^i (T_(p+1)) + eta_p^i. $
 
 === Iteration & Convergence
 
