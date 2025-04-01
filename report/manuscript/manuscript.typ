@@ -85,33 +85,6 @@ _])
 = Background
 
 #pagebreak()
-== Parallel-in-Time Integration (PinT)
-
-There are 3 traditional ways to parallelize the solution of a computational problem: 
-CPU parallelization, 
-GPU parallelization, 
-and Distributed computing.  
-While CPU parallelization is more straightforward to implement, GPU parallelization can allow for runtimes to decrease by many orders of magnitudes.
-Even lower run times can be achieved by combining either of these parallization schemes with running them on multiple machines.  This investigation focuses on parallelizing the solution of equations of motion using GPUs and multiple machines.
-
-These approaches can offer massive increases in performance, but only for problems that are well-posed to be parallelized.  Traditionally, initial value problems have been unable to be parallelized due their dependance on causality.  Several methods have been created to overcome this limitation.  These methods include the Parareal algorithm, Multigrid Reduction in Time (MGRIT), Parallel Full Approximtaion Scheme in Space and Time (PFASST).  This investigation focuses on the Parareal algorithm.
-
-=== Parareal
-- The Parareal method has mostly been applied to first-order ordinary differential equations.
-- Part of the novelty of this work is that it focuses on building support for second-order ODES
-
-=== Multigrid Reduction in Time (MGRIT)
-
-=== Parallel Full Approximation Scheme in Space and Time (PFASST)
-
-#pagebreak()
-== High-Performance Computing
-
-Some key aspects of high-performance computing (HPC) are:
-=== Multi-threading & GPU Computing
-=== Multi-processing & Distributed Computing
-
-#pagebreak()
 == Equations of Motion
 
 According to classical mechanics, the motion for any and every object in the universe can be determined for all time using only its current position, current velocity, and the forces acting on it @Landau1976Mechanics .
@@ -280,6 +253,29 @@ To summarize, to calculate the number of particles produced at position $harpoon
   + Calculate the number of particles at time $t$ with wave-vector $harpoon(k)$ as in @particleProduction
 ]
 )
+
+#pagebreak()
+== High-Performance Computing
+
+Some key aspects of high-performance computing (HPC) are:
+=== Multi-threading & GPU Computing
+=== Multi-processing & Distributed Computing
+
+#pagebreak()
+== Parallel-in-Time Integration
+
+There are 3 traditional ways to parallelize the solution of a computational problem: 
+CPU parallelization, 
+GPU parallelization, 
+and Distributed computing.  
+While CPU parallelization is more straightforward to implement, GPU parallelization can allow for runtimes to decrease by many orders of magnitudes.
+Even lower run times can be achieved by combining either of these parallization schemes with running them on multiple machines.  This investigation focuses on parallelizing the solution of equations of motion using GPUs and multiple machines.
+
+These approaches can offer massive increases in performance, but only for problems that are well-posed to be parallelized.  Traditionally, initial value problems have been unable to be parallelized due their dependance on causality.  Several methods have been created to overcome this limitation.  These methods include the Parareal algorithm, Multigrid Reduction in Time (MGRIT), Parallel Full Approximtaion Scheme in Space and Time (PFASST).  This investigation focuses on the Parareal algorithm.
+
+Parareal
+- The Parareal method has mostly been applied to first-order ordinary differential equations.
+- Part of the novelty of this work is that it focuses on building support for second-order ODES
 
 #pagebreak()
 = Methods
