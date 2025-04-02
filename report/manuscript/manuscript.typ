@@ -400,23 +400,24 @@ $ cal(P)(I_cal(P), N_cal(P))(P) = {{(t, harpoon(r)_t)}_t, {(t, harpoon(v)_t)}_t}
 
 The application of the propagator to the subproblem is the core, or *kernel*, of the PA. While this description of the kernel is useful for understanding, it does not immediately lead to an algorithm that is well-suited for hardware-agnostic implementation (more details in #lower([@sec:single_gpu]) on #ref(<sec:single_gpu>, form: "page")). To that end, the implementation of the kernel presented here is composed of discretizing the subdomain and propagating the initial values separately.
 
+*Discretization:* To avoid performance losses from each kernel allocating memory, each discretization kernel references a specific, pre-allocated, one-dimensional array $delta D$ of length $N_cal(P)$.  In order for the kernel to generate the appropriate samplings of the domain, $delta D$ has its first and last elements pre-populated with the values of the lower and upper bounds of that thread's assigned subproblem such that $delta D = {t_p, ..., t_(p + 1)}$.  With each kernel accessing this data, it can simply calculate and write the domain samples in-place; this process is shown in @alg:disc_kernel.
+
 #figure(
   kind: "algorithm",
   supplement: [Alg],
-  caption: [Each subdomain is discretized into a sequence of times],
+  caption: [Each discretized subdomain is calculated by uniformly stepping from the lower bound to the upper bound.  These results are written in-place.],
   pseudocode-list(
     numbered-title: smallcaps[Parallel Discretization Kernel],
     booktabs: true, 
     hooks: 0.5em
   )[
-    - *INPUT:* An empty list `dom` of length `N`, \
-      the lower `a` and upper `b` bounds of the subproblem domain
+    - *INPUT:* The pre-allocated, pre-populated discretized domain `ddom`\
+      of length `N`
     - *OUTPUT:* Nothing
+    + `a, b` #gets `(ddom[0], ddom[N-1])`
     + step #gets (`b` - `a`) / 2
-    + `dom[0]` #gets `a`
     + *for* `i` from 1 to `N - 2`
-      + `dom[i]` #gets `a + (i - 1) * step`
-    + `dom[N - 1]` #gets `b`
+      + `ddom[i]` #gets `a + (i - 1) * step`
     + *return*
   ]
 ) <alg:disc_kernel>
