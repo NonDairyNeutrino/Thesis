@@ -344,20 +344,6 @@ $ P_1 = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_1^0,  dif
 @alg:prep_subproblems shows the pseudocode of this process for a given IVP and integration algorithm i.e. "propagator", resulting in root solutions and and the collected subproblems.  With these subproblems in hand, the PA continues to its next stage: propagating these problems in parallel.
 
 #pagebreak()
-#ex Given the example IVP (@eq:example_ivp) and the available threads,
-
-+ There should be 10 subproblems because there are 10 available threads.
-+ Create the 10 time sub-domains $[0, 1], [1, 2], ..., [9, 10]$.
-+ Use the initial position and velocity to quickly solve the root problem via the Euler method to give a sequence of 10 positions $harpoon(r)_p^0$ and a sequence of 10 velocities $harpoon(v)_p^0$.
-+ Use the calculated positions and velocities as initial positions and velocities to create 10 subproblems on the associated subdomains following the form
-
-$ P_p = {
-  diff_t^2 harpoon(r) = harpoon(g), #h(11pt)
-  harpoon(r)(0) = harpoon(r)_p^0 \, #h(5pt)
-  harpoon(v)(0) = harpoon(v)_p^0,   #h(11pt)
-  [0 "s", 10 "s"]
-}. $ <eq:example_subproblem>
-
 #figure(
   kind: "algorithm",
   supplement: [Alg],
@@ -384,6 +370,22 @@ $ P_p = {
     + *return* Solution for root problem with `pos_seq` and `vel_seq`, and array of subproblems `subproblems`
   ]
 ) <alg:prep_subproblems>
+\
+#ex Given the example IVP (@eq:example_ivp) and the available threads,
+
++ There should be 10 subproblems because there are 10 available threads.
++ Create the 10 time sub-domains $[0, 1], [1, 2], ..., [9, 10]$.
++ Use the initial position and velocity to quickly solve the root problem via the Euler method to give a sequence of 10 positions $harpoon(r)_p^0$ and a sequence of 10 velocities $harpoon(v)_p^0$.
++ Use the calculated positions and velocities as initial positions and velocities to create 10 subproblems on the associated subdomains following the form
+
+$ P_p = {
+  diff_t^2 harpoon(r) = harpoon(g), #h(11pt)
+  harpoon(r)(0) = harpoon(r)_p^0 \, #h(5pt)
+  harpoon(v)(0) = harpoon(v)_p^0,   #h(11pt)
+  [0 "s", 10 "s"]
+}. $ <eq:example_subproblem>
+
+The result of this process is shown in @diag:it_0.
 
 #figure(
   image(
