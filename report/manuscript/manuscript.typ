@@ -320,13 +320,13 @@ Let the second-order initial value problem $P$ be defined such that
 
 $ P = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_0,  diff_t u(0) = v_0, #h(11pt) [t_0, t_0 + Delta t]}, $ <eq:ivp>
 
-and $D = [t_0, t_0 + Delta t]$. The discretization $N$ of $P$ should be determined by the number of available threads $N_t$ such that $N = m N_t$, for some positive integer $m$.  The discretization should be chosen in this manner for maximum performance and efficiency; if $N = m N_t + r$, and $0 < r < N_t$, each thread will solve a subproblem $m$ times until on the $m+1$ iteration where only $r$ threads would be active while $N_t - r$ threads idle (assuming all threads are synchronized).  This type of optimization is sometimes referred to as "_flooding the threadpool_" to mitigate _thread starvation_ #cn.
+and $D = [t_0, t_0 + Delta t]$ is the closed time interval from $t_0$ to $t_0 + Delta t$. The discretization $N$ of $P$ should be determined by the number of available threads $N_t$ such that $N = m N_t$, for some positive integer $m$.  The discretization should be chosen in this manner for maximum performance and efficiency; if $N = m N_t + r$, and $0 < r < N_t$, each thread will solve a subproblem $m$ times until on the $m+1$ iteration where only $r$ threads would be active while $N_t - r$ threads idle (assuming all threads are synchronized).  This type of optimization is sometimes referred to as "_flooding the threadpool_" to mitigate _thread starvation_ #cn.
 
 With the discretization decided, partition the time domain $D$ into subdomains $D_p$ such that
 
 $ D_p = [t_0 + p / N Delta t, t_0 + (p + 1) / N Delta t] = [t_p, t_(p+1)]. $
 
-Use a coarse propagator $cal(C)_0$ (such as the Euler method) to compute initial (represented by the $0$ subscript) root solutions ${u_p^0}_p$, ${v_p^0}_p$ defined such that
+Use an fast integration method $cal(C)_0$ (such as the Euler method) to compute initial root solutions ${u_p^0}_p$, ${v_p^0}_p$ defined such that
 
 $ {u_p^0}_p = {u_0^0, u_1^0, u_2^0, dots, u_(N-1)^0} $
 $ {v_p^0}_p = {v_0^0, v_1^0, v_2^0, dots, v_(N-1)^0} $
@@ -335,7 +335,7 @@ and ${u_p^0, v_p^0} = cal(C)_0(Delta t, u_(p-1)^0, v_(p-1)^0, diff_t^2 u)$.
 
 Subproblems $P_p$ take the same from as in @eq:ivp, but instead using initial conditions defined by those in the initial root solution.  For example, the subproblem $P_1$ for the second ($p = 1$) subdomain, takes the form
 
-$ P_1 = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_1^0,  diff_t u(0) = v_1^0, #h(11pt) [t_0, t_0 + Delta t]}. $ <eq:example_ivp>
+$ P_1 = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_1^0,  diff_t u(0) = v_1^0, #h(11pt) [t_p, t_(p + 1)]}. $ <eq:example_ivp>
 
 @alg:prep_subproblems shows the pseudocode of this process for a given IVP and integration algorithm i.e. "propagator", resulting in root solutions and and the collected subproblems.  With these subproblems in hand, the PA continues to its next stage: propagating these problems in parallel.
 
@@ -422,7 +422,8 @@ The application of the propagator to the subproblem is the core, or *kernel*, of
   ]
 ) <alg:disc_kernel>
 
-The subproblems can be solved by applying a traditional, sequential solver on each subproblem in its own thread.  Much like discretization process (@alg:disc_kernel), solving the subproblems is done in-place with respect to the position and velocity sequences.
+#pagebreak()
+*Propagation:* 
 
 #figure(
   kind: "algorithm",
@@ -443,6 +444,10 @@ The subproblems can be solved by applying a traditional, sequential solver on ea
       + `pos_seq[i], vel_seq[i]` #gets `solve(old_pos, old_vel, acc, step)`
   ]
 ) <alg:prop_kernel>
+
+// The difference between the coarse $cal(C)$ and fine $cal(F)$ propagators can thus come from any combination of low or high-accuracy integration algorithms such as symplectic-Euler or an eighth-order Yoshida integrator @YOSHIDA1990262, and a low or high step size (relative to the problem).
+
+The subproblems can be solved by applying a traditional, sequential solver on each subproblem in its own thread.  Much like discretization process (@alg:disc_kernel), solving the subproblems is done in-place with respect to the position and velocity sequences.
 
 This process is shown algorithmically in @alg:prop_kernel, and visually in @diag:disc_prop.
 
@@ -469,28 +474,15 @@ $ P_p = {
 
 for subproblem $p$.
 
-+ Choose the coarse propagator $cal(C)$ to be the Symplectic-Euler method with a discretization of 10, and
-  the fine propagator $cal(F)$ to be the Velocity-Verlet method with a discretization of 100.
++ Choose the coarse propagator $cal(C)$ to be the Symplectic-Euler method with a discretization of
+  10, and the fine propagator $cal(F)$ to be the Velocity-Verlet method with a discretization of 100.
 + Assign subproblem $p$ to thread $p$ e.g. thread 1 solves subproblem 1, thread 2 solves subproblem
   2, etc.\
   *Note:* If there are more subproblems than threads, their assignment can be determined via index
   striding @Harris2013; more on this in @sec:single_gpu.
-+ *Coarse Propagation*
-  + $cal(C)$ discretizes subdomain $p$ on thread $p$
-  + $cal(C)$ propagates subproblem $p$ on thread $p$
-+ *Fine Propagation*
-  + $cal(F)$ discretizes subdomain $p$ on thread $p$
-  + $cal(F)$ propagates subproblem $p$ on thread $p$
-
-
-+ Each thread then simultaneously uses the coarse propagator $cal(C)$ to propagate the initial 
-  values ${harpoon(r)_p^0, harpoon(v)_p^0}$ defined by 
-  ${harpoon(r)_(p j)^0, harpoon(v)_(p j)^0} = cal(C)(Delta t, harpoon(r)_(p j-1)^0, harpoon(v)_(p j-1)^0, diff_t^2 harpoon(r))$
++ Each thread simultaneously uses the coarse propagator $cal(C)$ to discretize its respective domain
+  and 
 + The result of these simultaneous propagations
-
- resulting in
-  the coarse solution  (sequences of positions and velocities).
-
 // $ {u_p^0}_p = {u_0^0, u_1^0, u_2^0, dots, u_(N-1)^0} $
 // $ {v_p^0}_p = {v_0^0, v_1^0, v_2^0, dots, v_(N-1)^0} $
 
@@ -512,7 +504,7 @@ $ u_{p+1}^i (T_(p+1)) = u_p^i (T_(p+1)) + eta_p^i. $
   Repeat the process for updated initial values until convergence, e.g.:
   $ |u_p^i - u_p^{i-1}| < epsilon #h(11pt) forall p <= N. $
 
-In addition to parallelizing, part of the magic of the Parareal algorithm lies in solving each subproblem not once, but twice with different solves or _propagators_.  The next step in the process is to choose _coarse_, and _fine_. It should be noted that this coarse propagator does not need to be the same as the coarse propagator that was chosen in preparing the subproblems.  Possible propagators include the semi-implicit Euler method with a large time step for the corase propagator, and the velocity-verlet method with a small time step for the fine propagator; in order to satisfy energy-conservation, symplectic integrators should be used.  Without loss of generality, let the chosen coarse and fine propagators be denoted $cal(C), cal(F)$, respectively, and the $n_cal(S)$-th data point for propagator $cal(S)$ in the $p$-th subprobem at iteration $i$ be denoted $u_(p n_cal(S))^i$ and defined traditionally by $u_(p n_cal(S))^i = cal(S) u_(p n_cal(S) - 1)^i$, and the solution from propagator $cal(S)$ on subproblem $p$ is the ordered collection of points $cal(S) u_p^i = u_(p n_cal(S))^i_(n_cal(S))$.
+In addition to parallelizing, part of the magic of the Parareal algorithm lies in solving each subproblem not once, but twice with different solves or *propagators*.  The next step in the process is to choose *coarse*, and *fine*. It should be noted that this coarse propagator does not need to be the same as the coarse propagator that was chosen in preparing the subproblems.  Possible propagators include the semi-implicit Euler method with a large time step for the corase propagator, and the velocity-verlet method with a small time step for the fine propagator; in order to satisfy energy-conservation, symplectic integrators should be used.  Without loss of generality, let the chosen coarse and fine propagators be denoted $cal(C), cal(F)$, respectively, and the $n_cal(S)$-th data point for propagator $cal(S)$ in the $p$-th subprobem at iteration $i$ be denoted $u_(p n_cal(S))^i$ and defined traditionally by $u_(p n_cal(S))^i = cal(S) u_(p n_cal(S) - 1)^i$, and the solution from propagator $cal(S)$ on subproblem $p$ is the ordered collection of points $cal(S) u_p^i = u_(p n_cal(S))^i_(n_cal(S))$.
 
 == The Parareal Algorithm at Scale
 
@@ -656,6 +648,8 @@ In addition to parallelizing, part of the magic of the Parareal algorithm lies i
 
 == Algorithm Analysis
 
+=== Analysis of Parallel Algorithms
+
 === Time Complexity
 
 === Space Complexity
@@ -679,6 +673,7 @@ In addition to parallelizing, part of the magic of the Parareal algorithm lies i
 - Implement with C, Fortran, CUDA, NVSHMEM, MPI
 - Make gpu-backend-agnostic with KernelAbstractions.jl
 - this physics could be better done with PFASST
+- non-dimensionalize everything following @langtangen2016scaling
 
 #pagebreak()
 #bibliography(
