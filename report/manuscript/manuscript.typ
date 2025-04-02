@@ -309,6 +309,7 @@ $ P = {
   )
 }. $ <ex_eq>
 
+#pagebreak()
 == The Parareal Algorithm
 
 #v(2em)
@@ -342,6 +343,7 @@ $ P_1 = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_1^0,  dif
 
 @alg:prep_subproblems shows the pseudocode of this process for a given IVP and integration algorithm i.e. "propagator", resulting in root solutions and and the collected subproblems.  With these subproblems in hand, the PA continues to its next stage: propagating these problems in parallel.
 
+#pagebreak()
 #ex Given the example IVP (@eq:example_ivp) and the available threads,
 
 + There should be 10 subproblems because there are 10 available threads.
@@ -392,7 +394,7 @@ $ P_p = {
   caption: "The motion of a ball flying through the air can be partitioned in time to form several initial value problems, each with its own initial position and velocity (blue) determined by a fast integration method. Compared to the true solution (black), this solution is very inaccurate."
 ) <diag:it_0>
 
-#pagebreak()
+// #pagebreak()
 === Parallel Discretization & Propagation
 
 Because each of these subproblems is independent of the others, each can be solved in parallel; #lower([@sec:corrections]) addresses recombining their solutions to produce a larger solution to the root problem.  Though the subproblems are solved in parallel not once, but twice using a _fine propagator_ $cal(F)$, and again using a _coarse propagator_ $cal(C)$.  It should be noted that this coarse propagator $cal(C)$ does not need to be the same as what was used $cal(C)_0$ to construct the initial root solution.
@@ -403,7 +405,12 @@ $ cal(P)(I_cal(P), N_cal(P))(P) = {{(t, harpoon(r)_t)}_t, {(t, harpoon(v)_t)}_t}
 
 The application of the propagator to the subproblem is the core, or *kernel*, of the PA. While this description of the kernel is useful for understanding, it does not immediately lead to an algorithm that is well-suited for hardware-agnostic implementation (more details in #lower([@sec:single_gpu]) on #ref(<sec:single_gpu>, form: "page")). To that end, the implementation of the kernel presented here is composed of discretizing the subdomain and propagating the initial values separately.
 
-*Discretization:* To avoid performance losses from each kernel allocating memory, each discretization kernel references a specific, pre-allocated, one-dimensional array $delta D$ of length $N_cal(P)$.  In order for the kernel to generate the appropriate samplings of the domain, $delta D$ has its first and last elements pre-populated with the values of the lower and upper bounds of that thread's assigned subproblem such that $delta D = {t_p, ..., t_(p + 1)}$.  With each kernel accessing this data, it can simply calculate and write the domain samples in-place; this process is shown in @alg:disc_kernel.
+#pagebreak()
+*Discretization:* To avoid performance losses from each kernel allocating memory, each discretization kernel references a specific, pre-allocated, one-dimensional array $delta D$ of length $N_cal(P)$.  In order for the kernel to generate the appropriate samplings of the domain, $delta D$ has its first and last elements pre-populated with the values of the lower and upper bounds of that thread's assigned subproblem such that 
+
+$ delta D = {t_p, [N_cal(P) - 2 "arbitrary elements"], t_(p + 1)}. $
+
+With each kernel accessing this data, it can simply calculate and write the domain samples in-place; this process is shown in @alg:disc_kernel.
 
 #figure(
   kind: "algorithm",
@@ -425,13 +432,16 @@ The application of the propagator to the subproblem is the core, or *kernel*, of
   ]
 ) <alg:disc_kernel>
 
-#pagebreak()
-*Propagation:* 
+*Propagation:* Much like the discretization kernel, the propagation kernel avoids memory allocations by using pre-allocated, pre-populated multidimensional arrays to store the position and velocity sequences; the initial values of the position and velocity for that kernel's subproblem are pre-populated as their respective arrays first element taking the form
+
+$ {harpoon(r)_t}_t = {harpoon(r)_(t_p), [N_cal(P) - 1 "arbitrary elements"]} quad {harpoon(v)_t}_t = {harpoon(v)_(t_p), [N_cal(P) - 1 "arbitrary elements"]} $
+
+Otherwise, the propagation kernel is no more than a traditional IVP solver as described in @sec:trad_methods, but executed on many different subproblems simultaneously over many threads.  This process is shown algorithmically in @alg:prop_kernel, and visually in @diag:disc_prop.
 
 #figure(
   kind: "algorithm",
   supplement: [Alg],
-  caption: [Each subproblem is solved using traditional, sequential methods],
+  caption: [Each subproblem is solved in parallel using traditional methods.],
   pseudocode-list(
     numbered-title: smallcaps[Parallel Propagation Kernel],
     booktabs: true, 
@@ -447,12 +457,6 @@ The application of the propagator to the subproblem is the core, or *kernel*, of
       + `pos_seq[i], vel_seq[i]` #gets `solve(old_pos, old_vel, acc, step)`
   ]
 ) <alg:prop_kernel>
-
-// The difference between the coarse $cal(C)$ and fine $cal(F)$ propagators can thus come from any combination of low or high-accuracy integration algorithms such as symplectic-Euler or an eighth-order Yoshida integrator @YOSHIDA1990262, and a low or high step size (relative to the problem).
-
-The subproblems can be solved by applying a traditional, sequential solver on each subproblem in its own thread.  Much like discretization process (@alg:disc_kernel), solving the subproblems is done in-place with respect to the position and velocity sequences.
-
-This process is shown algorithmically in @alg:prop_kernel, and visually in @diag:disc_prop.
 
 #figure(
   // image(
@@ -486,10 +490,6 @@ for subproblem $p$.
 + Each thread simultaneously uses the coarse propagator $cal(C)$ to discretize its respective domain
   and 
 + The result of these simultaneous propagations
-// $ {u_p^0}_p = {u_0^0, u_1^0, u_2^0, dots, u_(N-1)^0} $
-// $ {v_p^0}_p = {v_0^0, v_1^0, v_2^0, dots, v_(N-1)^0} $
-
-// and .
 
 #pagebreak()
 === Corrections <sec:corrections>
