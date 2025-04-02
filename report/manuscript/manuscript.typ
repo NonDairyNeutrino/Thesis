@@ -459,16 +459,17 @@ Otherwise, the propagation kernel is no more than a traditional IVP solver as de
 ) <alg:prop_kernel>
 
 #figure(
-  // image(
-  //   "images/parallel_propagation.png",
-  //   width: 100%,
-  //   alt: ""
-  // ),
-  square(width: 40%, [some stuff]),
-  caption: [This is an image showing how each subproblem is solved at the same time.]
+  image(
+    "images/parallel_propagation_intermediate.png",
+    width: 100%,
+    alt: ""
+  ),
+  // square(width: 40%, [some stuff]),
+  caption: [Each thread simultaneously propagates (small, red dots) the initial values (big, blue dots and arrows) of its assigned subproblem.  Velocity data does exist, but is neglected here for visual clarity.]
 ) <diag:disc_prop>
 
-The solution structure as in @eq:solution is recovered by combining the results of the discretization and propagation kernels according to the algorithm in @alg:solution_constructor.  The separation of the discretization and propagation kernels allows the discretized domain to be only calculated once, while being used in both the solutions for the position and velocity.
+\
+The solution structure as in @eq:solution is recovered by combining the results of the discretization and propagation kernels according to the algorithm in @alg:solution_constructor.  The separation of the discretization and propagation kernels allows the discretized domain to be only calculated once, while being used in both the solutions for the position and velocity.  Further advantage is taken in the next section.
 
 #figure(
   kind: "algorithm",
@@ -479,16 +480,18 @@ The solution structure as in @eq:solution is recovered by combining the results 
     booktabs: true, 
     hooks: 0.5em
   )[
-    - *INPUT:* Discretization `N`,\
-      Discretized domain `ddom`, \
-      Position sequence `pos_seq`, \
-      Velocity sequence `vel_seq`
+    - *INPUT:* Discretization `N`, Discretized domain `ddom`, \
+      Position sequence `pos_seq`, Velocity sequence `vel_seq` \
+      Position solution `pos_sol`, Velocity solution `vel_sol`
     - *OUTPUT:* Solution `S`
     + *for* `i` from 0 to `N - 1`
-      + STOPPED HERE // ============================================================================
+      + `t, r, v` #gets (`ddom[i], pos_seq[i], vel_seq[i]`)
+      + `pos_sol[i], pos_sol[i]` #gets `((t, r), (t, v))`
+    + `S` #gets `(pos_sol, vel_sol)`
     + *return* `S`
   ]
 ) <alg:solution_constructor>
+\
 
 #ex Solve each of the subproblems described by @eq:example_subproblem, each taking the form
 
