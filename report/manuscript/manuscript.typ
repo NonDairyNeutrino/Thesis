@@ -391,7 +391,7 @@ $ P_p = {
     width: 100%,
     alt: "Plot showing the height of the ball vs time so that each subproblem is a column with its initial position as a blue dot at the start of each subdomain, and its velocity as a blue arrow coming from the respective dot.  The true solution is also shown with the same form but in black."
   ),
-  caption: "The motion of a ball flying through the air can be partitioned in time to form several initial value problems, each with its own initial position and velocity (blue) determined by a fast integration method. Compared to the true solution (black), this solution is very inaccurate."
+  caption: "The motion of a ball flying through the air can be partitioned in time to form several initial value problems, each with its own initial position and velocity (upper, blue) determined by a fast integration method. Compared to the true solution (lower, black), this solution is very inaccurate."
 ) <diag:it_0>
 
 // #pagebreak()
