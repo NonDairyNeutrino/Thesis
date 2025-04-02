@@ -449,8 +449,8 @@ Otherwise, the propagation kernel is no more than a traditional IVP solver as de
   )[
     - *INPUT:* A solver `solve`, \
       acceleration function `acc`, \
-      sequence of `N` empty position vectors `pos_seq`, \
-      sequence of `N` empty velocity vectors `vel_seq`
+      sequence of `N` position vectors `pos_seq`, \
+      sequence of `N` velocity vectors `vel_seq`
     - *OUTPUT:* Nothing
     + *for* `i` from 2 to `N - 1`
       + `old_pos, old_vel` #gets `pos_seq[i - 1], vel_seq[i - 1]`
@@ -516,7 +516,6 @@ for subproblem $p$.
   and 
 + The result of these simultaneous propagations
 
-#pagebreak()
 === Corrections <sec:corrections>
 
 Once the subsolutions have been found, only the final data is kept
