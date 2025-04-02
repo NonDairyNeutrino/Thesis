@@ -98,6 +98,9 @@ According to classical mechanics, the motion for any and every object in the uni
 
 === Traditional Numerical Methods <sec:trad_methods>
 - ODEs
+  - Predictor-Corrector Methods
+    - The PA is not the first of its kind to follow this "predict-correct-loop" structure.  In fact, there is a whole class of integration algorithms known as _predictor-corrector_ methods.
+    - Hartree-Fock Method (i.e. Self-Consistent Field Theory) is similarly iterative to the PA but iterations are done to minimize energy according to the variational principle of quantum mechanics.
   - Symplectic Integration
   - Traditional Methods in evoling Equations of Motion
   - Def don't use Runge-Kutta methods
