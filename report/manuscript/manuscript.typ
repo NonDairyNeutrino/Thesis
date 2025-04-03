@@ -343,9 +343,9 @@ Use an fast integration method $cal(C)_0$ (such as the Euler method) to compute 
 $ {u_p^0}_p = {u_0^0, u_1^0, u_2^0, dots, u_(N-1)^0} $
 $ {v_p^0}_p = {v_0^0, v_1^0, v_2^0, dots, v_(N-1)^0} $
 
-and ${u_p^0, v_p^0} = cal(C)_0(Delta t, u_(p-1)^0, v_(p-1)^0, diff_t^2 u)$.
+and ${u_p^0, v_p^0} = cal(C)(Delta t, u_(p-1)^0, v_(p-1)^0, diff_t^2 u)$.
 
-Subproblems $P_p$ take the same from as in @eq:ivp, but instead using initial conditions defined by those in the initial root solution.  For example, the subproblem $P_1$ for the second ($p = 1$) subdomain, takes the form
+Subproblems $P_p$ take the same from as in @eq:ivp (this also means subproblems are themselves, problems), but instead using initial conditions defined by those in the initial root solution.  For example, the subproblem $P_1$ for the second ($p = 1$) subdomain, takes the form
 
 $ P_1 = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_1^0,  diff_t u(0) = v_1^0, #h(11pt) [t_p, t_(p + 1)]}. $ <eq:example_ivp>
 
@@ -407,7 +407,7 @@ The result of this process is shown in @diag:it_0.
 // #pagebreak()
 === Parallel Discretization & Propagation
 
-Because each of these subproblems is independent of the others, each can be solved in parallel; #lower([@sec:corrections]) addresses recombining their solutions to produce a larger solution to the root problem.  Though the subproblems are solved in parallel not once, but twice using a _fine propagator_ $cal(F)$, and again using a _coarse propagator_ $cal(C)$.  It should be noted that this coarse propagator $cal(C)$ does not need to be the same as what was used $cal(C)_0$ to construct the initial root solution.
+Discretizing the domain and propagating initial values as in the previous section constitutes the application of the _coarse propagator_ $cal(C)$ to the root problem.  Because each of the produced subproblems is independent of the others, each can be accurately solved in parallel using a _fine propagator_ $cal(F)$ to reduce the total runtime by a factor equal to the number of subproblems.  In other words, if applying $cal(F)$ to a single subproblem has a runtime $tau_cal(F)$, then applying $cal(F)$ to the root problem directly has a runtime $N * tau_cal(F)$ because there are $N$ subproblems, whereas applying $cal(F)$ in parallel only results in a runtime $tau_cal(F)$ because each application of $cal(F)$ executes at the same time.
 
 In general, a *propagator* $cal(P)$ is defined by two key components: its integration algorithm $I_cal(P)$, and its discretization $N_cal(P)$. More specifically, the propagator $cal(P)$ can be interpreted as a higher-order function mapping integration algorithms and discretizations to functions that, when applied to an IVP, reduce to sequences ${(t, harpoon(r)_t)}_t, {(t, harpoon(v)_t)}_t$ of time-position and time-velocity pairs, respectively; the collection of the sequences is called the *solution* $S_P$ of $P$.  The solution can be interpreted as the set of function-graphs (as defined in @pinter2014book) of $harpoon(r)$ and $harpoon(v)$, and is defined such that
 
@@ -468,7 +468,7 @@ Otherwise, the propagation kernel is no more than a traditional IVP solver as de
   ]
 ) <alg:prop_kernel>
 
-*The Parareal Kernel:* In summary, the parareal kernel (@alg:parareal_kernel) is launched on each thread simultaneously and uses the coarse and fine propagators to populate arrays prepared from the domain and initial values of that thread's problem.  The domain is discretized by uniformly stepping from the lower bound of the problem's domain to the upper bound.  The initial values are propagated using a traditional integration method (@diag:disc_prop).  The result of this process is sequences of times, positions, and velocities that solve that thread's problem for different discretizations.
+*The Parareal Kernel:* In summary, the parareal kernel (@alg:parareal_kernel) is launched on each thread simultaneously and uses the fine propagator to populate arrays prepared from the domain and initial values of that thread's problem.  The domain is discretized by uniformly stepping from the lower bound of the problem's domain to the upper bound.  The initial values are propagated using a traditional integration method (@diag:disc_prop).  The result of this process is sequences of times, positions, and velocities that solve that thread's problem for different discretizations.
 
 #figure(
   kind: "algorithm",
@@ -480,16 +480,11 @@ Otherwise, the propagation kernel is no more than a traditional IVP solver as de
     hooks: 0.5em
   )[
     - *INPUT:* 
-      A coarse propagator `coarse`, a fine propagator `fine` \
-      discretized domain `ddom_coarse`, position sequence `pos_seq_coarse`, velocity sequence `vel_seq_coarse`, \
-      discretized domain `ddom_fine`, position sequence `pos_seq_fine`, velocity sequence `vel_seq_fine`
+      a fine propagator `fine`, discretized domain `ddom`, \
+      position sequence `pos_seq`, velocity sequence `vel_seq`
     - *OUTPUT:* Nothing
-    - \/\/ _discretization kernel_
-    + Use `coarse` to populate `ddom_coarse`
-    + Use `fine` to populate to `ddom_fine`
-    - \/\/ _propagation kernel_
-    + Use `coarse` to populate `pos_seq_coarse` and `vel_seq_coarse`
-    + Use `fine` to populate `pos_seq_fine` and `vel_seq_fine`
+    + Use `fine` in the discretization kernel to populate to `ddom`
+    + Use `fine` in the propagation kernel to populate `pos_seq` and `vel_seq`
     + *return*
   ]
 ) <alg:parareal_kernel>
@@ -545,12 +540,9 @@ $ P_p = {
 #let Nc = calc.pow(base, pc)
 #let Nf = calc.pow(base, pf)
 
-+ Choose your propagators
-  + Define the coarse propagator $cal(C)$ as the Symplectic-Euler method with a discretization of $N_cal(C) = #base^#pc = #Nc$.
-  + Define the fine   propagator $cal(F)$ as the Velocity-Verlet  method with a discretization of $N_cal(F) = #base^#pf = #Nf$.
++ Define the fine propagator $cal(F)$ as the Velocity-Verlet method with a discretization of $N_cal(F) = #base^#pf = #Nf$.
 + Prepare arrays
-  + Allocate 3 \* #threads = #(3 * threads) arrays of length #Nc for the coarse domains, positions, and velocities.
-  + Allocate 3 \* #threads = #(3 * threads) arrays of length #Nf for the fine   domains, positions, and velocities.
+  + Allocate $3 * #threads = #(3 * threads)$ arrays of length #Nf for the fine domains, positions, and velocities.
   + Populate the beginning and end of each domain array with the lower and upper bounds, respectively, of each problem's domain.
   + Populate the beginning of each position array with the initial position of each problem.
   + Populate the beginning of each velocity array with the initial velocity of each problem.
