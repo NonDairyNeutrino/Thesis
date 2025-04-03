@@ -522,28 +522,34 @@ After the parareal kernel has completed, ...
 //   ]
 // ) <alg:solution_constructor>
 
-#ex Solve each of the subproblems described by @eq:example_subproblem, each taking the form
+#ex For each of the #threads subproblems described by @eq:example_subproblem, each taking the form
 
 #math.equation(block: true, numbering: none,
 $ P_p = {
   diff_t^2 harpoon(r) = harpoon(g), #h(11pt)
   harpoon(r)(0) = harpoon(r)_p^0 \, #h(5pt)
   harpoon(v)(0) = harpoon(v)_p^0,   #h(11pt)
-  [0 "s", 10 "s"]
-} $
+  [t_p, t_(p + 1)]
+}. $
 )
 
-for subproblem $p$.
+#let base = 2
+#let pc = 2 // power coarse
+#let pf = 6 // power fine
+#let Nc = calc.pow(base, pc)
+#let Nf = calc.pow(base, pf)
 
-+ Choose the coarse propagator $cal(C)$ to be the Symplectic-Euler method with a discretization of
-  10, and the fine propagator $cal(F)$ to be the Velocity-Verlet method with a discretization of 100.
-+ Assign subproblem $p$ to thread $p$ e.g. thread 1 solves subproblem 1, thread 2 solves subproblem
-  2, etc.\
-  *Note:* If there are more subproblems than threads, their assignment can be determined via index
-  striding @Harris2013; more on this in @sec:single_gpu.
-+ Each thread simultaneously uses the coarse propagator $cal(C)$ to discretize its respective domain
-  and 
-+ The result of these simultaneous propagations
++ Choose your propagators
+  + Define the coarse propagator $cal(C)$ as the Symplectic-Euler method with a discretization of $N_cal(C) = #base^#pc = #Nc$.
+  + Define the fine   propagator $cal(F)$ as the Velocity-Verlet  method with a discretization of $N_cal(F) = #base^#pf = #Nf$.
++ Prepare arrays
+  + Allocate 3 \* #threads = #(3 * threads) arrays of length #Nc for the coarse domains, positions, and velocities.
+  + Allocate 3 \* #threads = #(3 * threads) arrays of length #Nf for the fine   domains, positions, and velocities.
+  + Populate the beginning and end of each domain array with the lower and upper bounds, respectively, of each problem's domain.
+  + Populate the beginning of each position array with the initial position of each problem.
+  + Populate the beginning of each velocity array with the initial velocity of each problem.
++ Launch the Parareal Kernel with the propagators and prepared arrays
+  - *Note:* If there are more subproblems than threads, their assignment can be determined via index striding @Harris2013; more on this in @sec:single_gpu.
 
 === Corrections <sec:corrections>
 
