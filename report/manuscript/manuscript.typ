@@ -261,8 +261,14 @@ To summarize, to calculate the number of particles produced at position $harpoon
 == High-Performance Computing
 
 Some key aspects of high-performance computing (HPC) are:
+- the difference between processes and threads
+
 === Multi-threading & GPU Computing
+- CPU multithreading
+- GPU multithreading & CUDA
+
 === Multi-processing & Distributed Computing
+- Message Passing & Remote Call Procedure (RPC)
 
 #pagebreak()
 == Parallel-in-Time Integration
@@ -291,7 +297,9 @@ Before the PA can be implemented using these high-performance methods, the algor
 
 The interpretation of the PA in terms of these recursive subproblems makes the algorithm _almost_ embarrassingly parallel; the corrections to the root solution need to be done sequentially.  In addition to this structure, the algorithms being evaluated in parallel manifestly depend on simple arithmetic; because of this simplicity, the PA is well-suited to be evaluated on the GPU.  Likewise, distributed methods can be combined with GPU evaluation for further parallelization for either a single model (taking advantaged of the recursive nature of the PA) or a system of models.
 
-#ex Consider the motion of a thrown ball just after it leaves the hand over the course of 10 seconds (of course ignoring air resistance). This is going to be simulated on a machine with 10 available threads.  The root initial value problem for this physical scenario can be modeled by:
+#let tmax = 8
+#let threads = 8
+#ex Consider the motion of a thrown ball just after it leaves the hand over the course of #tmax seconds (of course ignoring air resistance). This is going to be simulated on a machine with #threads available threads.  The root initial value problem for this physical scenario can be modeled by:
 
 $ P = {
   underbrace(
@@ -304,7 +312,7 @@ $ P = {
     "Initial values"
   ), #h(11pt) 
   underbrace(
-    [0 "s", 10 "s"], 
+    [0 "s", #tmax "s"], 
     "time span"
   )
 }. $ <ex_eq>
@@ -373,16 +381,16 @@ $ P_1 = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_1^0,  dif
 \
 #ex Given the example IVP (@eq:example_ivp) and the available threads,
 
-+ There should be 10 subproblems because there are 10 available threads.
-+ Create the 10 time sub-domains $[0, 1], [1, 2], ..., [9, 10]$.
-+ Use the initial position and velocity to quickly solve the root problem via the Euler method to give a sequence of 10 positions $harpoon(r)_p^0$ and a sequence of 10 velocities $harpoon(v)_p^0$.
-+ Use the calculated positions and velocities as initial positions and velocities to create 10 subproblems on the associated subdomains following the form
++ There should be #threads subproblems because there are #threads available threads.
++ Create the #threads time sub-domains $[0, 1], [1, 2], ..., [#(tmax - 1), #tmax]$.
++ Use the initial position and velocity to quickly solve the root problem via the Euler method to give a sequence of #tmax total positions $harpoon(r)_p^0$ and a sequence of #tmax total velocities $harpoon(v)_p^0$.
++ Use the calculated positions and velocities as initial positions and velocities to create #tmax subproblems on the associated subdomains following the form
 
 $ P_p = {
   diff_t^2 harpoon(r) = harpoon(g), #h(11pt)
   harpoon(r)(0) = harpoon(r)_p^0 \, #h(5pt)
   harpoon(v)(0) = harpoon(v)_p^0,   #h(11pt)
-  [0 "s", 10 "s"]
+  [t_p, t_(p + 1)]
 }. $ <eq:example_subproblem>
 
 The result of this process is shown in @diag:it_0.
@@ -423,8 +431,7 @@ With each kernel accessing this data, it can simply calculate and write the doma
     booktabs: true, 
     hooks: 0.5em
   )[
-    - *INPUT:* The pre-allocated, pre-populated discretized domain `ddom`\
-      of length `N`
+    - *INPUT:* Discretized domain `ddom` of length `N`
     - *OUTPUT:* Nothing
     + `a, b` #gets `(ddom[0], ddom[N-1])`
     + step #gets (`b` - `a`) / 2
@@ -438,7 +445,7 @@ With each kernel accessing this data, it can simply calculate and write the doma
 
 $ {harpoon(r)_t}_t = {harpoon(r)_(t_p), [N_cal(P) - 1 "arbitrary elements"]} quad {harpoon(v)_t}_t = {harpoon(v)_(t_p), [N_cal(P) - 1 "arbitrary elements"]} $
 
-Otherwise, the propagation kernel is no more than a traditional IVP solver as described in @sec:trad_methods, but executed on many different subproblems simultaneously over many threads.  This process is shown algorithmically in @alg:prop_kernel, and visually in @diag:disc_prop.
+Otherwise, the propagation kernel is no more than a traditional IVP solver as described in @sec:trad_methods, but executed on many different subproblems simultaneously over many threads.  This process is shown algorithmically in @alg:prop_kernel.
 
 #figure(
   kind: "algorithm",
@@ -457,6 +464,7 @@ Otherwise, the propagation kernel is no more than a traditional IVP solver as de
     + *for* `i` from 2 to `N - 1`
       + `old_pos, old_vel` #gets `pos_seq[i - 1], vel_seq[i - 1]`
       + `pos_seq[i], vel_seq[i]` #gets `solve(old_pos, old_vel, acc, step)`
+    + *return*
   ]
 ) <alg:prop_kernel>
 
@@ -495,7 +503,7 @@ After the parareal kernel has completed, ...
     alt: ""
   ),
   // square(width: 40%, [some stuff]),
-  caption: [Each thread simultaneously propagates (small, red dots) the initial values (big, blue dots and arrows) of its assigned subproblem.  Velocity data does exist, but is neglected here for visual clarity.]
+  caption: [Each thread uses coarse and fine propagators to produce intermediate values (small, red dots) from the initial values (big, blue dots and arrows) of its assigned subproblem.  Velocity data does exist, but is neglected here for visual clarity.]
 ) <diag:disc_prop>
 
 #pagebreak()
@@ -737,6 +745,7 @@ In addition to parallelizing, part of the magic of the Parareal algorithm lies i
 - Make gpu-backend-agnostic with KernelAbstractions.jl
 - this physics could be better done with PFASST
 - non-dimensionalize everything following @langtangen2016scaling
+- use a variable size time discretization algorithm, then base integration of those differences
 
 #pagebreak()
 #bibliography(
