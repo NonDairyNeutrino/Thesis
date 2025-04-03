@@ -498,30 +498,29 @@ After the parareal kernel has completed, ...
   caption: [Each thread simultaneously propagates (small, red dots) the initial values (big, blue dots and arrows) of its assigned subproblem.  Velocity data does exist, but is neglected here for visual clarity.]
 ) <diag:disc_prop>
 
-\
-The solution structure as in @eq:solution is recovered by combining the results of the discretization and propagation kernels according to the algorithm in @alg:solution_constructor.  The separation of the discretization and propagation kernels allows the discretized domain to be only calculated once, while being used in both the solutions for the position and velocity.  Further advantage is taken in the next section.
+#pagebreak()
+// The solution structure as in @eq:solution is recovered by combining the results of the discretization and propagation kernels according to the algorithm in @alg:solution_constructor.  The separation of the discretization and propagation kernels allows the discretized domain to be only calculated once, while being used in both the solutions for the position and velocity.  Further advantage is taken in the next section.
 
-#figure(
-  kind: "algorithm",
-  supplement: [Alg],
-  caption: [Solutions are formed from the results of the discretization and propagation kernels.],
-  pseudocode-list(
-    numbered-title: smallcaps[Solution Constructor],
-    booktabs: true, 
-    hooks: 0.5em
-  )[
-    - *INPUT:* Discretization `N`, Discretized domain `ddom`, \
-      Position sequence `pos_seq`, Velocity sequence `vel_seq` \
-      Position solution `pos_sol`, Velocity solution `vel_sol`
-    - *OUTPUT:* Solution `S`
-    + *for* `i` from 0 to `N - 1`
-      + `t, r, v` #gets (`ddom[i], pos_seq[i], vel_seq[i]`)
-      + `pos_sol[i], pos_sol[i]` #gets `((t, r), (t, v))`
-    + `S` #gets `(pos_sol, vel_sol)`
-    + *return* `S`
-  ]
-) <alg:solution_constructor>
-\
+// #figure(
+//   kind: "algorithm",
+//   supplement: [Alg],
+//   caption: [Solutions are formed from the results of the discretization and propagation kernels.],
+//   pseudocode-list(
+//     numbered-title: smallcaps[Solution Constructor],
+//     booktabs: true, 
+//     hooks: 0.5em
+//   )[
+//     - *INPUT:* Discretization `N`, Discretized domain `ddom`, \
+//       Position sequence `pos_seq`, Velocity sequence `vel_seq` \
+//       Position solution `pos_sol`, Velocity solution `vel_sol`
+//     - *OUTPUT:* Solution `S`
+//     + *for* `i` from 0 to `N - 1`
+//       + `t, r, v` #gets (`ddom[i], pos_seq[i], vel_seq[i]`)
+//       + `pos_sol[i], pos_sol[i]` #gets `((t, r), (t, v))`
+//     + `S` #gets `(pos_sol, vel_sol)`
+//     + *return* `S`
+//   ]
+// ) <alg:solution_constructor>
 
 #ex Solve each of the subproblems described by @eq:example_subproblem, each taking the form
 
