@@ -498,7 +498,7 @@ Otherwise, the propagation kernel is no more than a traditional IVP solver as de
   image(
     "images/parallel_propagation_intermediate.png",
     width: 100%,
-    alt: ""
+    alt: "The same plot as before, but now also with a curve of small, red dots coming from each initial position progressing to the right."
   ),
   // square(width: 40%, [some stuff]),
   caption: [Each thread uses coarse and fine propagators to produce intermediate values (small, red dots) from the initial values (big, blue dots and arrows) of its assigned subproblem.  Velocity data does exist, but is neglected here for visual clarity.]
