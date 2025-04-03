@@ -460,6 +460,34 @@ Otherwise, the propagation kernel is no more than a traditional IVP solver as de
   ]
 ) <alg:prop_kernel>
 
+*The Parareal Kernel:* In summary, the parareal kernel (@alg:parareal_kernel) is launched on each thread simultaneously and uses the coarse and fine propagators to populate arrays prepared from the domain and initial values of that thread's problem.  The domain is discretized by uniformly stepping from the lower bound of the problem's domain to the upper bound.  The initial values are propagated using a traditional integration method (@diag:disc_prop).  The result of this process is sequences of times, positions, and velocities that solve that thread's problem for different discretizations.
+
+After the parareal kernel has completed, ...
+
+#figure(
+  kind: "algorithm",
+  supplement: [Alg],
+  caption: [Put it all together],
+  pseudocode-list(
+    numbered-title: smallcaps[The Parareal Kernel],
+    booktabs: true, 
+    hooks: 0.5em
+  )[
+    - *INPUT:* 
+      A coarse propagator `coarse`, a fine propagator `fine` \
+      discretized domain `ddom_coarse`, position sequence `pos_seq_coarse`, velocity sequence `vel_seq_coarse`, \
+      discretized domain `ddom_fine`, position sequence `pos_seq_fine`, velocity sequence `vel_seq_fine`
+    - *OUTPUT:* Nothing
+    - \/\/ _discretization kernel_
+    + Use `coarse` to populate `ddom_coarse`
+    + Use `fine` to populate to `ddom_fine`
+    - \/\/ _propagation kernel_
+    + Use `coarse` to populate `pos_seq_coarse` and `vel_seq_coarse`
+    + Use `fine` to populate `pos_seq_fine` and `vel_seq_fine`
+    + *return*
+  ]
+) <alg:parareal_kernel>
+
 #figure(
   image(
     "images/parallel_propagation_intermediate.png",
