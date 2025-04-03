@@ -470,8 +470,6 @@ Otherwise, the propagation kernel is no more than a traditional IVP solver as de
 
 *The Parareal Kernel:* In summary, the parareal kernel (@alg:parareal_kernel) is launched on each thread simultaneously and uses the coarse and fine propagators to populate arrays prepared from the domain and initial values of that thread's problem.  The domain is discretized by uniformly stepping from the lower bound of the problem's domain to the upper bound.  The initial values are propagated using a traditional integration method (@diag:disc_prop).  The result of this process is sequences of times, positions, and velocities that solve that thread's problem for different discretizations.
 
-After the parareal kernel has completed, ...
-
 #figure(
   kind: "algorithm",
   supplement: [Alg],
@@ -557,7 +555,7 @@ $ P_p = {
   + Populate the beginning of each position array with the initial position of each problem.
   + Populate the beginning of each velocity array with the initial velocity of each problem.
 + Launch the Parareal Kernel with the propagators and prepared arrays
-  - *Note:* If there are more subproblems than threads, their assignment can be determined via index striding @Harris2013; more on this in @sec:single_gpu.
+  - *Note:* If there are more problems than threads, the kernel can index stride @Harris2013; more on this in @sec:single_gpu.
 
 === Corrections <sec:corrections>
 
