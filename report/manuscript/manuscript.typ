@@ -326,7 +326,7 @@ $ P = {
 
 The main idea of the Parareal algorithm (PA) is to break up a single IVP into many smaller IVPs using some low-accuracy solution, solve those in parallel using high-accuracy methods, correct your initial solution using the sub-solutions, then make a new low-accuracy solution based on the corrected data, and repeat this process until the solution doesn't change.  The end result of this procedure is a solution identical to one produced by directly using the high-accuracy method while potentially taking a less time @gander2007.  Because the PA wraps traditional (sequential) solvers, it could be considered a "meta-" or "higher-order" method to solve IVPs.
 
-=== Subproblem Preparation
+=== Preparing the subproblems
 
 Let the second-order initial value problem $P$ be defined such that
 
@@ -405,7 +405,7 @@ The result of this process is shown in @diag:it_0.
 ) <diag:it_0>
 
 // #pagebreak()
-=== Parallel Discretization & Propagation
+=== Solving the subproblems
 
 Discretizing the domain and propagating initial values as in the previous section constitutes the application of the _coarse propagator_ $cal(C)$ to the root problem.  Because each of the produced subproblems is independent of the others, each can be accurately solved in parallel using a _fine propagator_ $cal(F)$ to reduce the total runtime by a factor equal to the number of subproblems.  In other words, if applying $cal(F)$ to a single subproblem has a runtime $tau_cal(F)$, then applying $cal(F)$ to the root problem directly has a runtime $N * tau_cal(F)$ because there are $N$ subproblems, whereas applying $cal(F)$ in parallel only results in a runtime $tau_cal(F)$ because each application of $cal(F)$ executes at the same time.
 
@@ -549,17 +549,8 @@ $ P_p = {
 + Launch the Parareal Kernel with the propagators and prepared arrays
   - *Note:* If there are more problems than threads, the kernel can index stride @Harris2013; more on this in @sec:single_gpu.
 
-=== Corrections <sec:corrections>
-
-Once the subsolutions have been found, only the final data is kept
-
-Compute corrections for the coarse solutions using:
-$ eta_p^i = cal(F) u_p^i (T_(p+1)) - cal(C) u_p^i (T_(p+1)), $
-
-and apply corrections sequentially:
-$ u_{p+1}^i (T_(p+1)) = u_p^i (T_(p+1)) + eta_p^i. $
-
-=== Iteration & Convergence
+=== Solving the root problem <sec:corrections>
+=== Converging the root solution
 
   Repeat the process for updated initial values until convergence, e.g.:
   $ |u_p^i - u_p^{i-1}| < epsilon #h(11pt) forall p <= N. $
