@@ -550,6 +550,61 @@ $ P_p = {
   - *Note:* If there are more problems than threads, the kernel can index stride @Harris2013; more on this in @sec:single_gpu.
 
 === Solving the root problem <sec:corrections>
+
+Because the root solution has been calculated via an inaccurate method, it can be made more accurate using the results of the fine propagator.  Though the root solution is not corrected only with the results of the fine propagator, but rather by coarsely propagating the root initial values again but adding a corrector determined by a combination of the results of the fine propagator and the previous iteration's root solution.  The main idea of this process is known as _Deferred Corrections_ @Ong2020.
+
+The correction phase, as defined in literature @LIONS2001661, takes the deceptively-simple recursive form
+
+$ u_t^i := underbrace(cal(G)(u_(t-1)^i), "predictor") + underbrace(cal(F)(u_(t-1)^(i-1)) - cal(G)(u_(t-1)^(i-1)), "corrector"), $ <eq:correction>
+
+where $u = harpoon(r), harpoon(v)$ represents either position or velocity of the root problem.  If the coarse propagation terms are collected as $Delta_i cal(G)_t^i := cal(G)_t^i - cal(G)_t^(i-1)$, @eq:correction can be interpreted as _shooting method in time_ @gander2007.  It should also be noted that because the values returned by the coarse propagator are identical in successive iterations i.e. $i -> i+1 arrow.double.long cal(G)(u_(t-1)^(i)) = cal(G)(u_(t-1)^(i-1))$, they can be memoized and not calculated again, leading to performance increases at the cost of storage space @cormen2022introduction.
+
+One way to interpret the correction equation is "at face value" as
+
+#quote(block: true)[
+  _On the current iteration, use the coarse propagator to recommend #footnote[This terminology is inspired by Giordano & Nakanishi's interpretation of the Gauss-Seidel and Simultaneous Over Relaxation methods in their seminal text on computational physics @giordano2006.] what this value should be.  Then correct it by adding the difference between the fine and coarse predictions from the previous iteration.  Record this sum as the actual value._
+]
+
+An alternative interpretation arises from, effectively, "moving the correction to the top of the loop" as 
+
+#quote(block:true)[_
+  Use the coarse propagator to traditionally evolve the root problem, but with an offset.  This offset is initially zero.
+_]
+
+This interpretation changes "_use the propagator, then correct the value_" to "_correct the propagator, then use the value_".
+
+Thus the overall behavior of @eq:correction could be defined through the explicit recurrence relation
+
+$ 
+u_t^i &= cal(G)_t^i (u_(t-1)^i) \
+u_0^i &= u(0).
+$ <eq:parareal_recurrence>
+
+Here the coarse propagator is effectively parameterized and can vary throughout iterations and times such that 
+$cal(G)_t^i (u_(t-1)^i) := cal(G)(u_(t-1)^i) + Delta_t^i$ and
+
+$
+Delta_t^i &= cal(F)(u_t^i) - cal(G)(u_t^i) \
+Delta_t^0 &= 0.
+$ <eq:prop_corrector>
+
+@eq:parareal_recurrence has the same structure of a traditional propagation making it much simpler to understand its behavior.  This understanding is made even easier when considering @eq:prop_corrector as it allows the @eq:parareal_recurrence to also define the original coarse propagation of the root problem.  In other words, the corrected coarse propagator has a correction of zero on the original iteration.
+
+#figure(
+  kind: "algorithm",
+  supplement: [Alg],
+  caption: [Correct],
+  pseudocode-list(
+    numbered-title: smallcaps[Correcting the root solution],
+    booktabs: true, 
+    hooks: 0.5em
+  )[
+    - *INPUT:* Root solution, coarse solution, fine solution
+    - *OUTPUT:* New root solution 
+    + `corrector` #gets 
+  ]
+) <alg:correction>
+
 === Converging the root solution
 
   Repeat the process for updated initial values until convergence, e.g.:
@@ -703,6 +758,8 @@ In addition to parallelizing, part of the magic of the Parareal algorithm lies i
 === Analysis of Parallel Algorithms
 
 === Time Complexity
+
+- A detailed analysis of the convergence rates of the PA has been done @gander2007.
 
 === Space Complexity
 
