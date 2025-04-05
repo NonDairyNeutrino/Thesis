@@ -97,3 +97,68 @@ abstract = {For Hamiltonian systems of the form H = T(p)+V(q) a method is shown 
   year={2014},
   publisher={Dover Publications}
 }
+
+@article{gander2007,
+author = { Gander, Martin J. and  Vandewalle, Stefan},
+title = {Analysis of the Parareal Time-Parallel Time-Integration Method},
+journal = {SIAM Journal on Scientific Computing},
+volume = {29},
+number = {2},
+pages = {556-578},
+year = {2007},
+doi = {10.1137/05064607X},
+URL = {https://doi.org/10.1137/05064607X},
+abstract = {The parareal algorithm is a method to solve time-dependent problems parallel in time: it approximates parts of the solution later in time simultaneously to parts of the solution earlier in time. In this paper the relation of the parareal algorithm to space-time multigrid and multiple shooting methods is first briefly discussed. The focus of the paper is on new convergence results that show superlinear convergence of the algorithm when used on bounded time intervals, and linear convergence for unbounded intervals. }
+}
+
+@book{giordano2006,
+  title={Computational Physics},
+  author={Giordano, N.J. and Nakanishi, H.},
+  isbn={9780131469907},
+  lccn={2005049248},
+  url={https://books.google.com/books?id=52J6QgAACAAJ},
+  year={2006},
+  publisher={Pearson/Prentice Hall}
+}
+
+@article{Ong2020,
+author={Ong, Benjamin W.
+and Spiteri, Raymond J.},
+title={Deferred Correction Methods for Ordinary Differential Equations},
+journal={Journal of Scientific Computing},
+year={2020},
+month={Jun},
+day={11},
+volume={83},
+number={3},
+pages={60},
+abstract={Deferred correction is a well-established method for incrementally increasing the order of accuracy of a numerical solution to a set of ordinary differential equations. Because implementations of deferred corrections can be pipelined, multi-core computing has increased the importance of deferred correction methods in practice, especially in the context of solving initial-value problems. In this paper, we review the theoretical underpinnings of deferred correction methods in a unified manner, specifically the classical algorithm of Zadunaisky/Stetter, the method of Dutt, Greengard and Rokhlin, spectral deferred correction, and integral deferred correction. We highlight some nuances of their implementations, including the choice of quadrature nodes, interpolants, and combinations of discretization methods, in a unified notation. We analyze how time-integration methods based on deferred correction can be effective solvers on modern computer architectures and demonstrate their performance. Lightweight and flexible Matlab software is provided for exploration with modern variants of deferred correction methods.},
+issn={1573-7691},
+doi={10.1007/s10915-020-01235-8},
+url={https://doi.org/10.1007/s10915-020-01235-8}
+}
+
+@article{LIONS2001661,
+title = {Résolution d'EDP par un schéma en temps «pararéel »},
+journal = {Comptes Rendus de l'Académie des Sciences - Series I - Mathematics},
+volume = {332},
+number = {7},
+pages = {661-668},
+year = {2001},
+issn = {0764-4442},
+doi = {https://doi.org/10.1016/S0764-4442(00)01793-6},
+url = {https://www.sciencedirect.com/science/article/pii/S0764444200017936},
+author = {Jacques-Louis Lions and Yvon Maday and Gabriel Turinici},
+abstract = {Résumé
+On propose dans cette Note un schéma permettant de profiter d'une architecture parallèle pour la discrétisation en temps d'une équation d'évolution aux dérivées partielles. Cette méthode, basée sur un schéma d'Euler, combine des résolutions grossières et des résolutions fines et indépendantes en temps en s'inspirant de ce qui est classique en espace. La parallélisation qui en résulte se fait dans la direction temporelle ce qui est en revanche non classique. Elle a pour principale motivation les problèmes en temps réel, d'où la terminologie proposée de «pararéel ».
+The purpose of this Note is to propose a time discretization of a partial differential evolution equation that allows for parallel implementations. The method, based on an Euler scheme, combines coarse resolutions and independent fine resolutions in time in the same spirit as standard spacial approximations. The resulting parallel implementation is done in the non standard time direction. Its main goal concerns real time problems, hence the proposed terminology of “parareal” algorithm.}
+}
+
+@book{cormen2022introduction,
+  title={Introduction to Algorithms, fourth edition},
+  author={Cormen, T.H. and Leiserson, C.E. and Rivest, R.L. and Stein, C.},
+  isbn={9780262367509},
+  url={https://books.google.com/books?id=RSMuEAAAQBAJ},
+  year={2022},
+  publisher={MIT Press}
+}
