@@ -622,8 +622,32 @@ $ <eq:prop_corrector>
 #pagebreak()
 === Converging the root solution
 
-  Repeat the process for updated initial values until convergence, e.g.:
-  $ |u_p^i - u_p^{i-1}| < epsilon #h(11pt) forall p <= N. $
+Finally, as own in @alg:convergence, launch the parareal kernel (@alg:parareal_kernel) to gather the fine solutions for each point in time, and construct the new root solution (@alg:correction) until the root solution stops changing between iterations.  While there are many choices that can serve as valid convergence criteria @gander2007, one of the simplest is:
+
+$ max_(1 <= t <= N-1) |u_t^i - u_t^(i-1)| < epsilon, $ <eq:convergence>
+
+for some threshold $epsilon$.  @eq:convergence determines convergence when every point in the solution changes by less than some amount between iterations.
+
+#figure(
+  kind: "algorithm",
+  supplement: [Alg],
+  caption: [The Parareal Algorithm is composed of looping two steps: finding the fine solutions in parallel, then finding the root solution sequentially.  The loop stops when the root solution stops changing.],
+  pseudocode-list(
+    numbered-title: smallcaps[The Parareal Algorithm],
+    booktabs: true, 
+    hooks: 0.5em
+  )[
+    - *INPUT:* Root problem `P`, Coarse propagator `G`, Fine propagator `F`, Convergence threshold `ep`
+    - *OUTPUT:* Discretized domain `ddom`, Root position sequence `pos`, Root velocity sequence `vel`
+    + `ddom, pos[0, :], vel[0, :]` #gets Prepare the subproblems by their initial values
+    + `i` #gets `1`
+    + *while* `max(changes)` $>=$ `ep`
+      + `fpos, fvel` #gets Launch the parareal kernel with `F, pos[i-1, :], vel[i-1, :]` to get the fine solutions to each subproblem
+      + `pos[i, :], vel[i, :]` #gets Construct new root solutions with `G`, `pos[i-1, :], vel[i-1, :]`, and `fpos, fvel`
+      + `changes` #gets The difference between the current iteration and the previous one
+    + *return* `ddom, pos, vel`
+  ]
+) <alg:convergence>
 
 In addition to parallelizing, part of the magic of the Parareal algorithm lies in solving each subproblem not once, but twice with different solves or *propagators*.  The next step in the process is to choose *coarse*, and *fine*. It should be noted that this coarse propagator does not need to be the same as the coarse propagator that was chosen in preparing the subproblems.  Possible propagators include the semi-implicit Euler method with a large time step for the coarse propagator, and the velocity-verlet method with a small time step for the fine propagator; in order to satisfy energy-conservation, symplectic integrators should be used.  Without loss of generality, let the chosen coarse and fine propagators be denoted $cal(G), cal(F)$, respectively, and the $n_cal(S)$-th data point for propagator $cal(S)$ in the $p$-th subprobem at iteration $i$ be denoted $u_(p n_cal(S))^i$ and defined traditionally by $u_(p n_cal(S))^i = cal(S) u_(p n_cal(S) - 1)^i$, and the solution from propagator $cal(S)$ on subproblem $p$ is the ordered collection of points $cal(S) u_p^i = u_(p n_cal(S))^i_(n_cal(S))$.
 
