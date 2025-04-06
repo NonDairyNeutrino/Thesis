@@ -639,17 +639,18 @@ for some threshold $epsilon$.  @eq:convergence determines convergence when every
   )[
     - *INPUT:* Root problem `P`, Coarse propagator `G`, Fine propagator `F`, Convergence threshold `ep`
     - *OUTPUT:* Discretized domain `ddom`, Root position sequence `pos`, Root velocity sequence `vel`
-    + `ddom, pos[0, :], vel[0, :]` #gets Prepare the subproblems by their initial values
+    + `ddom, pos[0, :], vel[0, :]` #gets Prepare the subproblems via a coarse solution
     + `i` #gets `1`
     + *while* `max(changes)` $>=$ `ep`
       + `fpos, fvel` #gets Launch the parareal kernel with `F, pos[i-1, :], vel[i-1, :]` to get the fine solutions to each subproblem
       + `pos[i, :], vel[i, :]` #gets Construct new root solutions with `G`, `pos[i-1, :], vel[i-1, :]`, and `fpos, fvel`
-      + `changes` #gets The difference between the current iteration and the previous one
+      + `changes` #gets The difference between the current and previous solutions
     + *return* `ddom, pos, vel`
   ]
 ) <alg:convergence>
 
-In addition to parallelizing, part of the magic of the Parareal algorithm lies in solving each subproblem not once, but twice with different solves or *propagators*.  The next step in the process is to choose *coarse*, and *fine*. It should be noted that this coarse propagator does not need to be the same as the coarse propagator that was chosen in preparing the subproblems.  Possible propagators include the semi-implicit Euler method with a large time step for the coarse propagator, and the velocity-verlet method with a small time step for the fine propagator; in order to satisfy energy-conservation, symplectic integrators should be used.  Without loss of generality, let the chosen coarse and fine propagators be denoted $cal(G), cal(F)$, respectively, and the $n_cal(S)$-th data point for propagator $cal(S)$ in the $p$-th subprobem at iteration $i$ be denoted $u_(p n_cal(S))^i$ and defined traditionally by $u_(p n_cal(S))^i = cal(S) u_(p n_cal(S) - 1)^i$, and the solution from propagator $cal(S)$ on subproblem $p$ is the ordered collection of points $cal(S) u_p^i = u_(p n_cal(S))^i_(n_cal(S))$.
+\
+The magic of the Parareal algorithm lies in its divide-and-conquer approach to solving initial value problems.  The "root" problem is sequentially and inaccurately solved to divide it into smaller problems whose initial values are defined by the solution.  Those problems are simultaneously and accurately solved in parallel.  The root problem is then solved in the same way as before, but at each step, the data is modified by combining the previous accurate and inaccurate solutions.  Finally, the new root solution defines new problems, and the loop continues until the the solution has converged.
 
 #pagebreak()
 == The Parareal Algorithm at Scale
