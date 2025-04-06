@@ -315,7 +315,7 @@ $ P = {
     [0 "s", #tmax "s"], 
     "time span"
   )
-}. $ <ex_eq>
+}. $ <eq:root>
 
 #pagebreak()
 == The Parareal Algorithm
@@ -613,6 +613,13 @@ $ <eq:prop_corrector>
   ]
 ) <alg:correction>
 
+*Example:*
+
++ Have arrays of positions and velocities at each time for the previous and current iteration; the first element of the current iteration's array is the initial value of the problem, while the rest of empty.  Also have arrays of positions and velocities generated from the coarse and fine propagators at each time for the previous iteration.
++ Use the new solution generator algorithm with these arrays and the coarse propagator.
++ The arrays for the position and velocity of the root solution at the current iteration are now populated.
+
+#pagebreak()
 === Converging the root solution
 
   Repeat the process for updated initial values until convergence, e.g.:
