@@ -655,36 +655,47 @@ The magic of the Parareal algorithm lies in its divide-and-conquer approach to s
 #pagebreak()
 == The Parareal Algorithm at Scale
 
-- Parallelize on the GPU instead of the CPU
-  - Port functionality to kernel calls
-    - Technical: Instead of objects with properties, it's just the same index for a bunch of different arrays
-    - Vibes: Makes logic less understandable comp
-  + From the host, launch the Parareal kernel on the device
-    + Each core on the device executes the same sequence of instructions (kernel), but uses different thread-local variables such as their thread id, block id, etc.
-    + Use traditional and sequential solvers on each core for each subproblem
-    + Write the final point to an array
-  + Send solution data back to host for sequential correction
-  + Host corrects and loops
+The PA as described in @sec:Parareal ignores the details and nuances of implementing it.  The primary goal of this work is to provide two new models for implementation: using the massively parallel architecture of graphics processing units (GPUs), and the scalability of distributed systems. Instances of these implementations are also provided @Chapman_PararealGPU_jl.
 
-- Distribute problems over multiple processes/devices
-  - Preparing the Cluster
-    - Currently only works for an ssh-cluster i.e. a collection of machines that can all be accessed via ssh from the head node
-    - A "remote node" could also be a single process on a single machine, the differences are straightforward
-    - Given a head node and a collection of remote nodes
-    + Spawn a worker, or "sub-manager", process on each remote node
-    + Each sub-manager identifies how many devices are available to the node, and send that information back to the manager process
-    + The manager process spawns a worker process on the appropriate node for each device on that node
-    + Each process acquires a device
-  + For each problem:
-    + Send it to a process
-    + Execute the parareal algorithm on that problem using the assigned device
-    + Send the result to the manager process to be used in corrections
+The GPU-based implementation focuses on considering the movement of data between the host (RAM) and device (VRAM).  Arrays are first allocated and pre-populated by the CPU on the host and the device. Then the CPU tells the GPU to execute the parareal kernel, and the CPU then copies the new data from the device to the host and recreates the problems.  The transfer of data (and the CPU launching the kernel on the GPU) between the host and the device serves as the main performance bottleneck in this process.  Dynamic parallelism @cook2012cuda can be used to launch kernels directly from the GPU, thus circumventing the performance drawbacks of host-device communication.
+
+The distributed-based implementation focuses on distributing problems across multiple remote machines.  These machines solve their problems simultaneously with the other machines, thus achieving a form of parallelism only limited by the number of accessible machines. These problems could either arise from the coarse propagation of a single root problem, yielding a "problem tree" (@diag:problem_tree) where each machine would create-distribute-collect its own set of problems, or if there are multiple "true root" problems e.g. a system of ODEs.
+
+The GPU- and distribution-based methods can be combined to further parallelize solving an initial value problem.  If each of the machines available to the distributed network has at least one GPU (a single machine can have multiple; more details in @sec:distributed), this implementation will automatically identify, manage, and use all of them.  Thus these methods can be composed to provide a scalable model of parallel-in-time integration for equations of motion.
 
 #figure(
-  image("../../images/cluster_topology.png"),
-  caption: [A representative cluster topology.]
-) <img:cluster_topology>
+  // replace with diagram of problem tree
+  // image(
+  //   "",
+  //   alt: 
+  // )
+  rect(width: 100%, height: 33%, [#v(1fr) recursive problem distribution and partition tree #v(1fr)]),
+  caption: "The problems can be distributed providing a recursively parallelized solution."
+) <diag:problem_tree>
 
+// - Parallelize on the GPU instead of the CPU
+//   + From the host, launch the Parareal kernel on the device
+//     + Each core on the device executes the same sequence of instructions (kernel), but uses different thread-local variables such as their thread id, block id, etc.
+//     + Use traditional and sequential solvers on each core for each subproblem
+//     + Write the final point to an array
+//   + Send solution data back to host for sequential correction
+//   + Host corrects and loops
+
+// - Distribute problems over multiple processes/devices
+//   - Preparing the Cluster
+//     - Currently only works for an ssh-cluster i.e. a collection of machines that can all be accessed via ssh from the head node
+//     - A "remote node" could also be a single process on a single machine, the differences are straightforward
+//     - Given a head node and a collection of remote nodes
+//     + Spawn a worker, or "sub-manager", process on each remote node
+//     + Each sub-manager identifies how many devices are available to the node, and send that information back to the manager process
+//     + The manager process spawns a worker process on the appropriate node for each device on that node
+//     + Each process acquires a device
+//   + For each problem:
+//     + Send it to a process
+//     + Execute the parareal algorithm on that problem using the assigned device
+//     + Send the result to the manager process to be used in corrections
+
+#pagebreak()
 === The Parareal Algorithm on the GPU <sec:single_gpu>
 
 - Execute the parallel propagation on the GPU
