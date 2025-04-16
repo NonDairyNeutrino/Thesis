@@ -318,7 +318,7 @@ $ P = {
 }. $ <eq:root>
 
 #pagebreak()
-== The Parareal Algorithm
+== The Parareal Algorithm <sec:Parareal>
 
 #v(2em)
 #align(right, [_The Parareal Algorithm aimed to solve the problem of physics taking too long to simulate; it didn't._])
@@ -673,14 +673,6 @@ The GPU- and distribution-based methods can be combined to further parallelize s
   caption: "The problems can be distributed providing a recursively parallelized solution."
 ) <diag:problem_tree>
 
-// - Parallelize on the GPU instead of the CPU
-//   + From the host, launch the Parareal kernel on the device
-//     + Each core on the device executes the same sequence of instructions (kernel), but uses different thread-local variables such as their thread id, block id, etc.
-//     + Use traditional and sequential solvers on each core for each subproblem
-//     + Write the final point to an array
-//   + Send solution data back to host for sequential correction
-//   + Host corrects and loops
-
 // - Distribute problems over multiple processes/devices
 //   - Preparing the Cluster
 //     - Currently only works for an ssh-cluster i.e. a collection of machines that can all be accessed via ssh from the head node
@@ -697,90 +689,37 @@ The GPU- and distribution-based methods can be combined to further parallelize s
 
 #pagebreak()
 === The Parareal Algorithm on the GPU <sec:single_gpu>
-
-- Execute the parallel propagation on the GPU
-  - Requires transforming "regular code" into a "kernel" that's evaluated on every computer core
-  - Make solution data an array that is copied to the device which can then just write to the appropriate index
-  - Use thread-local variables (e.g. `threadidx.x`, `blockIdx.x`, etc.) to identify the appropriate index
-  - "Don't overwrite your neighbor" by index striding.
+// - Use thread-local variables (e.g. `threadidx.x`, `blockIdx.x`, etc.) to identify the appropriate index
+// - "Don't overwrite your neighbor" by index striding.
 
 #figure(
   kind: "algorithm",
-  supplement: [Algorithm],
-  caption: [GPU kernel to calculate the discretized points in a subdomain in-place],
+  supplement: [Alg],
+  caption: [The Parareal Algorithm is composed of looping two steps: finding the fine solutions in parallel, then finding the root solution sequentially.  The loop stops when the root solution stops changing.],
   pseudocode-list(
-    numbered-title: smallcaps[discretize_kernel],
+    numbered-title: smallcaps[The GPU-Based Parareal Algorithm],
     booktabs: true, 
     hooks: 0.5em
   )[
-    - *INPUT:* Sequence of points in the subdomain `dompnts`
-    - *OUTPUT:* Nothing
-    + `npnts`   #gets number of points in `dompnts`
-    + `lb`      #gets lower bound of this subdomain `dompnts[1]`
-    + `ub`      #gets upper bound of this subdomain `dompnts[-1]`
-    + `step`    #gets (`ub` - `lb`) / `npnts`
-    + *for* `i` from 2 to (`npnts` - 1)
-      + `dompnts[i]` #gets `lb` + (`i` - 1) \* `step`
+    - *INPUT:* Root problem `P`, Coarse propagator `G`, Fine propagator `F`, Convergence threshold `ep`
+    - *OUTPUT:* Discretized domain `ddom`, Root position sequence `pos`, Root velocity sequence `vel`
+    + `ddom, pos[0, :], vel[0, :]` #gets On the host, prepare the subproblems via a coarse solution
+    + `i` #gets `1`
+    + *while* `max(changes)` $>=$ `ep`
+      + `pos_dev[i-1, :], vel_dev[i-1, :]` #gets Copy `F, pos[i-1, :], vel[i-1, :]` to the device
+      + `fpos_dev, fvel_dev` #gets Launch the parareal kernel on the device with `F, pos_dev[i-1, :], vel_dev[i-1, :]` to get the fine solutions to each subproblem
+      + `pos[i, :], vel[i, :]` #gets Construct new root solutions with `G`, `pos[i-1, :], vel[i-1, :]`, and `fpos, fvel`
+      + `changes` #gets The difference between the current and previous solutions
+    + *return* `ddom, pos, vel`
   ]
-)
-
-#figure(
-  kind: "algorithm",
-  supplement: [Algorithm],
-  caption: [GPU kernel to propagate solutions in-place],
-  pseudocode-list(
-    numbered-title: smallcaps[propagate_kernel],
-    booktabs: true, 
-    hooks: 0.5em
-  )[
-    - *INPUT:* Solver function `sol`, Acceleration function `acc`, Domain points `dompnts`, Position sequence `pos_seq`, Velocity sequence `vel_seq`
-    - *OUTPUT:* Nothing
-    + `npnts` #gets number of points in domain `dompnts`
-    + *for* `i` from 2 to (`npnts` - 1)
-      + `op` #gets old position `pos_seq[i - 1]`
-      + `ov` #gets old velocity `vel_seq[i - 1]`
-      + `np` #gets new position `pos_seq[i]`
-      + `nv` #gets new velocity `vel_seq[i]`
-      + `np`, `nv` #gets `solver`(`op`, `ov`, `acc`, `step`) // FIXME: find call to step
-  ]
-)
-
-#figure(
-  kind: "algorithm",
-  supplement: [Algorithm],
-  caption: [Main kernel],
-  pseudocode-list(
-    numbered-title: smallcaps[kernel],
-    booktabs: true, 
-    hooks: 0.5em
-  )[
-    - *INPUT:* Solver function `sol`, Acceleration function `acc`, Sequence of sequenes of domain points `dss`, Sequence of sequences of positions `pss`, Sequence of sequences of velocities `vss`
-    - *OUTPUT:* Nothing
-
-    + `nsols`   #gets number of subproblems or subdomains
-
-    - \/\/      INDEX STRIDING // make gray to more directly show it's a comment
-    + `index`  #gets (block_id - 1) \* block_dim + thread_id
-    + `stride` #gets grid_dim \* block_dim
-    + *for* `i` from `index` to `nsols` in steps of `stride`
-
-      - \/\/    DISCRETIZE DOMAINS
-      + `dompnts` #gets sequence of points in this subdomain `dss[i]`
-      + `discretize_kernel`(`dompnts`)
-
-      - \/\/      ALLOCATE SOLUTIONS
-      + `pos_seq` #gets sequence of positions for this subproblem `pss[i]`
-      + `vel_seq` #gets sequence of velocities for this subproblem `vss[i]`
-      + `propagate_kernel`(`sol`, `acc`, `dompnts`, `pos_seq`, `vel_seq`)
-  ]
-)
+) <alg:parareal_gpu>
 
 #figure(
   image("../../images/parallel_propagation_gpu.png", width: 100%),
   caption: [Sequential solutions (blue) are sent to the GPU to be finely-propagated (red) in parallel; true solutions (black) are shown for comparison.]
 )
 
-=== The Parareal Algorithm on Multiple GPUs
+=== The Parareal Algorithm on Multiple GPUs <sec:distributed>
 
 - How did I glue GPU and Distributed computing together with the Parareal algorithm to make it scalable?
   - GPU Computing: solve each subproblem on a each gpu core
@@ -790,6 +729,11 @@ The GPU- and distribution-based methods can be combined to further parallelize s
     - "Just add another machine"
     - Automatically determine number of devices on each node
     - Sharing data across processes
+
+#figure(
+  image("images/cluster_topology.png"),
+  caption: [A representative cluster topology.]
+) <img:cluster_topology>
 
 #pagebreak()
 = Discussion
