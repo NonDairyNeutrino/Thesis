@@ -1,6 +1,7 @@
 #import "@preview/lovelace:0.3.0": *
 
-#let title = "Scalable Parallel-in-Time Integration for Equations of Motion"
+#let title1 = "Scalable Parallel-in-Time Integration for Equations of Motion"
+#let title2 = "Particle Production in Analog Cosmology"
 #let title_header = "Scalable PinT Integration for Equations of Motion"
 #let gets  = sym.arrow.l
 #let cn    = text(red)[*CN*] // citation needed
@@ -273,7 +274,7 @@ Some key aspects of high-performance computing (HPC) are:
   caption: [Each thread is assigned an index of the array (`index`) based on its location in its block (`threadIdx.x`), how many threads there are in its block (`blockDim.x`), and the block's location in the grid (`blockIdx.x`). The cells in the image above represent cells of the array to which the labeled thread will write.  Image credit @Harris2017.],
   image(
     alt: "",
-    "images/cuda_indexing.png"
+    "../../images/cuda_indexing.png"
   )
 )
 
@@ -281,7 +282,7 @@ Some key aspects of high-performance computing (HPC) are:
   caption: [When there are more cells in the array than there are threads in the GPU, each thread processes multiple array cells. Once each thread is finished writing to its cell, it "jumps over" all the cells that were just written to by all the other threads in all the other blocks, and writes to the next one.  The number of cells the thread "jumps", i.e. the _stride_, is determined by the number of threads in each block (`blockDim.x`) and the number of blocks in each grid (`gridDim.x`).  This is known as _index striding_ and is frequently used in GPU programming to process arrays of arbitrary dimension @Harris2013. Image credit @Singal2021],
   image(
     alt: "",
-    "images/grid-stride-1.png"
+    "../../images/grid-stride-1.png"
   )
 )
 
