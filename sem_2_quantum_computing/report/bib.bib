@@ -1,0 +1,58 @@
+@article{Barnes1986,
+author={Barnes, Josh
+and Hut, Piet},
+title={A hierarchical O(N log N) force-calculation algorithm},
+journal={Nature},
+year={1986},
+month={Dec},
+day={01},
+volume={324},
+number={6096},
+pages={446-449},
+abstract={Until recently the gravitational N-body problem has been modelled numerically either by direct integration, in which the computation needed increases as N2, or by an iterative potential method in which the number of operations grows as N log N. Here we describe a novel method of directly calculating the force on N bodies that grows only as N log N. The technique uses a tree-structured hierarchical subdivision of space into cubic cells, each of which is recursively divided into eight subcells whenever more than one particle is found to occupy the same cell. This tree is constructed anew at every time step, avoiding ambiguity and tangling. Advantages over potential-solving codes are: accurate local interactions; freedom from geometrical assumptions and restrictions; and applicability to a wide class of systems, including (proto-)planetary, stellar, galactic and cosmological ones. Advantages over previous hierarchical tree-codes include simplicity and the possibility of rigorous analysis of error. Although we concentrate here on stellar dynamical applications, our techniques of efficiently handling a large number of long-range interactions and concentrating computational effort where most needed have potential applications in other areas of astrophysics as well.},
+issn={1476-4687},
+doi={10.1038/324446a0},
+url={https://doi.org/10.1038/324446a0}
+}
+
+@article{Hamada2009,
+author={Hamada, Tsuyoshi
+and Nitadori, Keigo
+and Benkrid, Khaled
+and Ohno, Yousuke
+and Morimoto, Gentaro
+and Masada, Tomonari
+and Shibata, Yuichiro
+and Oguri, Kiyoshi
+and Taiji, Makoto},
+title={A novel multiple-walk parallel algorithm for the Barnes--Hut treecode on GPUs -- towardscost effective, high performance N-body simulation},
+journal={Computer Science - Research and Development},
+year={2009},
+month={Sep},
+day={01},
+volume={24},
+number={1},
+pages={21-31},
+abstract={Recently, general-purpose computation on graphics processing units (GPGPU) has become an increasinglypopular field of study as graphics processing units (GPUs) continue to be proposed as high performanceand relatively low cost implementation platforms for scientific computing applications. Among theseapplications figure astrophysical N-bodysimulations, which form one of the most challenging problemsin computational science. However, in most reported studies, a simple{\$} {\backslash}mathcal{\{}O{\}}(N^{\{}2{\}}){\$}algorithmwas used for GPGPUs, and the resulting performances were not observed to be better than those of conventionalCPUs that were based on more optimized{\$} {\backslash}mathcal{\{}O{\}}(N {\backslash}log N){\$}algorithmssuch as the tree algorithm or the particle-particle particle-mesh algorithm. Because of the difficultyin getting efficient implementations of such algorithms on GPUs, a GPU cluster had no practicaladvantage over general-purpose PC clusters for N-bodysimulations. In this paper, we report a newmethod for efficient parallel implementation of the tree algorithm on GPUs. Our novel tree code allowsthe realization of an N-bodysimulation on a GPU cluster at a much higher performance thanthat on general PC clusters. We practically performed a cosmological simulation with 562 millionparticles on a GPU cluster using 128 NVIDIA GeForce 8800GTS GPUs at an overall cost of 168172 {\$}.We obtained a sustained performance of 20.1 Tflops, which when normalized against a general-purposeCPU implementation leads to a performance of 8.50 Tflops. The achieved cost/performance washence a mere {\$}19.8 /Gflops which shows the high competitiveness of GPGPUs.},
+issn={1865-2042},
+doi={10.1007/s00450-009-0089-1},
+url={https://doi.org/10.1007/s00450-009-0089-1}
+}
+
+@book{Landau1976Mechanics,
+  abstract = {{Devoted to the foundation of mechanics, namely classical Newtonian mechanics, the subject is based mainly on Galileo's principle of relativity and Hamilton's principle of least action.  The exposition is simple and leads to the most complete direct means of solving problems in mechanics.<br><br>The final sections on adiabatic invariants have been revised and augmented.  In addition a short biography of L D Landau has been inserted.}},
+  added-at = {2014-01-09T15:14:33.000+0100},
+  author = {Landau, L. D. and Lifshitz, E. M.},
+  day = 15,
+  edition = 3,
+  isbn = {0750628960},
+  keywords = {book},
+  month = jan,
+  posted-at = {2011-05-23 16:54:22},
+  priority = {2},
+  publisher = {Butterworth-Heinemann},
+  timestamp = {2014-01-09T15:14:33.000+0100},
+  title = {Mechanics, Third Edition: Volume 1 (Course of Theoretical Physics)},
+  url = {http://www.worldcat.org/isbn/0750628960},
+  year = 1976
+}
