@@ -122,7 +122,7 @@ According to classical mechanics, the motion for any and every object in the uni
   - coupled
 - Partial Differential Equations (PDE) e.g. wave equation
 
-=== Traditional Numerical Methods
+=== Traditional Numerical Methods <sec:trad_methods>
 - ODEs
   - Symplectic Integration
   - Traditional Methods in evoling Equations of Motion
@@ -321,7 +321,7 @@ The main idea of the Parareal algorithm (PA) is to break up a single IVP into ma
 
 Let the second-order initial value problem $P$ be defined such that
 
-$ P = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_0,  diff_t u(0) = v_0, #h(11pt) [t_0, t_0 + Delta t]}, $ <IVP>
+$ P = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_0,  diff_t u(0) = v_0, #h(11pt) [t_0, t_0 + Delta t]}, $ <eq:ivp>
 
 and $D = [t_0, t_0 + Delta t]$. The discretization $N$ of $P$ should be determined by the number of available threads $N_t$ such that $N = m N_t$, for some positive integer $m$.  The discretization should be chosen in this manner for maximum performance and efficiency; if $N = m N_t + r$, and $0 < r < N_t$, each thread will solve a subproblem $m$ times until on the $m+1$ iteration where only $r$ threads would be active while $N_t - r$ threads idle (assuming all threads are synchronized).  This type of optimization is sometimes referred to as "_flooding the threadpool_" to mitigate _thread starvation_ #cn.
 
@@ -336,13 +336,13 @@ $ {v_p^0}_p = {v_0^0, v_1^0, v_2^0, dots, v_(N-1)^0} $
 
 and ${u_p^0, v_p^0} = cal(C)_0(Delta t, u_(p-1)^0, v_(p-1)^0, diff_t^2 u)$.
 
-Subproblems $P_p$ take the same from as in @IVP, but instead using initial conditions defined by those in the initial root solution.  For example, the subproblem $P_1$ for the second ($p = 1$) subdomain, takes the form
+Subproblems $P_p$ take the same from as in @eq:ivp, but instead using initial conditions defined by those in the initial root solution.  For example, the subproblem $P_1$ for the second ($p = 1$) subdomain, takes the form
 
-$ P_1 = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_1^0,  diff_t u(0) = v_1^0, #h(11pt) [t_0, t_0 + Delta t]}. $
+$ P_1 = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_1^0,  diff_t u(0) = v_1^0, #h(11pt) [t_0, t_0 + Delta t]}. $ <eq:example_ivp>
 
-@prep_subproblems shows the steps of this process for a given IVP and integration algorithm i.e. "propagator", resulting in root solutions and and the collected subproblems.  With these subproblems in hand, the PA continues to its next stage: propagating these problems in parallel.
+@alg:prep_subproblems shows the pseudocode of this process for a given IVP and integration algorithm i.e. "propagator", resulting in root solutions and and the collected subproblems.  With these subproblems in hand, the PA continues to its next stage: propagating these problems in parallel.
 
-*Example:* Given the example IVP (@ex_eq) and the available threads,
+*Example:* Given the example IVP (@eq:example_ivp) and the available threads,
 
 + I know I want to have 10 subproblems because I have 10 available threads.
 + I create the 10 time sub-domains $[0, 1], [1, 2], ..., [9, 10]$.
@@ -381,13 +381,48 @@ $ P_p = {
       + `subproblems[i]` #gets ivp on `subdomain` with initial values `pos0` and `vel0` for acceleration `P.acc`
     + *return* Solution for root problem with `pos_seq` and `vel_seq`, and array of subproblems `subproblems`
   ]
-) <prep_subproblems>
+) <alg:prep_subproblems>
 
+#figure(
+  image(
+    "images/root_solution.png", 
+    width: 100%,
+    alt: "Plot showing the height of the ball vs time so that each subproblem is a column with its initial position as a blue dot at the start of each subdomain, and its velocity as a blue arrow coming from the respective dot.  The true solution is also shown with the same form but in black."
+  ),
+  caption: "The motion of a ball flying through the air can be partitioned in time to form several initial value problems, each with its own initial position and velocity (blue) determined by a fast integration method. Compared to the true solution (black), this solution is very inaccurate."
+) <diag:it_0>
+
+#pagebreak()
 === Parallel Propagation
 
-  Use a coarse propagator $cal(C)$ (e.g., Symplectic-Euler with a large time step) and a fine propagator $cal(F)$ (e.g. Velocity-Verlet with a small time step). Solve each subproblem $p$ in parallel.
+Because each of these subproblems is independent of the others, each can be solved in parallel; #lower([@sec:corrections]) addresses recombining their solutions to produce a larger solution to the root problem.  Though the subproblems are solved in parallel not once, but twice using a "_fine propagator_" $cal(F)$, and again using a "_coarse propagator_" $cal(C)$.  It should be noted that this coarse propagator $cal(C)$ does not need to be the same as what was used to construct the initial root solution $cal(C)_0$. 
 
-=== Corrections
+Each propagator has two parts: the integration algorithm, and the step-size $Delta t$.  The integration algorithms considered here are restricted to those that are _symplectic_ (as defined in #lower([@sec:trad_methods]) on #ref(<sec:trad_methods>, form: "page")).  The step-size considered here represents a simple finite interval of time; non-dimensionalization (i.e. scaling input in terms of "intrinsic parameters" of the problem) could be used to increase implementation performance @langtangen2016scaling.  The difference between the coarse and fine propagators can thus come from any combination of low or high-accuracy integration algorithms such as symplectic-Euler or an eighth-order Yoshida integrator @YOSHIDA1990262, and a low or high step size (relative to the problem).
+
+Before each subproblem can be solved in parallel, they must first be discretized.  While this discretization can be achieved in many ways, the method used here is chosen with the foresight of the requirements for hardware-dependent variations of the PA (see #lower([@sec:single_gpu]) on #ref(<sec:single_gpu>, form: "page")). The discretized domain shall thus take the initial form of a 1-dimensional array whose first and last elements are the lower and upper bounds of the subproblem's domain, respectively; the other elements are arbitrary as they are going to be immediately overwritten.  The intermediate elements are then overwritten by simply stepping uniformly from the lower bound to the upper bound.  This process is shown in @alg:disc_kernel via slightly different implementation, but the result is the same.
+
+#figure(
+  kind: "algorithm",
+  supplement: [Alg],
+  caption: [Each subproblem can be discretized in parallel to allow for propagation.],
+  pseudocode-list(
+    numbered-title: smallcaps[Parallel Discretization],
+    booktabs: true, 
+    hooks: 0.5em
+  )[
+    - *INPUT:* An empty list `dom` of length `N`, the lower `a` and upper `b` bounds of the subproblem domain
+    - *OUTPUT:* Nothing
+    + step #gets (`b` - `a`) / 2
+    + `dom[0]` #gets `a`
+    + *for* `i` from 1 to `N - 2`
+      + `dom[i]` #gets `a + (i - 1) * step`
+    + `dom[N - 1]` #gets `b`
+    + *return*
+  ]
+) <alg:disc_kernel>
+
+#pagebreak()
+=== Corrections <sec:corrections>
 
   Compute corrections for the coarse solutions using:
   $ eta_p^i = cal(F) u_p^i (T_(p+1)) - cal(C) u_p^i (T_(p+1)), $
@@ -432,9 +467,9 @@ In addition to parallelizing, part of the magic of the Parareal algorithm lies i
 #figure(
   image("../../images/cluster_topology.png"),
   caption: [A representative cluster topology.]
-)
+) <img:cluster_topology>
 
-=== The Parareal Algorithm on the GPU
+=== The Parareal Algorithm on the GPU <sec:single_gpu>
 
 - Execute the parallel propagation on the GPU
   - Requires transforming "regular code" into a "kernel" that's evaluated on every computer core
