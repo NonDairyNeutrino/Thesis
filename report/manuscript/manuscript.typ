@@ -1,7 +1,7 @@
 #import "@preview/lovelace:0.3.0": *
 
-#let title1 = "Scalable Parallel-in-Time Integration for Equations of Motion"
-#let title2 = "Particle Production in Analog Cosmology"
+#let title = "Scalable Parallel-in-Time Integration for Equations of Motion"
+#let title_header = "Scalable PinT Integration for Equations of Motion"
 #let gets  = sym.arrow.l
 #let cn    = text(red)[*CN*] // citation needed
 #let us    = h(2pt)          // unit space
@@ -18,11 +18,11 @@
     if sections != () {
       let lastSection = sections.last()
       // let number = counter(heading).at(lastSection.location())
-      [#emph(smallcaps(title1)) #h(1fr) #emph(smallcaps(lastSection.body)) #line(length: 100%)]
+      [#emph(smallcaps(title_header)) #h(1fr) #emph(smallcaps(lastSection.body)) #line(length: 100%)]
     }
   }
 )
-#set par(justify: true, leading: 1em) // "leading" == "line spacing"
+#set par(justify: true, leading: 1em, spacing: 2em) // "leading" == "line spacing"
 #set text(font: "New Computer Modern", size: 10pt)
 #set enum(numbering: "1.1)", full: true)
 #set heading(numbering: "1.")
@@ -263,11 +263,29 @@ One of the most important algorithms used in evolving equations of motion is the
 
 Some key aspects of high-performance computing (HPC) are:
 - the difference between processes and threads
+- the difference between a CPU "core" and GPU "core"
 
 === Multi-threading & GPU Computing
 - CPU multithreading
 - GPU multithreading & CUDA
 
+#figure(
+  caption: [Each thread is assigned an index of the array (`index`) based on its location in its block (`threadIdx.x`), how many threads there are in its block (`blockDim.x`), and the block's location in the grid (`blockIdx.x`). The cells in the image above represent cells of the array to which the labeled thread will write.  Image credit @Harris2017.],
+  image(
+    alt: "",
+    "images/cuda_indexing.png"
+  )
+)
+
+#figure(
+  caption: [When there are more cells in the array than there are threads in the GPU, each thread processes multiple array cells. Once each thread is finished writing to its cell, it "jumps over" all the cells that were just written to by all the other threads in all the other blocks, and writes to the next one.  The number of cells the thread "jumps", i.e. the _stride_, is determined by the number of threads in each block (`blockDim.x`) and the number of blocks in each grid (`gridDim.x`).  This is known as _index striding_ and is frequently used in GPU programming to process arrays of arbitrary dimension @Harris2013. Image credit @Singal2021],
+  image(
+    alt: "",
+    "images/grid-stride-1.png"
+  )
+)
+
+#pagebreak()
 === Multi-processing & Distributed Computing
 - Message Passing & Remote Call Procedure (RPC)
 
@@ -297,6 +315,9 @@ Many details and variations of the Parareal algorithm have been investigated to 
 Before the PA can be implemented using these high-performance methods, the algorithm must be decomposed into its central components.  The Parareal algorithm begins by partitioning a single IVP into several IVPs on smaller domains via an initial, inaccurate, "root" solution.  Then each of the "subproblems" are solved using a sequential, accurate method on different threads at the same time.  The final data for each of the subsolutions is then combined with the respective data of the root solution to yield a more accurate (i.e. "corrected") root solution.  This new root solution is then used to repeat the process until convergence.
 
 The interpretation of the PA in terms of these recursive subproblems makes the algorithm _almost_ embarrassingly parallel; the corrections to the root solution need to be done sequentially.  In addition to this structure, the algorithms being evaluated in parallel manifestly depend on simple arithmetic; because of this simplicity, the PA is well-suited to be evaluated on the GPU.  Likewise, distributed methods can be combined with GPU evaluation for further parallelization for either a single model (taking advantaged of the recursive nature of the PA) or a system of models.
+
+// Include roadmap for this section; i.e. explicitly tell the reader what's to come. Like section names
+// e.g. This chapter begins with a presentation on the Parareal Algorithm, etc.
 
 #let tmax = 8
 #let threads = 8
@@ -352,7 +373,6 @@ $ P_1 = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_1^0,  dif
 
 @alg:prep_subproblems shows the pseudocode of this process for a given IVP and integration algorithm i.e. "propagator", resulting in root solutions and and the collected subproblems.  With these subproblems in hand, the PA continues to its next stage: propagating these problems in parallel.
 
-#pagebreak()
 #figure(
   kind: "algorithm",
   supplement: [Alg],
@@ -500,7 +520,6 @@ Otherwise, the propagation kernel is no more than a traditional IVP solver as de
   caption: [Each thread uses coarse and fine propagators to produce intermediate values (small, red dots) from the initial values (big, blue dots and arrows) of its assigned subproblem.  Velocity data does exist, but is neglected here for visual clarity.]
 ) <diag:disc_prop>
 
-#pagebreak()
 // The solution structure as in @eq:solution is recovered by combining the results of the discretization and propagation kernels according to the algorithm in @alg:solution_constructor.  The separation of the discretization and propagation kernels allows the discretized domain to be only calculated once, while being used in both the solutions for the position and velocity.  Further advantage is taken in the next section.
 
 // #figure(
@@ -620,10 +639,9 @@ $ <eq:prop_corrector>
 + Use the new solution generator algorithm with these arrays and the coarse propagator.
 + The arrays for the position and velocity of the root solution at the current iteration are now populated.
 
-#pagebreak()
 === Converging the root solution
 
-Finally, as own in @alg:convergence, launch the parareal kernel (@alg:parareal_kernel) to gather the fine solutions for each point in time, and construct the new root solution (@alg:correction) until the root solution stops changing between iterations.  While there are many choices that can serve as valid convergence criteria @gander2007, one of the simplest is:
+Finally, as own in @alg:parareal, launch the parareal kernel (@alg:parareal_kernel) to gather the fine solutions for each point in time, and construct the new root solution (@alg:correction) until the root solution stops changing between iterations.  While there are many choices that can serve as valid convergence criteria @gander2007, one of the simplest is:
 
 $ max_(1 <= t <= N-1) |u_t^i - u_t^(i-1)| < epsilon, $ <eq:convergence>
 
@@ -643,12 +661,12 @@ for some threshold $epsilon$.  @eq:convergence determines convergence when every
     + `ddom, pos[0, :], vel[0, :]` #gets Prepare the subproblems via a coarse solution
     + `i` #gets `1`
     + *while* `max(changes)` $>=$ `ep`
-      + `fpos, fvel` #gets Launch the parareal kernel with `F, pos[i-1, :], vel[i-1, :]` to get the fine solutions to each subproblem
+      + `fpos[t], fvel[t]` #gets Launch the parareal kernel in parallel with `F, pos[i-1, :], vel[i-1, :]` to get the fine solutions for subproblem `t`
       + `pos[i, :], vel[i, :]` #gets Construct new root solutions with `G`, `pos[i-1, :], vel[i-1, :]`, and `fpos, fvel`
       + `changes` #gets The difference between the current and previous solutions
     + *return* `ddom, pos, vel`
   ]
-) <alg:convergence>
+) <alg:parareal>
 
 \
 The magic of the Parareal algorithm lies in its divide-and-conquer approach to solving initial value problems.  The "root" problem is sequentially and inaccurately solved to divide it into smaller problems whose initial values are defined by the solution.  Those problems are simultaneously and accurately solved in parallel.  The root problem is then solved in the same way as before, but at each step, the data is modified by combining the previous accurate and inaccurate solutions.  Finally, the new root solution defines new problems, and the loop continues until the the solution has converged.
@@ -658,7 +676,7 @@ The magic of the Parareal algorithm lies in its divide-and-conquer approach to s
 
 The PA as described in @sec:Parareal ignores the details and nuances of implementing it.  The primary goal of this work is to provide two new models for implementation: using the massively parallel architecture of graphics processing units (GPUs), and the scalability of distributed systems. Instances of these implementations are also provided @Chapman_PararealGPU_jl.
 
-The GPU-based implementation focuses on considering the movement of data between the host (RAM) and device (VRAM).  Arrays are first allocated and pre-populated by the CPU on the host and the device. Then the CPU tells the GPU to execute the parareal kernel, and the CPU then copies the new data from the device to the host and recreates the problems.  The transfer of data (and the CPU launching the kernel on the GPU) between the host and the device serves as the main performance bottleneck in this process.  Dynamic parallelism @cook2012cuda can be used to launch kernels directly from the GPU, thus circumventing the performance drawbacks of host-device communication.
+The PA as defined in @alg:parareal does not change in it _what_ it does when implemented to use GPUs, but rather _how_ it does.  There are several issues that arise when utilizing general-purpose GPU computing (GPGPU) such as the GPU needing to wait until the CPU tells it to do something, better performance with less precision, and the restriction to using primitive types like "ints" and "floats".  Though, the biggest issue is the need to consider the movement of data between RAM and VRAM, or more generally host memory and device memory; considering unshared memory spaces will be even more important in section @sec:distributed.
 
 The distributed-based implementation focuses on distributing problems across multiple remote machines.  These machines solve their problems simultaneously with the other machines, thus achieving a form of parallelism only limited by the number of accessible machines. These problems could either arise from the coarse propagation of a single root problem, yielding a "problem tree" (@diag:problem_tree) where each machine would create-distribute-collect its own set of problems, or if there are multiple "true root" problems e.g. a system of ODEs.
 
@@ -690,8 +708,20 @@ The GPU- and distribution-based methods can be combined to further parallelize s
 
 #pagebreak()
 === The Parareal Algorithm on the GPU <sec:single_gpu>
-// - Use thread-local variables (e.g. `threadidx.x`, `blockIdx.x`, etc.) to identify the appropriate index
-// - "Don't overwrite your neighbor" by index striding.
+
+// How does the CPU implementation differ from the GPU implementation?
+// - Need to copy data between memory spaces, which is a bottleneck
+//   - This host-device communication takes more time compared to intra-host communication but the decrease in computation time from parallelism on the device yields a net decrease.
+// - The GPU needs to wait for the CPU to tell it to launch the kernel, which itself takes time.
+//  - Can be mitigated with dynamic parallelism and having the GPU launch the kernels itself
+// - While the CPU can handle composite types e.g. structs and classes, the GPU is best-suited to handle primitive types e.g. integers and floats.
+// - Should use 32-bit types
+
+The GPU-based implementation focuses on considering the movement of data between the host memory (RAM) and the device memory (VRAM).  Arrays are first allocated and pre-populated by the CPU on the host and the device. Then the CPU tells the GPU to execute the parareal kernel, and the CPU then copies the new data from the device to the host and recreates the problems.  The transfer of data (and the CPU launching the kernel on the GPU) between the host and the device serves as the main performance bottleneck in this process. #cn  Dynamic parallelism @cook2012cuda can be used to launch kernels directly from the GPU, thus circumventing the performance drawbacks of host-device communication.
+
+// concrete details
+// - different brands have different GPGPU APIs such as NVIDIA with CUDA, AMD with ROCm, and Intel adhering to the oneAPI standard @Fortenberry2022
+// - can use high-level abstractions such as OpenMP #cn, OpenACC #cn, or language extensions such as Julia's GPU ecosystem #cn including CUDA.jl #cn
 
 #figure(
   kind: "algorithm",
@@ -704,11 +734,15 @@ The GPU- and distribution-based methods can be combined to further parallelize s
   )[
     - *INPUT:* Root problem `P`, Coarse propagator `G`, Fine propagator `F`, Convergence threshold `ep`
     - *OUTPUT:* Discretized domain `ddom`, Root position sequence `pos`, Root velocity sequence `vel`
-    + `ddom, pos[0, :], vel[0, :]` #gets On the host, prepare the subproblems via a coarse solution
-    + `i` #gets `1`
+    + `i` #gets `0`
+    + `ddom, pos[i, :], vel[i, :]` #gets On the host, prepare the subproblems via a coarse solution
     + *while* `max(changes)` $>=$ `ep`
-      + `pos_dev[i-1, :], vel_dev[i-1, :]` #gets Copy `F, pos[i-1, :], vel[i-1, :]` to the device
-      + `fpos_dev, fvel_dev` #gets Launch the parareal kernel on the device with `F, pos_dev[i-1, :], vel_dev[i-1, :]` to get the fine solutions to each subproblem
+      + `i += 1`
+      - \/\/ _fine propagate on the device_
+      + `posd[i-1, :], veld[i-1, :]` #gets Copy the fine propagator, `F`, and the initial values `pos[i-1, :], vel[i-1, :]` to the device
+      + `fposd[t], fveld[t]` #gets Launch the parareal kernel in parallel on the device to get the fine solutions for subproblem `t`
+      + `fpos, fvel` #gets Copy the fine solutions `fposd, fveld` to the host
+      - \/\/ _coarse propagate on the host_
       + `pos[i, :], vel[i, :]` #gets Construct new root solutions with `G`, `pos[i-1, :], vel[i-1, :]`, and `fpos, fvel`
       + `changes` #gets The difference between the current and previous solutions
     + *return* `ddom, pos, vel`
@@ -737,7 +771,7 @@ The GPU- and distribution-based methods can be combined to further parallelize s
 ) <img:cluster_topology>
 
 #pagebreak()
-= Discussion
+= Analysis
 
 == Numerical Analysis
 

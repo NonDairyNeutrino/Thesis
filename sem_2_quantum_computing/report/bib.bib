@@ -1,0 +1,209 @@
+@article{Barnes1986,
+author={Barnes, Josh
+and Hut, Piet},
+title={A hierarchical O(N log N) force-calculation algorithm},
+journal={Nature},
+year={1986},
+month={Dec},
+day={01},
+volume={324},
+number={6096},
+pages={446-449},
+abstract={Until recently the gravitational N-body problem has been modelled numerically either by direct integration, in which the computation needed increases as N2, or by an iterative potential method in which the number of operations grows as N log N. Here we describe a novel method of directly calculating the force on N bodies that grows only as N log N. The technique uses a tree-structured hierarchical subdivision of space into cubic cells, each of which is recursively divided into eight subcells whenever more than one particle is found to occupy the same cell. This tree is constructed anew at every time step, avoiding ambiguity and tangling. Advantages over potential-solving codes are: accurate local interactions; freedom from geometrical assumptions and restrictions; and applicability to a wide class of systems, including (proto-)planetary, stellar, galactic and cosmological ones. Advantages over previous hierarchical tree-codes include simplicity and the possibility of rigorous analysis of error. Although we concentrate here on stellar dynamical applications, our techniques of efficiently handling a large number of long-range interactions and concentrating computational effort where most needed have potential applications in other areas of astrophysics as well.},
+issn={1476-4687},
+doi={10.1038/324446a0},
+url={https://doi.org/10.1038/324446a0}
+}
+
+@article{Hamada2009,
+author={Hamada, Tsuyoshi
+and Nitadori, Keigo
+and Benkrid, Khaled
+and Ohno, Yousuke
+and Morimoto, Gentaro
+and Masada, Tomonari
+and Shibata, Yuichiro
+and Oguri, Kiyoshi
+and Taiji, Makoto},
+title={A novel multiple-walk parallel algorithm for the Barnes--Hut treecode on GPUs -- towardscost effective, high performance N-body simulation},
+journal={Computer Science - Research and Development},
+year={2009},
+month={Sep},
+day={01},
+volume={24},
+number={1},
+pages={21-31},
+abstract={Recently, general-purpose computation on graphics processing units (GPGPU) has become an increasinglypopular field of study as graphics processing units (GPUs) continue to be proposed as high performanceand relatively low cost implementation platforms for scientific computing applications. Among theseapplications figure astrophysical N-bodysimulations, which form one of the most challenging problemsin computational science. However, in most reported studies, a simple{\$} {\backslash}mathcal{\{}O{\}}(N^{\{}2{\}}){\$}algorithmwas used for GPGPUs, and the resulting performances were not observed to be better than those of conventionalCPUs that were based on more optimized{\$} {\backslash}mathcal{\{}O{\}}(N {\backslash}log N){\$}algorithmssuch as the tree algorithm or the particle-particle particle-mesh algorithm. Because of the difficultyin getting efficient implementations of such algorithms on GPUs, a GPU cluster had no practicaladvantage over general-purpose PC clusters for N-bodysimulations. In this paper, we report a newmethod for efficient parallel implementation of the tree algorithm on GPUs. Our novel tree code allowsthe realization of an N-bodysimulation on a GPU cluster at a much higher performance thanthat on general PC clusters. We practically performed a cosmological simulation with 562 millionparticles on a GPU cluster using 128 NVIDIA GeForce 8800GTS GPUs at an overall cost of 168172 {\$}.We obtained a sustained performance of 20.1 Tflops, which when normalized against a general-purposeCPU implementation leads to a performance of 8.50 Tflops. The achieved cost/performance washence a mere {\$}19.8 /Gflops which shows the high competitiveness of GPGPUs.},
+issn={1865-2042},
+doi={10.1007/s00450-009-0089-1},
+url={https://doi.org/10.1007/s00450-009-0089-1}
+}
+
+@book{Landau1976Mechanics,
+  abstract = {{Devoted to the foundation of mechanics, namely classical Newtonian mechanics, the subject is based mainly on Galileo's principle of relativity and Hamilton's principle of least action.  The exposition is simple and leads to the most complete direct means of solving problems in mechanics.<br><br>The final sections on adiabatic invariants have been revised and augmented.  In addition a short biography of L D Landau has been inserted.}},
+  added-at = {2014-01-09T15:14:33.000+0100},
+  author = {Landau, L. D. and Lifshitz, E. M.},
+  day = 15,
+  edition = 3,
+  isbn = {0750628960},
+  keywords = {book},
+  month = jan,
+  posted-at = {2011-05-23 16:54:22},
+  priority = {2},
+  publisher = {Butterworth-Heinemann},
+  timestamp = {2014-01-09T15:14:33.000+0100},
+  title = {Mechanics, Third Edition: Volume 1 (Course of Theoretical Physics)},
+  url = {http://www.worldcat.org/isbn/0750628960},
+  year = 1976
+}
+
+@book{langtangen2016scaling,
+  title={Scaling of Differential Equations},
+  author={Langtangen, H.P. and Pedersen, G.K.},
+  isbn={9783319327266},
+  series={Simula SpringerBriefs on Computing},
+  url={https://books.google.com/books?id=JtlCDwAAQBAJ},
+  year={2016},
+  publisher={Springer International Publishing}
+}
+
+@article{YOSHIDA1990262,
+title = {Construction of higher order symplectic integrators},
+journal = {Physics Letters A},
+volume = {150},
+number = {5},
+pages = {262-268},
+year = {1990},
+issn = {0375-9601},
+doi = {https://doi.org/10.1016/0375-9601(90)90092-3},
+url = {https://www.sciencedirect.com/science/article/pii/0375960190900923},
+author = {Haruo Yoshida},
+abstract = {For Hamiltonian systems of the form H = T(p)+V(q) a method is shown to construct explicit and time reversible symplectic integrators of higher order. For any even order there exists at least one symplectic integrator with exact coefficients. The simplest one is the 4th order integrator which agrees with one found by Forest and by Neri. For 6th and 8th orders, symplectic integrators with fewer steps are obtained, for which the coefficients are given by solving a set of simultaneous algebraic equations numerically.}
+}
+
+@online{Harris2013,
+  author = {Mark Harris},
+  title = {CUDA Pro Tip: Write Flexible Kernels with Grid-Stride Loops},
+  year = 2013,
+  url = {https://developer.nvidia.com/blog/cuda-pro-tip-write-flexible-kernels-grid-stride-loops/},
+  urldate = {2025-03-30}
+}
+
+@book{pinter2014book,
+  title={A Book of Set Theory},
+  author={Pinter, C.C.},
+  isbn={9780486795492},
+  url={https://books.google.com/books?id=iUT_AwAAQBAJ},
+  year={2014},
+  publisher={Dover Publications}
+}
+
+@article{gander2007,
+author = { Gander, Martin J. and  Vandewalle, Stefan},
+title = {Analysis of the Parareal Time-Parallel Time-Integration Method},
+journal = {SIAM Journal on Scientific Computing},
+volume = {29},
+number = {2},
+pages = {556-578},
+year = {2007},
+doi = {10.1137/05064607X},
+URL = {https://doi.org/10.1137/05064607X},
+abstract = {The parareal algorithm is a method to solve time-dependent problems parallel in time: it approximates parts of the solution later in time simultaneously to parts of the solution earlier in time. In this paper the relation of the parareal algorithm to space-time multigrid and multiple shooting methods is first briefly discussed. The focus of the paper is on new convergence results that show superlinear convergence of the algorithm when used on bounded time intervals, and linear convergence for unbounded intervals. }
+}
+
+@book{giordano2006,
+  title={Computational Physics},
+  author={Giordano, N.J. and Nakanishi, H.},
+  isbn={9780131469907},
+  lccn={2005049248},
+  url={https://books.google.com/books?id=52J6QgAACAAJ},
+  year={2006},
+  publisher={Pearson/Prentice Hall}
+}
+
+@article{Ong2020,
+author={Ong, Benjamin W.
+and Spiteri, Raymond J.},
+title={Deferred Correction Methods for Ordinary Differential Equations},
+journal={Journal of Scientific Computing},
+year={2020},
+month={Jun},
+day={11},
+volume={83},
+number={3},
+pages={60},
+abstract={Deferred correction is a well-established method for incrementally increasing the order of accuracy of a numerical solution to a set of ordinary differential equations. Because implementations of deferred corrections can be pipelined, multi-core computing has increased the importance of deferred correction methods in practice, especially in the context of solving initial-value problems. In this paper, we review the theoretical underpinnings of deferred correction methods in a unified manner, specifically the classical algorithm of Zadunaisky/Stetter, the method of Dutt, Greengard and Rokhlin, spectral deferred correction, and integral deferred correction. We highlight some nuances of their implementations, including the choice of quadrature nodes, interpolants, and combinations of discretization methods, in a unified notation. We analyze how time-integration methods based on deferred correction can be effective solvers on modern computer architectures and demonstrate their performance. Lightweight and flexible Matlab software is provided for exploration with modern variants of deferred correction methods.},
+issn={1573-7691},
+doi={10.1007/s10915-020-01235-8},
+url={https://doi.org/10.1007/s10915-020-01235-8}
+}
+
+@article{LIONS2001661,
+title = {Résolution d'EDP par un schéma en temps «pararéel »},
+journal = {Comptes Rendus de l'Académie des Sciences - Series I - Mathematics},
+volume = {332},
+number = {7},
+pages = {661-668},
+year = {2001},
+issn = {0764-4442},
+doi = {https://doi.org/10.1016/S0764-4442(00)01793-6},
+url = {https://www.sciencedirect.com/science/article/pii/S0764444200017936},
+author = {Jacques-Louis Lions and Yvon Maday and Gabriel Turinici},
+abstract = {Résumé
+On propose dans cette Note un schéma permettant de profiter d'une architecture parallèle pour la discrétisation en temps d'une équation d'évolution aux dérivées partielles. Cette méthode, basée sur un schéma d'Euler, combine des résolutions grossières et des résolutions fines et indépendantes en temps en s'inspirant de ce qui est classique en espace. La parallélisation qui en résulte se fait dans la direction temporelle ce qui est en revanche non classique. Elle a pour principale motivation les problèmes en temps réel, d'où la terminologie proposée de «pararéel ».
+The purpose of this Note is to propose a time discretization of a partial differential evolution equation that allows for parallel implementations. The method, based on an Euler scheme, combines coarse resolutions and independent fine resolutions in time in the same spirit as standard spacial approximations. The resulting parallel implementation is done in the non standard time direction. Its main goal concerns real time problems, hence the proposed terminology of “parareal” algorithm.}
+}
+
+@book{cormen2022introduction,
+  title={Introduction to Algorithms, fourth edition},
+  author={Cormen, T.H. and Leiserson, C.E. and Rivest, R.L. and Stein, C.},
+  isbn={9780262367509},
+  url={https://books.google.com/books?id=RSMuEAAAQBAJ},
+  year={2022},
+  publisher={MIT Press}
+}
+
+@software{Chapman_PararealGPU_jl,
+author = {Chapman, Nathan},
+license = {GPL-3.0},
+title = {{PararealGPU.jl}},
+url = {https://github.com/NonDairyNeutrino/PararealGPU.jl}
+}
+
+@book{cook2012cuda,
+  title={CUDA Programming: A Developer's Guide to Parallel Computing with GPUs},
+  author={Cook, S.},
+  isbn={9780124159334},
+  lccn={2013371002},
+  series={Applications of GPU computing series},
+  url={https://books.google.com/books?id=g3EzsZn4poUC},
+  year={2012},
+  publisher={Elsevier Science}
+}
+
+@online{Harris2017,
+  author = {Mark Harris},
+  title = {An Even Easier Introduction to CUDA},
+  year = 2017,
+  url = {https://developer.nvidia.com/blog/even-easier-introduction-cuda/},
+  urldate = {2025-04-17}
+}
+
+@online{Singal2021,
+  author = {Dhruv Singal},
+  title = {N Ways to SAXPY: Demonstrating the Breadth of GPU Programming Options},
+  year = 2021,
+  url = {https://developer.nvidia.com/blog/n-ways-to-saxpy-demonstrating-the-breadth-of-gpu-programming-options/},
+  urldate = {2025-04-17}
+}
+
+@INPROCEEDINGS{Fortenberry2022,
+  author={Fortenberry, Anna and Tomov, Stanimire},
+  booktitle={2022 Workshop on Accelerator Programming Using Directives (WACCPD)}, 
+  title={Extending MAGMA Portability with OneAPI}, 
+  year={2022},
+  volume={},
+  number={},
+  pages={22-31},
+  keywords={Graphics;Codes;Multicore processing;Graphics processing units;Computer architecture;Programming;Matrices;oneAPI;DPC++;portability;MAGMA},
+  doi={10.1109/WACCPD56842.2022.00008}}
