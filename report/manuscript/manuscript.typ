@@ -104,7 +104,7 @@ According to classical mechanics, the motion for any and every object in the uni
     - The PA is not the first of its kind to follow this "predict-correct-loop" structure.  In fact, there is a whole class of integration algorithms known as _predictor-corrector_ methods.
     - Hartree-Fock Method (i.e. Self-Consistent Field Theory) is similarly iterative to the PA but iterations are done to minimize energy according to the variational principle of quantum mechanics.
   - Symplectic Integration
-  - Traditional Methods in evoling Equations of Motion
+  - Traditional Methods in evolving Equations of Motion
   - Def don't use Runge-Kutta methods
   - Symplectic Euler
   - Velocity Verlet
@@ -298,9 +298,9 @@ CPU parallelization,
 GPU parallelization, 
 and Distributed computing.  
 While CPU parallelization is more straightforward to implement, GPU parallelization can allow for runtimes to decrease by many orders of magnitudes.
-Even lower run times can be achieved by combining either of these parallization schemes with running them on multiple machines.  This investigation focuses on parallelizing the solution of equations of motion using GPUs and multiple machines.
+Even lower run times can be achieved by combining either of these parallelization schemes with running them on multiple machines.  This investigation focuses on parallelizing the solution of equations of motion using GPUs and multiple machines.
 
-These approaches can offer massive increases in performance, but only for problems that are well-posed to be parallelized.  Traditionally, initial value problems have been unable to be parallelized due their dependance on causality.  Several methods have been created to overcome this limitation.  These methods include the Parareal algorithm, Multigrid Reduction in Time (MGRIT), Parallel Full Approximtaion Scheme in Space and Time (PFASST).  This investigation focuses on the Parareal algorithm.
+These approaches can offer massive increases in performance, but only for problems that are well-posed to be parallelized.  Traditionally, initial value problems have been unable to be parallelized due their dependence on causality.  Several methods have been created to overcome this limitation.  These methods include the Parareal algorithm, Multigrid Reduction in Time (MGRIT), Parallel Full Approximation Scheme in Space and Time (PFASST).  This investigation focuses on the Parareal algorithm.
 
 Parareal
 - The Parareal method has mostly been applied to first-order ordinary differential equations.
@@ -796,11 +796,13 @@ The GPU-based implementation focuses on considering the movement of data between
 
 == Benchmarks
 
+#pagebreak()
 = Particle Production in Analog Cosmologies
 - Solve the partial differential equation 
 - spectral decomposition
 - system of equations $partial_t^2 tilde(theta) - (dot(a) / a) partial_t tilde(theta) - a c^2 k^2 tilde(theta) = 0$ for wavenumber $k <= k_c$
 
+#pagebreak()
 = Conclusion
 - Equations of motion can now benefit from parallel solvers.
 - Certain problems are well-suited to a divide-and-conquer approach.
@@ -819,6 +821,6 @@ The GPU-based implementation focuses on considering the movement of data between
 #pagebreak()
 #bibliography(
   "bib.bib",
-  full: true,
+  // full: true,
   style: "american-physics-society"
 )
