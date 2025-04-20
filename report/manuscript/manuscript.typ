@@ -2,7 +2,7 @@
 
 #let title1 = "Scalable Parallel-in-Time Integration for Equations of Motion"
 #let title2 = "Particle Production in Analog Cosmology"
-#let title_header = "Scalable PinT Integration for Equations of Motion"
+#let title_header = "Scalable PinT Integration for EoM"
 #let gets  = sym.arrow.l
 #let cn    = text(red)[*CN*] // citation needed
 #let us    = h(2pt)          // unit space
@@ -19,6 +19,7 @@
     if sections != () {
       let lastSection = sections.last()
       // let number = counter(heading).at(lastSection.location())
+      set par(spacing: 1em)
       [#emph(smallcaps(title_header)) #h(1fr) #emph(smallcaps(lastSection.body)) #line(length: 100%)]
     }
   }
@@ -86,12 +87,16 @@ _])
 
 = Background
 
++ Equations of Motion
++ High-Performance Computing
++ Parallel-in-Time Integration
+
 #pagebreak()
 == Equations of Motion
 
 According to classical mechanics, the motion for any and every object in the universe can be determined for all time using only its current position, current velocity, and the forces acting on it @Landau1976Mechanics .
 
-=== Differential Equations
+=== Initial Value Differential Equations
 - Ordinary Differential Equations (ODE)
 - Systems of ODEs e.g. N-Body
   - uncoupled
@@ -260,15 +265,20 @@ One of the most important algorithms used in evolving equations of motion is the
 // )
 
 #pagebreak()
-== High-Performance Computing
+== High-Performance Computing <sec:hpc>
 
 Some key aspects of high-performance computing (HPC) are:
 - the difference between processes and threads
 - the difference between a CPU "core" and GPU "core"
 
-=== Multi-threading & GPU Computing
+=== Multi-threading & GPU Computing <sec:multithreading>
 - CPU multithreading
 - GPU multithreading & CUDA
+- GPUs provide significant performance increase for parallel workloads over CPUs because there are more cores
+- different brands have different GPGPU APIs such as NVIDIA with CUDA, AMD with ROCm, and Intel adhering to the oneAPI standard @Fortenberry2022
+- can use high-level abstractions such as OpenMP #cn, OpenACC #cn, or language extensions such as Julia's GPU ecosystem #cn including CUDA.jl #cn
+- Context switching on a GPU is effectively free.
+
 
 #figure(
   caption: [Each thread is assigned an index of the array (`index`) based on its location in its block (`threadIdx.x`), how many threads there are in its block (`blockDim.x`), and the block's location in the grid (`blockIdx.x`). The cells in the image above represent cells of the array to which the labeled thread will write.  Image credit @Harris2017.],
@@ -286,12 +296,11 @@ Some key aspects of high-performance computing (HPC) are:
   )
 )
 
-#pagebreak()
-=== Multi-processing & Distributed Computing
+=== Multi-processing & Distributed Computing <sec:mulitprocesing>
 - Message Passing & Remote Call Procedure (RPC)
 
 #pagebreak()
-== Parallel-in-Time Integration
+== Parallel-in-Time Integration <sec:pint>
 
 There are 3 traditional ways to parallelize the solution of a computational problem: 
 CPU parallelization, 
@@ -307,7 +316,7 @@ Parareal
 - Part of the novelty of this work is that it focuses on building support for second-order ODES
 
 #pagebreak()
-= Methods
+= Methods <sec:methods>
 
 Simulating physical processes has traditionally been done sequentially; even during the modern age of hardware supporting parallel execution, using computers to calculate the evolution of physical phenomena has been sequential.  Why haven't scientists just started doing things in parallel? Because of that pesky thing call _causality_; _the ball must go up before it can come down_.  Because of this temporal dependence (spatial dependence has had its own workarounds such as the Barnes-Hut algorithm @Barnes1986 @Hamada2009), simulation of large-time-scale physics has thus taken a long time to execute.  The Parareal algorithm (PA), and other parallel-in-time integration algorithms, have been developed in the last few decades #cn to specifically address this issue.  
 // These paragraphs should be squished together, after the above gets trimmed down
@@ -341,11 +350,13 @@ $ P = {
 }. $ <eq:root>
 
 #pagebreak()
-== The Parareal Algorithm <sec:Parareal>
+==  Scaling the Parareal Algorithm <sec:Parareal>
 
 #v(2em)
 #align(right, [_The Parareal Algorithm aimed to solve the problem of physics taking too long to simulate; it didn't._])
 #v(2em)
+
+#text(red)[*AUTHOR'S NOTE: MAKE IT CLEAR THIS SECTION IS NOT JUST TELLING WHAT THE PARAREAL ALGORITHM IS BUT RATHER A SPECIFIC PRESENTATION TO MAKE IT AMMENABLE TO SCALING*]
 
 The main idea of the Parareal algorithm (PA) is to break up a single IVP into many smaller IVPs using some low-accuracy solution, solve those in parallel using high-accuracy methods, correct your initial solution using the sub-solutions, then make a new low-accuracy solution based on the corrected data, and repeat this process until the solution doesn't change.  The end result of this procedure is a solution identical to one produced by directly using the high-accuracy method while potentially taking a less time @gander2007.  Because the PA wraps traditional (sequential) solvers, it could be considered a "meta-" or "higher-order" method to solve IVPs.
 
@@ -673,9 +684,9 @@ for some threshold $epsilon$.  @eq:convergence determines convergence when every
 The magic of the Parareal algorithm lies in its divide-and-conquer approach to solving initial value problems.  The "root" problem is sequentially and inaccurately solved to divide it into smaller problems whose initial values are defined by the solution.  Those problems are simultaneously and accurately solved in parallel.  The root problem is then solved in the same way as before, but at each step, the data is modified by combining the previous accurate and inaccurate solutions.  Finally, the new root solution defines new problems, and the loop continues until the the solution has converged.
 
 #pagebreak()
-== The Parareal Algorithm at Scale
+== Implementing the Parareal Algorithm at Scale
 
-The PA as described in @sec:Parareal ignores the details and nuances of implementing it.  The primary goal of this work is to provide two new models for implementation: using the massively parallel architecture of graphics processing units (GPUs), and the scalability of distributed systems. Instances of these implementations are also provided @Chapman_PararealGPU_jl.
+@sec:Parareal highlights the PA's nature of being quasi-embarrassingly-parallel i.e. the performance of the algorithm scales with the number of threads, while still being bottlenecked by a periodic sequential process. That being said, the previous discussion ignores the details and nuances of implementing the PA including the actual form of the threads.  The primary goal of this work is to provide two new implementation models that both take advantage of increased parallelism and allow easy scaling: using the massively parallel architecture of graphics processing units (GPUs), and the scalability of distributed systems. Instances of these implementations are also provided @Chapman_PararealGPU_jl.
 
 The PA as defined in @alg:parareal does not change in it _what_ it does when implemented to use GPUs, but rather _how_ it does.  There are several issues that arise when utilizing general-purpose GPU computing (GPGPU) such as the GPU needing to wait until the CPU tells it to do something, better performance with less precision, and the restriction to using primitive types like "ints" and "floats".  Though, the biggest issue is the need to consider the movement of data between RAM and VRAM, or more generally host memory and device memory; considering unshared memory spaces will be even more important in section @sec:distributed.
 
@@ -689,7 +700,7 @@ The GPU- and distribution-based methods can be combined to further parallelize s
   //   "",
   //   alt: 
   // )
-  rect(width: 100%, height: 33%, [#v(1fr) recursive problem distribution and partition tree #v(1fr)]),
+  rect(width: 100%, height: 25%, [#v(1fr) recursive problem distribution and partition tree #v(1fr)]),
   caption: "The problems can be distributed providing a recursively parallelized solution."
 ) <diag:problem_tree>
 
@@ -808,7 +819,7 @@ So, why is the PA well-suited to be implemented to use GPUs?  Because the data i
 - Problems with "doubly parallel" characteristics can leverage both local and distributed parallelism, achieving significant computational efficiency.
 - These advancements pave the way for modeling acoustics in expanding volumes.
 
-== Future work
+== Future work & Possible Optimizations
 - Krylov enhanced subspaces
 - CUDA dynamic parallelism
 - Implement with C, Fortran, CUDA, NVSHMEM, MPI
@@ -816,8 +827,11 @@ So, why is the PA well-suited to be implemented to use GPUs?  Because the data i
 - this physics could be better done with PFASST
 - non-dimensionalize everything following @langtangen2016scaling
 - use a variable size time discretization algorithm, then base integration of those differences
+- Use dynamic parallelism to avoid the cpu having to launch the kernels
+- Use dynamic parallelism to even perform the coarse propagation
 
 #pagebreak()
+#set par(spacing: 1.15em)
 #bibliography(
   "bib.bib",
   // full: true,
