@@ -685,14 +685,13 @@ url = {https://github.com/NonDairyNeutrino/PararealGPU.jl}
 }
 
 @book{cook2012cuda,
-  title={CUDA Programming: A Developer's Guide to Parallel Computing with GPUs},
-  author={Cook, S.},
-  isbn={9780124159334},
-  lccn={2013371002},
-  series={Applications of GPU computing series},
-  url={https://books.google.com/books?id=g3EzsZn4poUC},
-  year={2012},
-  publisher={Elsevier Science}
+  author = {Cook, Shane},
+  title = {CUDA Programming: A Developer’s Guide to Parallel Computing with GPUs},
+  year = {2012},
+  isbn = {9780124159334},
+  publisher = {Morgan Kaufmann Publishers Inc.},
+  address = {San Francisco, CA, USA},
+  edition = {1st}
 }
 
 @online{Harris2017,
@@ -721,3 +720,38 @@ url = {https://github.com/NonDairyNeutrino/PararealGPU.jl}
   pages={22-31},
   keywords={Graphics;Codes;Multicore processing;Graphics processing units;Computer architecture;Programming;Matrices;oneAPI;DPC++;portability;MAGMA},
   doi={10.1109/WACCPD56842.2022.00008}}
+
+@book{stallings2011operating,
+  title={Operating Systems: Internals and Design Principles},
+  author={Stallings, W.},
+  isbn={9780133001945},
+  url={https://books.google.com/books?id=bZwuAAAAQBAJ},
+  year={2011},
+  publisher={Pearson Education}
+}
+
+@inproceedings{Li2007,
+author = {Li, Chuanpeng and Ding, Chen and Shen, Kai},
+title = {Quantifying the cost of context switch},
+year = {2007},
+isbn = {9781595937513},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/1281700.1281702},
+doi = {10.1145/1281700.1281702},
+abstract = {Measuring the indirect cost of context switch is a challenging problem. In this paper, we show our results of experimentally quantifying the indirect cost of context switch using a synthetic workload. Specifically, we measure the impact of program data size and access stride on context switch cost. We also demonstrate the potential impact of OS background interrupt handling on the measurement accuracy. Such impact can be alleviated by using a multi-processor system on which one processor is employed for context switch measurement while the other runs OS background tasks.},
+booktitle = {Proceedings of the 2007 Workshop on Experimental Computer Science},
+pages = {2–es},
+keywords = {cache interference, context switch},
+location = {San Diego, California},
+series = {ExpCS '07}
+}
+
+@MISC {Wyzard20212,
+    TITLE = {Why can I run 23,000 CUDA threads on the GeForce GTX 480 GPU?},
+    AUTHOR = {David Faux (https://superuser.com/users/111785/david-faux)},
+    HOWPUBLISHED = {Superuser Stack Exchange},
+    NOTE = {URL:https://superuser.com/q/471533 (version: 2025-04-19)},
+    EPRINT = {https://superuser.com/q/471533},
+    URL = {https://superuser.com/a/471595/}
+}

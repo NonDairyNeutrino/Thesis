@@ -707,22 +707,17 @@ The GPU- and distribution-based methods can be combined to further parallelize s
 //     + Execute the parareal algorithm on that problem using the assigned device
 //     + Send the result to the manager process to be used in corrections
 
-#pagebreak()
 === The Parareal Algorithm on the GPU <sec:single_gpu>
 
-// How does the CPU implementation differ from the GPU implementation?
-// - Need to copy data between memory spaces, which is a bottleneck
-//   - This host-device communication takes more time compared to intra-host communication but the decrease in computation time from parallelism on the device yields a net decrease.
-// - The GPU needs to wait for the CPU to tell it to launch the kernel, which itself takes time.
-//  - Can be mitigated with dynamic parallelism and having the GPU launch the kernels itself
-// - While the CPU can handle composite types e.g. structs and classes, the GPU is best-suited to handle primitive types e.g. integers and floats.
-// - Should use 32-bit types
+The GPU-based implementation focuses on three ideas. The first is utilizing the massively-parallel architecture of a GPU to _simultaneously_ use orders-of-magnitude more threads than what would be possible with a CPU.  The second is considering the movement of data between the host memory (RAM) and the device memory (VRAM). And the last is needing to use primitive data-types.  Otherwise, the underlying algorithm is no different than what is presented in @sec:Parareal.
 
-The GPU-based implementation focuses on considering the movement of data between the host memory (RAM) and the device memory (VRAM).  Arrays are first allocated and pre-populated by the CPU on the host and the device. Then the CPU tells the GPU to execute the parareal kernel, and the CPU then copies the new data from the device to the host and recreates the problems.  The transfer of data (and the CPU launching the kernel on the GPU) between the host and the device serves as the main performance bottleneck in this process. #cn  Dynamic parallelism @cook2012cuda can be used to launch kernels directly from the GPU, thus circumventing the performance drawbacks of host-device communication.
+The PA (@alg:parareal) is only limited by the number of threads at its disposal.  When the number of threads is greater than the number of cores, the processor needs to switch thread contexts in order to balance the evolution of each thread.  On a CPU, this context switching is very costly and can lead to drastic decreases in performance @stallings2011operating @Li2007.  On a GPU however, switching thread-contexts is nearly free @cook2012cuda, allowing there to be _many_ more threads than processors without sacrificing efficiency.  So, it is very beneficial to execute the PA on hardware that not only can efficiently handle many threads, but also have them running at the same time.
 
-// concrete details
-// - different brands have different GPGPU APIs such as NVIDIA with CUDA, AMD with ROCm, and Intel adhering to the oneAPI standard @Fortenberry2022
-// - can use high-level abstractions such as OpenMP #cn, OpenACC #cn, or language extensions such as Julia's GPU ecosystem #cn including CUDA.jl #cn
+All relevant data is first allocated and pre-populated by the CPU on the host.  Then the CPU copies that data to the device. Then the CPU tells the GPU to execute the parareal kernel on its copy of the data, producing solution data. The CPU then copies the solution data from the device to the host and recreates the problems.  The transfer of data (and the CPU launching the kernel on the GPU) between the host and the device serves as the main performance bottleneck in this process. @cook2012cuda Dynamic parallelism can be used to launch kernels directly from the GPU, thus circumventing the performance drawbacks of host-device communication @cook2012cuda.
+
+GPUs can only process primitive types of data such as integers, floats, booleans, and other "bits-types".  This precludes collecting the problem and solution data in more intuitive forms like one would do when representing them mathematically.  In other words, whereas a CPU is happy to handle several boxes each with its own set of elements e.g. domain, acceleration, initial position, and initial velocity, GPUs need this same underlying data to be collected such that all domains are in one box, all acceleration functions are in another box, all initial positions are another, and initial velocities in another.  These "boxes" take the form of arrays.  It is for this reason, the PA as described in @sec:Parareal uses its data as arrays.
+
+So, why is the PA well-suited to be implemented to use GPUs?  Because the data is only composed of numbers, it can be simply represented in a GPU-friendly array structure.  The massive number of cores on a GPU can simultaneously process these arrays with a much lower cost of switching between threads and problems.  And finally, the solution data can be easily copied back to the host.  This process is shown in @alg:parareal_gpu and @diag:gpu_propagation.
 
 #figure(
   kind: "algorithm",
@@ -740,20 +735,24 @@ The GPU-based implementation focuses on considering the movement of data between
     + *while* `max(changes)` $>=$ `ep`
       + `i += 1`
       - \/\/ _fine propagate on the device_
-      + `posd[i-1, :], veld[i-1, :]` #gets Copy the fine propagator, `F`, and the initial values `pos[i-1, :], vel[i-1, :]` to the device
-      + `fposd[t], fveld[t]` #gets Launch the parareal kernel in parallel on the device to get the fine solutions for subproblem `t`
+      + `posd[i-1, :], veld[i-1, :]` #gets Copy `F, pos[i-1, :], vel[i-1, :]` to the device
+      + `fposd[t], fveld[t]` #gets Launch the parareal kernel to get the fine solutions for subproblem `t`
       + `fpos, fvel` #gets Copy the fine solutions `fposd, fveld` to the host
       - \/\/ _coarse propagate on the host_
-      + `pos[i, :], vel[i, :]` #gets Construct new root solutions with `G`, `pos[i-1, :], vel[i-1, :]`, and `fpos, fvel`
+      + `pos[i, :], vel[i, :]` #gets Construct new root solutions with `G`, `pos[i-1, :], vel[i-1, :], fpos, fvel`
       + `changes` #gets The difference between the current and previous solutions
     + *return* `ddom, pos, vel`
   ]
 ) <alg:parareal_gpu>
 
 #figure(
-  image("../../images/parallel_propagation_gpu.png", width: 100%),
-  caption: [Sequential solutions (blue) are sent to the GPU to be finely-propagated (red) in parallel; true solutions (black) are shown for comparison.]
-)
+  caption: [Sequential solutions (top in blue) are sent to the GPU to be finely-propagated (mid in red) in parallel; true solutions (bottom in black) are shown for comparison.],
+  image(
+    width: 91%,
+    alt: "",
+    "../../images/parallel_propagation_gpu.png"
+  )
+) <diag:gpu_propagation>
 
 === The Parareal Algorithm on Multiple GPUs <sec:distributed>
 
