@@ -704,21 +704,7 @@ The GPU- and distribution-based methods can be combined to further parallelize s
   caption: "The problems can be distributed providing a recursively parallelized solution."
 ) <diag:problem_tree>
 
-// - Distribute problems over multiple processes/devices
-//   - Preparing the Cluster
-//     - Currently only works for an ssh-cluster i.e. a collection of machines that can all be accessed via ssh from the head node
-//     - A "remote node" could also be a single process on a single machine, the differences are straightforward
-//     - Given a head node and a collection of remote nodes
-//     + Spawn a worker, or "sub-manager", process on each remote node
-//     + Each sub-manager identifies how many devices are available to the node, and send that information back to the manager process
-//     + The manager process spawns a worker process on the appropriate node for each device on that node
-//     + Each process acquires a device
-//   + For each problem:
-//     + Send it to a process
-//     + Execute the parareal algorithm on that problem using the assigned device
-//     + Send the result to the manager process to be used in corrections
-
-=== The Parareal Algorithm on the GPU <sec:single_gpu>
+=== Massively Parallelizing the Parareal Algorithm <sec:single_gpu>
 
 The GPU-based implementation focuses on three ideas. The first is utilizing the massively-parallel architecture of a GPU to _simultaneously_ use orders-of-magnitude more threads than what would be possible with a CPU.  The second is considering the movement of data between the host memory (RAM) and the device memory (VRAM). And the last is needing to use primitive data-types.  Otherwise, the underlying algorithm is no different than what is presented in @sec:Parareal.
 
@@ -765,16 +751,60 @@ So, why is the PA well-suited to be implemented to use GPUs?  Because the data i
   )
 ) <diag:gpu_propagation>
 
-=== The Parareal Algorithm on Multiple GPUs <sec:distributed>
+=== Distributing the Parareal Algorithm <sec:distributed>
 
-- How did I glue GPU and Distributed computing together with the Parareal algorithm to make it scalable?
-  - GPU Computing: solve each subproblem on a each gpu core
-    - make stuff into arrays
-    - thread indexing blocks streaming multiprocessors
-  - Distributed Computing: solve each root problem on each node
-    - "Just add another machine"
-    - Automatically determine number of devices on each node
-    - Sharing data across processes
+While the PA can be further parallelized using GPUs, the fact still stands that the PA is quasi-embarrassingly-parallel.  In other words, the each subproblem is independent of the others while each is being solved, and each of these subproblems can be assigned its own thread.  So to acheive 
+
+The fundamental algorithm for creating and using the cluster is
+  
+Preparing the cluster
+- Given a head node and a collection of remote nodes
+  + Spawn a worker, or "sub-manager", process on each remote node
+  + Each sub-manager identifies how many devices are available to the node, and send that information back to the manager process
+  + The manager process spawns a worker process on the appropriate node for each device on that node
+  + Each process acquires a device
+
+Using the cluster
+- For each problem:
+  + Send it to a process
+  + Execute the parareal algorithm on that problem using the assigned device
+  + Send the result to the manager process to be used in corrections
+
+#figure(
+  kind: "algorithm",
+  supplement: [Alg],
+  caption: [],
+  pseudocode-list(
+    numbered-title: smallcaps[Prepare the Cluster],
+    booktabs: true, 
+    hooks: 0.5em
+  )[
+    - *INPUT:* A collection of hosts not ready to compute
+    - *OUTPUT:* A collection of hosts ready to compute
+    + Director process spawns manager processes on each host
+    + Each manager sends the number of devices on its host back to the director
+    + Director process spawns worker processes on each host, 1 for each device on that host
+    + Pair each worker with a device on its host
+  ]
+) <alg:cluster_prep>
+
+#figure(
+  kind: "algorithm",
+  supplement: [Alg],
+  caption: [],
+  pseudocode-list(
+    numbered-title: smallcaps[Use the Cluster],
+    booktabs: true, 
+    hooks: 0.5em
+  )[
+    - *INPUT:* A collection of host machines ready to compute, a collection of problems
+    - *OUTPUT:*
+    + For each problem
+      + Director sends the problem to a worker
+      + Worker solves problem using the Parareal algorithm
+      + Worker sends the solution back to the director
+  ]
+) <alg:cluster_use>
 
 #figure(
   image("../../images/cluster_topology.png"),
