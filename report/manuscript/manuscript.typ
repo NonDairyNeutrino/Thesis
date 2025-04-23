@@ -793,18 +793,24 @@ Using the cluster
   supplement: [Alg],
   caption: [],
   pseudocode-list(
-    numbered-title: smallcaps[Use the Cluster],
+    numbered-title: smallcaps[The Parareal Algorithm at Scale],
     booktabs: true, 
     hooks: 0.5em
   )[
-    - *INPUT:* A collection of host machines ready to compute, a collection of problems
-    - *OUTPUT:*
-    + For each problem
-      + Director sends the problem to a worker
-      + Worker solves problem using the Parareal algorithm
-      + Worker sends the solution back to the director
+    - *INPUT:* A root problem, coarse and fine propagators, and a convergence threshold
+    - *OUTPUT:* A solution to the root problem
+    - \/\/ _on a prepared cluster_
+    + Director coarse propagates root problem to get initial solution
+    + While the root solution has not converged
+      + Director creates problems
+      + For each problem
+        + Director sends the problem to a worker
+        + Worker solves the problem using the Parareal algorithm on its GPU
+        + Worker sends the solution to the director
+      + Director waits to get all solutions
+      + Director coarse propagates root problem with corrections to get new solution
   ]
-) <alg:cluster_use>
+) <alg:parareal_distributed>
 
 #figure(
   image("../../images/cluster_topology.png"),
