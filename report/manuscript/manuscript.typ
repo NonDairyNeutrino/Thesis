@@ -753,22 +753,14 @@ So, why is the PA well-suited to be implemented to use GPUs?  Because the data i
 
 === Distributing the Parareal Algorithm <sec:distributed>
 
-While the PA can be further parallelized using GPUs, the fact still stands that the PA is quasi-embarrassingly-parallel.  In other words, the each subproblem is independent of the others while each is being solved, and each of these subproblems can be assigned its own thread.  So to acheive 
+While the PA can be further parallelized using GPUs, the fact still stands that the PA is quasi-embarrassingly-parallel.  In other words, each subproblem is independent of the others while each is being solved, and each of these subproblems can be assigned its own thread.  So to acheive maximum
 
-The fundamental algorithm for creating and using the cluster is
-  
-Preparing the cluster
-- Given a head node and a collection of remote nodes
-  + Spawn a worker, or "sub-manager", process on each remote node
-  + Each sub-manager identifies how many devices are available to the node, and send that information back to the manager process
-  + The manager process spawns a worker process on the appropriate node for each device on that node
-  + Each process acquires a device
+While compute clusters can take many forms #cn, this implementation considers building a cluster from the ground up in a modular and ad-hoc manner.  This way the cluster can theoretically scale without limit.  The general strucutre, or _topology_, of the cluster is rather simple. A _head node_ runs the _director_ process.  The director spawns _manager_ and _worker_ processes on other nodes.  By default, all processes can communicate to all other processes (inter-worker communication is done lazily), but the director is the only process that can spawn other processes.  The head node must be able to connect to each compute node via (login-less) SSH, but the processes are otherwise unrestricted.
 
-Using the cluster
-- For each problem:
-  + Send it to a process
-  + Execute the parareal algorithm on that problem using the assigned device
-  + Send the result to the manager process to be used in corrections
+#figure(
+  image("../../images/cluster_topology.png"),
+  caption: [A representative cluster topology.]
+) <img:cluster_topology>
 
 #figure(
   kind: "algorithm",
@@ -793,6 +785,73 @@ Using the cluster
   supplement: [Alg],
   caption: [],
   pseudocode-list(
+    numbered-title: smallcaps[Spawn Manager Processes],
+    booktabs: true, 
+    hooks: 0.5em
+  )[
+    - *INPUT:* A list of hosts
+    - *OUTPUT:* A list of manager process IDs
+    + Spawn manager process on each host
+    + Load the Parareal library on each manager
+  ]
+) <alg:spawn_managers>
+
+@alg:spawn_workers shows that creating the cluster involves a lot of back and forth communication between the manager processes and the director process. This is becuase only the director process can spawn new processes on any host.
+
+#figure(
+  kind: "algorithm",
+  supplement: [Alg],
+  caption: [],
+  pseudocode-list(
+    numbered-title: smallcaps[Spawn Worker Processes],
+    booktabs: true, 
+    hooks: 0.5em
+  )[
+    - *INPUT:* A list of manager IDs
+    - *OUTPUT:* A list of worker IDs
+    + Load GPU library on all managers \/\/ _provides ability to count devices_
+    + Each manager sends the number of devices on its host to the director
+    + For each host
+      + For each device on the host
+        + The director spawns one process on the host
+    + Load the Parareal library on each worker process
+  ]
+) <alg:spawn_workers>
+
+While the fundamental idea of assigning a device to a worker is trivial, the implementation suffers from the fact the a device should not be assigned to a process on a different host!  In this implementation, process IDs correlate to the order in which they were spawned e.g. process 2 was spawned second, process 3 was spawned third; in other words, the process IDs are relative to the whole cluster.  The device IDs, however, are relative to their host machine.  So, care must be taken in order to pair processes and devices on the same host.
+
+For example
+
+- The director has process ID (pid) 1 and is on its own host.
+- Host X has pid 2, and host Y has pids 3, and 4.
+- Host X has 1 device with ID 0, and host Y has 2 devices with ID 0 and 1.
+- The desired result is 
+  - Device 0 on host X is assigned to pid 2
+  - Device 0 on host Y is assigned to pid 3
+  - Device 1 on host Y is assigned to pid 4
+
+#figure(
+  kind: "algorithm",
+  supplement: [Alg],
+  caption: [],
+  pseudocode-list(
+    numbered-title: smallcaps[Assign Devices],
+    booktabs: true, 
+    hooks: 0.5em
+  )[
+    - *INPUT:* A list of manager IDs
+    - *OUTPUT:* 
+    + For each host
+      + For each device
+       + Assign the device to a worker on this host
+  ]
+) <alg:assign_devices>
+
+#figure(
+  kind: "algorithm",
+  supplement: [Alg],
+  caption: [],
+  pseudocode-list(
     numbered-title: smallcaps[The Parareal Algorithm at Scale],
     booktabs: true, 
     hooks: 0.5em
@@ -811,11 +870,6 @@ Using the cluster
       + Director coarse propagates root problem with corrections to get new solution
   ]
 ) <alg:parareal_distributed>
-
-#figure(
-  image("../../images/cluster_topology.png"),
-  caption: [A representative cluster topology.]
-) <img:cluster_topology>
 
 #pagebreak()
 = Analysis
