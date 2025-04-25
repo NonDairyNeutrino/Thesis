@@ -321,7 +321,7 @@ Parareal
 #pagebreak()
 = Methods <sec:methods>
 
-Simulating physical processes has traditionally been done sequentially; even during the modern age of hardware supporting parallel execution, using computers to calculate the evolution of physical phenomena has been sequential.  Why haven't scientists just started doing things in parallel? Because of that pesky thing call _causality_; _the ball must go up before it can come down_.  Because of this temporal dependence (spatial dependence has had its own workarounds such as the Barnes-Hut algorithm @Barnes1986 @Hamada2009), simulation of large-time-scale physics has thus taken a long time to execute.  The Parareal algorithm (PA), and other parallel-in-time integration algorithms, have been developed in the last few decades #cn to specifically address this issue.  
+Simulating physical processes has traditionally been done sequentially; even during the modern age of hardware supporting parallel execution, using computers to calculate the evolution of physical phenomena has been sequential.  Why haven't scientists just started doing things in parallel? Because of that pesky thing call _causality_; _the ball must go up before it can come down_.  Because of this temporal dependence (spatial dependence has had its own workarounds such as the Barnes-Hut algorithm @Barnes1986 @Hamada2009), simulation of large-time-scale physics has thus taken a long time to execute.  The Parareal algorithm (PA), and other parallel-in-time integration algorithms, have been developed in the last few decades to specifically address this issue @LIONS2001661.
 // These paragraphs should be squished together, after the above gets trimmed down
 Many details and variations of the Parareal algorithm have been investigated to find and address issues such as stability #cn, convergence rates #cn, application to higher-order differential equations #cn.  The main goal of this investigation is to contribute another variation: an implementation of the Parareal algorithm using methods from high-performance computing.
 
@@ -329,14 +329,11 @@ Before the PA can be implemented using these high-performance methods, the algor
 
 The interpretation of the PA in terms of these recursive subproblems makes the algorithm _almost_ embarrassingly parallel; the corrections to the root solution need to be done sequentially.  In addition to this structure, the algorithms being evaluated in parallel manifestly depend on simple arithmetic; because of this simplicity, the PA is well-suited to be evaluated on the GPU.  Likewise, distributed methods can be combined with GPU evaluation for further parallelization for either a single model (taking advantaged of the recursive nature of the PA) or a system of models.
 
-// Include roadmap for this section; i.e. explicitly tell the reader what's to come. Like section names
-// e.g. This chapter begins with a presentation on the Parareal Algorithm, etc.
+This chapter begins by casting the Parareal Algorithm in a form that is conducive to being scaled.  The main idea is to recast the "magical" mechanism of the PA to something that can be executed recursively.  In other words, the PA takes an IVP and produces a collection of IVPs, which can each be given to another instance of the PA. The latter half of of this chapter is devoted to presenting a model for which the scalable version of the PA can be implemented.  This model includes how the performance of the PA can increased by using a GPU on a single machine, as well as how to build and use a cluster of machines to further increase performance.
 
 #let tmax = 8
 #let threads = 8
-#ex Consider the motion of a thrown ball just after it leaves the hand over the course of #tmax seconds (of course ignoring air resistance). This is going to be simulated on a machine with #threads available threads.  The root initial value problem for this physical scenario can be modeled by:
-
-$ P = {
+#ex To help understand and clarify the mechanisms of the scalable PA, including the important details that are not explicitly covered in the algorithm itself, an example problem is used.  Consider the motion of a thrown ball just after it leaves the hand over the course of #tmax seconds (ignoring air resistance).  This motion is modeled by: $P = {
   underbrace(
     diff_t^2 harpoon(r) = harpoon(g) , 
     "Acceleration"
@@ -350,7 +347,8 @@ $ P = {
     [0 "s", #tmax "s"], 
     "time span"
   )
-}. $ <eq:root>
+}.$ <eq:root>
+The machine has #threads cores.
 
 #pagebreak()
 ==  Scaling the Parareal Algorithm <sec:Parareal>
@@ -359,7 +357,7 @@ $ P = {
 #align(right, [_The Parareal Algorithm aimed to solve the problem of physics taking too long to simulate; it didn't._])
 #v(2em)
 
-#text(red)[*AUTHOR'S NOTE: MAKE IT CLEAR THIS SECTION IS NOT JUST TELLING WHAT THE PARAREAL ALGORITHM IS BUT RATHER A SPECIFIC PRESENTATION TO MAKE IT AMMENABLE TO SCALING*]
+// #text(red)[*AUTHOR'S NOTE: MAKE IT CLEAR THIS SECTION IS NOT JUST TELLING WHAT THE PARAREAL ALGORITHM IS BUT RATHER A SPECIFIC PRESENTATION TO MAKE IT AMMENABLE TO SCALING*]
 
 The main idea of the Parareal algorithm (PA) is to break up a single IVP into many smaller IVPs using some low-accuracy solution, solve those in parallel using high-accuracy methods, correct your initial solution using the sub-solutions, then make a new low-accuracy solution based on the corrected data, and repeat this process until the solution doesn't change.  The end result of this procedure is a solution identical to one produced by directly using the high-accuracy method while potentially taking a less time @gander2007.  Because the PA wraps traditional (sequential) solvers, it could be considered a "meta-" or "higher-order" method to solve IVPs.
 
@@ -689,6 +687,10 @@ The magic of the Parareal algorithm lies in its divide-and-conquer approach to s
 #pagebreak()
 == Implementing the Parareal Algorithm at Scale
 
+#v(2em)
+#align(right, [_Surely more threads is the answer?_])
+#v(2em)
+
 @sec:Parareal highlights the PA's nature of being quasi-embarrassingly-parallel i.e. the performance of the algorithm scales with the number of threads, while still being bottlenecked by a periodic sequential process. That being said, the previous discussion ignores the details and nuances of implementing the PA including the actual form of the threads.  The primary goal of this work is to provide two new implementation models that both take advantage of increased parallelism and allow easy scaling: using the massively parallel architecture of graphics processing units (GPUs), and the scalability of distributed systems. Instances of these implementations are also provided @Chapman_PararealGPU_jl.
 
 The PA as defined in @alg:parareal does not change in it _what_ it does when implemented to use GPUs, but rather _how_ it does.  There are several issues that arise when utilizing general-purpose GPU computing (GPGPU) such as the GPU needing to wait until the CPU tells it to do something, better performance with less precision, and the restriction to using primitive types like "ints" and "floats".  Though, the biggest issue is the need to consider the movement of data between RAM and VRAM, or more generally host memory and device memory; considering unshared memory spaces will be even more important in section @sec:distributed.
@@ -703,7 +705,7 @@ The GPU- and distribution-based methods can be combined to further parallelize s
   //   "",
   //   alt: 
   // )
-  rect(width: 100%, height: 25%, [#v(1fr) recursive problem distribution and partition tree #v(1fr)]),
+  rect(width: 100%, height: 12.5%, [#v(1fr) recursive problem distribution and partition tree #v(1fr)]),
   caption: "The problems can be distributed providing a recursively parallelized solution."
 ) <diag:problem_tree>
 
