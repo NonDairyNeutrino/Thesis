@@ -753,19 +753,19 @@ So, why is the PA well-suited to be implemented to use GPUs?  Because the data i
 
 === Distributing the Parareal Algorithm <sec:distributed>
 
-While the PA can be further parallelized using GPUs, the fact still stands that the PA is quasi-embarrassingly-parallel.  In other words, each subproblem is independent of the others while each is being solved, and each of these subproblems can be assigned its own thread.  So to acheive maximum
-
-While compute clusters can take many forms #cn, this implementation considers building a cluster from the ground up in a modular and ad-hoc manner.  This way the cluster can theoretically scale without limit.  The general strucutre, or _topology_, of the cluster is rather simple. A _head node_ runs the _director_ process.  The director spawns _manager_ and _worker_ processes on other nodes.  By default, all processes can communicate to all other processes (inter-worker communication is done lazily), but the director is the only process that can spawn other processes.  The head node must be able to connect to each compute node via (login-less) SSH, but the processes are otherwise unrestricted.
+While the PA can be further parallelized using GPUs, the fact still stands that the PA is quasi-embarrassingly-parallel.  In other words, each subproblem is independent of the others while each is being solved, and each of these subproblems can be assigned its own thread.  So, if there are more threads available, higher performance or accuracy can be achieved.  The implementation presented here provides more threads by sending problems to remote machines where they can be run simultaneously; in other words, multiple machines with their own CPUs and GPUs are networked together to form a _cluster_ where the work is distributed amongst all machines.
 
 #figure(
-  image("../../images/cluster_topology.png"),
-  caption: [A representative cluster topology.]
-) <img:cluster_topology>
+  image("../../images/cluster_topology.png", width: 87%),
+  caption: [The assumed topology of the cluster presented in this work.]
+) <diag:cluster_topology>
+
+While clusters can take many forms #cn, this implementation considers building a cluster from the ground up in a modular and ad-hoc manner.  This way the cluster can theoretically scale without limit.  The general strucutre, or _topology_, of the cluster is rather simple: A _head node_ runs the _director_ process, which sends problems to _worker_ processes on other _compute nodes_; this structure is shown in @diag:cluster_topology.  While the workers can solve their problems and communicate with every other worker (and the director), only the director can spawn new processes.  Once the director has finished spawning and configuring the workers as in @alg:cluster_prep, the director moves on to begin the PA.
 
 #figure(
   kind: "algorithm",
   supplement: [Alg],
-  caption: [],
+  caption: [The cluster can be created and prepared in 4 simple steps.],
   pseudocode-list(
     numbered-title: smallcaps[Prepare the Cluster],
     booktabs: true, 
@@ -779,6 +779,8 @@ While compute clusters can take many forms #cn, this implementation considers bu
     + Pair each worker with a device on its host
   ]
 ) <alg:cluster_prep>
+
+In order for this implementation to be flexible, the director does not assume any a-priori configuration of any worker nodes.  This way any node can be seamlessly introduced to the cluster.  The drawback of this flexibility is that the cluster must be created each time.  Part of this creation is identifying the available devices in the cluster.  To do this, the director first uses a user-given collection of hostnames to spawn a single "manager" process on each of the given hosts.
 
 #figure(
   kind: "algorithm",
@@ -796,7 +798,7 @@ While compute clusters can take many forms #cn, this implementation considers bu
   ]
 ) <alg:spawn_managers>
 
-@alg:spawn_workers shows that creating the cluster involves a lot of back and forth communication between the manager processes and the director process. This is becuase only the director process can spawn new processes on any host.
+Once the managers have been spawned, the director asks them how many devices are on their host.  The manager measures this and sends back the information to the director.  The director, because it is the only process that can spawn workers, spawns a number of workers on each host equal to the number of devices on it.  This process is shown in @alg:spawn_workers.
 
 #figure(
   kind: "algorithm",
@@ -813,7 +815,7 @@ While compute clusters can take many forms #cn, this implementation considers bu
     + Each manager sends the number of devices on its host to the director
     + For each host
       + For each device on the host
-        + The director spawns one process on the host
+        + The director spawns a process on the host
     + Load the Parareal library on each worker process
   ]
 ) <alg:spawn_workers>
