@@ -298,6 +298,9 @@ Some key aspects of high-performance computing (HPC) are:
 
 === Multi-processing & Distributed Computing <sec:mulitprocesing>
 - Message Passing & Remote Call Procedure (RPC)
+  - An RPC is effectively when one process tells another "Here's an explicit list of instructions i.e. a recipe.  Do it without thinking."
+- Because each process has its own memory space, each process must independently load any and all libraries, files, binaries, etc. it needs.
+- Each host effectively needs to be an identical copy of the head node.  This can be achieved by each host referring to a shared file system so they all manifestly the same binaries, versions of packages, etc. This needs to happen because an RPC can be thought of as sending a chunk of raw, textual source code to be run on the other process and/or machine.  If that source code calls some functionality that is not loaded or otherwise available in that process, that call will error. Thus things like a GPU library must be not only available on each machine, but also loaded on each process.
 
 #pagebreak()
 == Parallel-in-Time Integration <sec:pint>
@@ -756,11 +759,11 @@ So, why is the PA well-suited to be implemented to use GPUs?  Because the data i
 While the PA can be further parallelized using GPUs, the fact still stands that the PA is quasi-embarrassingly-parallel.  In other words, each subproblem is independent of the others while each is being solved, and each of these subproblems can be assigned its own thread.  So, if there are more threads available, higher performance or accuracy can be achieved.  The implementation presented here provides more threads by sending problems to remote machines where they can be run simultaneously; in other words, multiple machines with their own CPUs and GPUs are networked together to form a _cluster_ where the work is distributed amongst all machines.
 
 #figure(
-  image("../../images/cluster_topology.png", width: 87%),
+  image("../../images/cluster_topology.png", width: 80%),
   caption: [The assumed topology of the cluster presented in this work.]
 ) <diag:cluster_topology>
 
-While clusters can take many forms #cn, this implementation considers building a cluster from the ground up in a modular and ad-hoc manner.  This way the cluster can theoretically scale without limit.  The general strucutre, or _topology_, of the cluster is rather simple: A _head node_ runs the _director_ process, which sends problems to _worker_ processes on other _compute nodes_; this structure is shown in @diag:cluster_topology.  While the workers can solve their problems and communicate with every other worker (and the director), only the director can spawn new processes.  Once the director has finished spawning and configuring the workers as in @alg:cluster_prep, the director moves on to begin the PA.
+While clusters can take many forms #cn, this implementation considers building a cluster from the ground up in a modular and ad-hoc manner.  This way the cluster can theoretically scale without limit.  The general strucutre, or _topology_, of the cluster is rather simple: A _head node_ runs the _director_ process, which tells _worker_ processes on other _compute nodes_ what to do; this structure is shown in @diag:cluster_topology.  In other words, the director only decides and does not do, while the workers do not decide and only do.  While the workers can solve their problems and communicate with every other worker (and the director), only the director can spawn new processes.  Once the director has finished spawning and configuring the workers as in @alg:cluster_prep, the director moves on to begin the PA.
 
 #figure(
   kind: "algorithm",
@@ -785,7 +788,7 @@ In order for this implementation to be flexible, the director does not assume an
 #figure(
   kind: "algorithm",
   supplement: [Alg],
-  caption: [],
+  caption: [Manager processes are created to identify the number of devices on a host, and can manage the network communication between hosts.],
   pseudocode-list(
     numbered-title: smallcaps[Spawn Manager Processes],
     booktabs: true, 
@@ -793,8 +796,8 @@ In order for this implementation to be flexible, the director does not assume an
   )[
     - *INPUT:* A list of hosts
     - *OUTPUT:* A list of manager process IDs
-    + Spawn manager process on each host
-    + Load the Parareal library on each manager
+    + The director spawns manager process on each host
+    + The director tells each manager to load the Parareal library
   ]
 ) <alg:spawn_managers>
 
@@ -803,7 +806,7 @@ Once the managers have been spawned, the director asks them how many devices are
 #figure(
   kind: "algorithm",
   supplement: [Alg],
-  caption: [],
+  caption: [Worker processes are spawned by the director on each host\ based on the number of devices available to that host.],
   pseudocode-list(
     numbered-title: smallcaps[Spawn Worker Processes],
     booktabs: true, 
@@ -811,19 +814,36 @@ Once the managers have been spawned, the director asks them how many devices are
   )[
     - *INPUT:* A list of manager IDs
     - *OUTPUT:* A list of worker IDs
-    + Load GPU library on all managers \/\/ _provides ability to count devices_
-    + Each manager sends the number of devices on its host to the director
+    + The director tells each manager to load the GPU library \/\/ _provides ability to count devices_
+    + The director requests the number of devices on the host from each manager
     + For each host
       + For each device on the host
         + The director spawns a process on the host
-    + Load the Parareal library on each worker process
+    + The director tells each manager to load the Parareal library
   ]
 ) <alg:spawn_workers>
 
-While the fundamental idea of assigning a device to a worker is trivial, the implementation suffers from the fact the a device should not be assigned to a process on a different host!  In this implementation, process IDs correlate to the order in which they were spawned e.g. process 2 was spawned second, process 3 was spawned third; in other words, the process IDs are relative to the whole cluster.  The device IDs, however, are relative to their host machine.  So, care must be taken in order to pair processes and devices on the same host.
+Once the workers are spawned on their respective hosts, each of them needs a device.  While the fundamental idea of assigning a device to a worker is trivial (as shown in @alg:assign_devices_high), the implementation suffers from the fact the a device should not be assigned to a process on a different host!  In this implementation, process IDs correlate to the order in which they were spawned e.g. process 2 was spawned second, process 3 was spawned third; in other words, the process IDs are relative to the whole cluster.  The device IDs, however, are relative to their host machine.  So, care must be taken in order to pair processes and devices on the same host.
+
+#figure(
+  kind: "algorithm",
+  supplement: [Alg],
+  caption: [Pairing workers and devices is trivial at a high level],
+  pseudocode-list(
+    numbered-title: smallcaps[Assign Devices - High Level],
+    booktabs: true, 
+    hooks: 0.5em
+  )[
+    - *INPUT:* 
+    - *OUTPUT:* 
+    + The director tells each new worker to load the GPU library \/\/ _provides ability to assign devices_
+    + For each host
+      + For each worker on that host
+        + The worker assigns an on-host device to itself
+  ]
+) <alg:assign_devices_high>
 
 For example
-
 - The director has process ID (pid) 1 and is on its own host.
 - Host X has pid 2, and host Y has pids 3, and 4.
 - Host X has 1 device with ID 0, and host Y has 2 devices with ID 0 and 1.
@@ -832,27 +852,57 @@ For example
   - Device 0 on host Y is assigned to pid 3
   - Device 1 on host Y is assigned to pid 4
 
+One way to address this issue is to create "host objects" by collecting the hostnames, pids, and number of devices for each host.  The collection of these host objects, together with their relative connections, would constitute a "cluster object" or "cluster graph".  While the actual ids of the devices on each host are what is important, the pattern is the same for all hosts e.g. `devids = 0, 1, ..., ndevs-1`.  This way only a single integer needs to be stored instead of a list.
+
 #figure(
   kind: "algorithm",
   supplement: [Alg],
-  caption: [],
+  caption: [To aid in the pairing of devices and workers, host objects can be created to make sure devices are assigned to workers on the same host.],
+  pseudocode-list(
+    numbered-title: smallcaps[Create Host Objects],
+    booktabs: true, 
+    hooks: 0.5em
+  )[
+    - *INPUT:* List of hostnames, list of managers, list of device counts
+    - *OUTPUT:* List of host objects `hosts`
+    + For each host
+      + `name` #gets name of host
+      + `workers` #gets list of woker IDs on host
+      + `ndevs` #gets number of devices on host
+      + `hosts[i]` #gets `Host(name, workers, ndevs)`
+    + *return* `hosts`
+  ]
+) <alg:create_hosts>
+
+A host object packages together the worker IDs and number of devices on the same host. Thus devices can be assigned to workers on the same machine simply by iterating through the host objects.  This process is shown in @alg:assign_devices.
+
+#figure(
+  kind: "algorithm",
+  supplement: [Alg],
+  caption: [A more detailed algorithm of assigning devices to workers on the same host.],
   pseudocode-list(
     numbered-title: smallcaps[Assign Devices],
     booktabs: true, 
     hooks: 0.5em
   )[
-    - *INPUT:* A list of manager IDs
-    - *OUTPUT:* 
-    + For each host
-      + For each device
-       + Assign the device to a worker on this host
+    - *INPUT:* List of host objects `hosts`
+    - *OUTPUT:* Nothing
+    + Load the GPU library on each worker \/\/ _provides ability to assign devices_
+    + *for * `host` in `hosts`
+      // + `name` #gets `host.name`
+      + `workers` #gets `host.workers`
+      + `devids` #gets `(0, 1, ..., host.ndevs-1)`
+      + *for* each pair (`worker, devid`)
+        + Assign `devid` to `worker`
   ]
 ) <alg:assign_devices>
+
+Once the devices are assigned, the cluster has been prepared.  The director then becomes the driver of the PA, as shown in @alg:parareal_distributed.  The director begins the PA as it normally would, but instead of either dispatching the parallel propagation to other CPU threads or the GPU, the director gives each worker a problem to propagate in parallel, either on its CPU or GPU.  Since this dispatching takes little time, the director then waits until it gets the solutions from the the workers.  Finally, the director coarse propagates the root problem with the solutions, checks if the solution has converged, and loops if it hasn't.
 
 #figure(
   kind: "algorithm",
   supplement: [Alg],
-  caption: [],
+  caption: [The Parareal Algorithm can distribute its subproblems amongs multiple machines\ in order to achieve higher performance.],
   pseudocode-list(
     numbered-title: smallcaps[The Parareal Algorithm at Scale],
     booktabs: true, 
@@ -861,15 +911,15 @@ For example
     - *INPUT:* A root problem, coarse and fine propagators, and a convergence threshold
     - *OUTPUT:* A solution to the root problem
     - \/\/ _on a prepared cluster_
-    + Director coarse propagates root problem to get initial solution
+    + The director coarse propagates root problem to get initial solution
     + While the root solution has not converged
-      + Director creates problems
+      + The director creates problems
       + For each problem
-        + Director sends the problem to a worker
-        + Worker solves the problem using the Parareal algorithm on its GPU
-        + Worker sends the solution to the director
-      + Director waits to get all solutions
-      + Director coarse propagates root problem with corrections to get new solution
+        + The director sends the problem to a worker
+        + The director tells the worker to solve the problem using the Parareal algorithm on its GPU
+        + The director requests the solution from the worker
+      + The director waits to get all solutions
+      + The director coarse propagates root problem with corrections to get new solution
   ]
 ) <alg:parareal_distributed>
 
@@ -893,6 +943,8 @@ For example
 === Time Complexity
 
 - A detailed analysis of the convergence rates of the PA has been done @gander2007.
+- Network communication is slow, and thus there's overheard to distrubuted computing.
+  - Problems need to take long enough to make the overhead of network communication worth it.
 
 === Space Complexity
 
