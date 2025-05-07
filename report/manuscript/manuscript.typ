@@ -932,11 +932,27 @@ Once the devices are assigned, the cluster has been prepared.  The director then
 
 - use the pendulum i.e. the simple harmonic oscillator to test numerical analysis properties since we know the analytic solutions and can compare.
 
+=== Error
+
+Show error of simple harmonic oscillator with respect to 
+- coarse discretization
+- fine discretization
+
+Show the local and global/accumulated error at each iteration.
+
 === Convergence
+
+For a fixed domain, how does convergence depend on
+- coarse discretization
+- fine discretization
+- number of available threads
+- number of problems per thread
 
 === Stability
 
-=== Error
+For fixed discretizations, how does domain length affect
+- number of iterations to converge
+- 
 
 == Algorithm Analysis
 
@@ -947,6 +963,9 @@ Once the devices are assigned, the cluster has been prepared.  The director then
 - A detailed analysis of the convergence rates of the PA has been done @gander2007.
 - Network communication is slow, and thus there's overheard to distrubuted computing.
   - Problems need to take long enough to make the overhead of network communication worth it.
+- Each level of the problem tree loops say $T$ times, so level $l$ of the tree loops $T^l$ times by the end
+- If the problem tree is $N$-ary, then there are $N^l$ processes at level $l$, thus $N^l T^l = (N T)^l$ loops happen on level $l$ by the end.
+  - For example, there is a cluster with 2 levels consisting of 3 total processes (i.e. $N = 2$), and the coarse discretization is $T = 2^10 = 1024$.  So level 1 will provide at most (because the PA should converge well before iteration == discretization) a total of $(2 * 1024)^1 = 2048$ loops.
 
 === Space Complexity
 
