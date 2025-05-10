@@ -2,8 +2,7 @@
 #import "@preview/hydra:0.6.1": hydra
 
 #let title1 = "Scalable Parallel-in-Time Integration for Equations of Motion"
-#let title2 = "Particle Production in Analog Cosmology"
-#let title_header = "Scalable PinT Integration for EoM"
+#let title2 = "" // "Particle Production in Analog Cosmology"
 #let gets  = sym.arrow.l
 #let cn    = text(red)[*CN*] // citation needed
 #let us    = h(2pt)          // unit space
@@ -46,7 +45,7 @@
 // TITLE
 #v(1fr)
 #align(center)[
-  #text(size: 15pt)[*#title1:\ #title2*]
+  #text(size: 15pt)[*#title1*]
   #v(1em)
   Nathaniel Chapman#super[1]\
   #super[1]Department of Computer Science, Central Washington University\
@@ -95,11 +94,9 @@ Parallel-in-time integration (PinT) (@sec:pint) algorithms have emerged to reduc
 
 It is through the combination of these core ideas that testable predictions of "extreme-scale" physics can be made.  But, before those predictions are in fact made, further details of each of these ideas are required to be understood.
 
-
-
 == Equations of Motion <sec:EOM>
 
-According to classical mechanics, the motion for any and every object in the universe can be determined for all time using only its current position, current velocity, and the forces acting on it @Landau1976Mechanics. The foundation on which this principle lies is the _equation of motion_.  While the underlying idea is the same from one EOM to another, the motion of objects can depend on many different sources.  
+According to classical mechanics, the motion for any and every object in the universe can be determined for all time using only its current position, current velocity, and the forces acting on it @Landau1976Mechanics. The foundation on which this principle lies is the _equation of motion_ (e.g. Newton's Second Law), which dictates how motion changes in time, or both time and space.  These EOMs can be solved via numerical methods, but some methods better suited for specific problems than others, especially when considering the tradeoff between the accuracy of the result and the level of approximation.  Additionally, some straight-forward methods solve the EOM by accurately stepping through time, but others first make an estimate of the solution, somehow make corrections to that guess, and then keep doing that until the desired accuracy is achieved.
 
 === Initial Value Problems
 
@@ -127,13 +124,22 @@ $ {
 
 In some sense, anything that fits this structure, could be considered an IVP (more on this in @sec:Parareal).  Because initial values "lock in" the trajectory of an object based on the EOM's physics, the IVP can be solved numerically.
 
-=== Traditional Numerical Methods <sec:trad_methods>
+=== Energy Drift & Symplectic Integrators <sec:energy_drift>
 
-- Predictor-Corrector Methods
-  - The PA is not the first of its kind to follow this "predict-correct-loop" structure.  In fact, there is a whole class of integration algorithms known as _predictor-corrector_ methods.
-  - Hartree-Fock Method (i.e. Self-Consistent Field Theory) is similarly iterative to the PA but iterations are done to minimize energy according to the variational principle of quantum mechanics.
-- Symplectic Integration
+When it comes to solving EOMs numerically, possibly the biggest factor that should influence the choice of integration method is the length of time on which the EOM is considered.  Almost all methods are not inappropriate to use on small scale problems, but some of these methods result in innacurate or even unphysical behavior due to the accumulation of approximation-error.  For EOMs, one way to quantify this error is through the idea of *energy drift*.
 
+Outside of considering the energy of the whole universe, the total energy of a (well-defined) system does not change in time.  If a system is composed on multiple objects, then the total energy of each object individually can change, but the total energy of all the objects combined is constant.  This simple idea provides a reference with which to compare the simulated energy.  
+
+The difference between the simulated energy at any point in time and the initial energy acts as a mesasurement of the innacuracy of the simulation at that point in time i.e. the _local error_. A corrolary to this is that the difference between the energy at the end of the simulation and the initial energy serves as a measure of the _global error_ as the local error compounds over time.  In other words, the energy of the system _drifts_ away from the true value as error is compounded.
+
+While almost all methods _can_ be used for any problem, some methods result in less energy drift for the same time-step.  A specific class of these methods is known as *symplectic integrators*.  The underlying reasons for this are out of the scope of this work, but an important note is that even though these methods mititgate the effects of energy drift substantially, they do not yield exactly zero drift @RackauckasSymplectic.  It is these symplectic integration methods that are considered in this work.
+
+=== Predictor-Corrector Methods
+
+// - Predictor-Corrector Methods
+//   - The PA is not the first of its kind to follow this "predict-correct-loop" structure.  In fact, there is a whole class of integration algorithms known as _predictor-corrector_ methods.
+//   - Hartree-Fock Method (i.e. Self-Consistent Field Theory) is similarly iterative to the PA but iterations are done to minimize energy according to the variational principle of quantum mechanics
+ 
 
 
 == High-Performance Computing <sec:hpc>
@@ -350,7 +356,7 @@ With each kernel accessing this data, it can simply calculate and write the doma
 
 $ {harpoon(r)_t}_t = {harpoon(r)_(t_p), [N_cal(P) - 1 "arbitrary elements"]} quad {harpoon(v)_t}_t = {harpoon(v)_(t_p), [N_cal(P) - 1 "arbitrary elements"]} $
 
-Otherwise, the propagation kernel is no more than a traditional IVP solver as described in @sec:trad_methods, but executed on many different subproblems simultaneously over many threads.  This process is shown algorithmically in @alg:prop_kernel.
+Otherwise, the propagation kernel is no more than a traditional IVP solver as described in @sec:energy_drift, but executed on many different subproblems simultaneously over many threads.  This process is shown algorithmically in @alg:prop_kernel.
 
 #figure(
   kind: "algorithm",
