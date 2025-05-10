@@ -1,4 +1,5 @@
 #import "@preview/lovelace:0.3.0": *
+#import "@preview/hydra:0.6.1": hydra
 
 #let title1 = "Scalable Parallel-in-Time Integration for Equations of Motion"
 #let title2 = "Particle Production in Analog Cosmology"
@@ -11,23 +12,22 @@
 #set page(
   paper: "us-letter",
   margin: (top: auto, rest: 1in),
-  numbering: "1/1",
+  numbering: none /* "1/1" */,
   header: context {
-    let sections = query(
-      selector(heading.where(level: 2)).before(here())
-    )
+    let sections = query(selector(heading.where(level: 1)).before(here()))
+    // [#here().position()]
     if sections != () {
-      let lastSection = sections.last()
-      // let number = counter(heading).at(lastSection.location())
-      set par(spacing: 1em)
-      [#emph(smallcaps(title_header)) #h(1fr) #emph(smallcaps(lastSection.body)) #line(length: 100%)]
+      [#emph(hydra(1)) #h(1fr) #emph(hydra(2)) #line(length: 100%)]
     }
   }
 )
 #set par(justify: true, leading: 1em, spacing: 2em) // "leading" == "line spacing"
 #set text(font: "New Computer Modern", size: 10pt)
 #set enum(numbering: "1.1)", full: true)
-#set heading(numbering: "1.")
+#set heading(numbering: "1.",)
+#show heading: set block(below: 1em)
+#show heading.where(level: 1): it => pagebreak(weak: true) + it
+#show heading.where(level: 2): it => pagebreak(weak: true) + it
 #show outline.entry.where(
   level: 1
 ): it => {
@@ -79,11 +79,9 @@ _])
 
 // TABLE OF CONTENTS
 #outline(indent: auto)
-#pagebreak()
-
+#set page(numbering: "1/1")
+#counter(page).update(1)
 = Introduction
-
-#pagebreak()
 
 = Background
 
@@ -97,181 +95,47 @@ Parallel-in-time integration (PinT) (@sec:pint) algorithms have emerged to reduc
 
 It is through the combination of these core ideas that testable predictions of "extreme-scale" physics can be made.  But, before those predictions are in fact made, further details of each of these ideas are required to be understood.
 
-#pagebreak()
+
 
 == Equations of Motion <sec:EOM>
 
-According to classical mechanics, the motion for any and every object in the universe can be determined for all time using only its current position, current velocity, and the forces acting on it @Landau1976Mechanics .
+According to classical mechanics, the motion for any and every object in the universe can be determined for all time using only its current position, current velocity, and the forces acting on it @Landau1976Mechanics. The foundation on which this principle lies is the _equation of motion_.  While the underlying idea is the same from one EOM to another, the motion of objects can depend on many different sources.  
 
-=== Initial Value Differential Equations
-- Ordinary Differential Equations (ODE)
-- Systems of ODEs e.g. N-Body
-  - uncoupled
-  - coupled
-- Partial Differential Equations (PDE) e.g. wave equation
+=== Initial Value Problems
+
+Take, for exmaple, the motion of a simple pendulum.  While the overall motion of bob is determined from length on which it hangs, and the gravity affecting it, the angle at which the bob finds only depends on time.  Now, the position of a point on a guitar string does not only change in time, but is also affected by the motion of the points around it.  Both of these systems can be modeled by an EOM, but the pendulum can be modeled an *ordinary differential equation* (ODE), and the guitar string can be modeled by a *partial differential equation* (PDE).
+
+The nuances on each of these ideas are better left covered by your friendly neighborhood math department, but the detail that is indeed important to this work is that there are techniques that can transform a PDE to a collection of ODEs.  One such procedure is known as the _spectral method_, where by representing the solution to the PDE as a sum of waves (i.e. a Fourier transform), the physics in each dimension only affects the frequency in that dimension @Orszag1969.  While the soutions to the ODEs would be in so-called "frequency space", applying the inverse Fourier transform on those solutions, achieves the desired solution to the original PDE.  Whether it be an ODE, a PDE, or a system of ODEs, when modeling physical phenomena, initial values need to be considered to make any concerete predictions about the future state of a specific object.  
+
+For our purposes, an IVP can be thought of as an object with several properties: the acceleration, the initial position and velocity, and the time interval on which you are modeling (which could be unbound e.g. $[0, infinity)$) as shown by the following equation:
+
+$ {
+  underbrace(
+    diff_t^2 harpoon(r) = harpoon(F)(t, harpoon(r), harpoon(v)), 
+    "Acceleration"
+  ), #h(11pt)  
+  underbrace(
+    harpoon(r)(0) = harpoon(r)_0 \, #h(5pt) 
+    harpoon(v)(0) = harpoon(v)_0, 
+    "Initial values"
+  ), #h(11pt) 
+  underbrace(
+    [0, t_f], 
+    "time span"
+  )
+}. $
+
+In some sense, anything that fits this structure, could be considered an IVP (more on this in @sec:Parareal).  Because initial values "lock in" the trajectory of an object based on the EOM's physics, the IVP can be solved numerically.
 
 === Traditional Numerical Methods <sec:trad_methods>
-- ODEs
-  - Predictor-Corrector Methods
-    - The PA is not the first of its kind to follow this "predict-correct-loop" structure.  In fact, there is a whole class of integration algorithms known as _predictor-corrector_ methods.
-    - Hartree-Fock Method (i.e. Self-Consistent Field Theory) is similarly iterative to the PA but iterations are done to minimize energy according to the variational principle of quantum mechanics.
-  - Symplectic Integration
-  - Traditional Methods in evolving Equations of Motion
-  - Def don't use Runge-Kutta methods
-  - Symplectic Euler
-  - Velocity Verlet
-  - etc.
-- PDEs
-  - Method of Lines
-  - Method of Relaxation
 
-One of the most important algorithms used in evolving equations of motion is the velocity Verlet method.
+- Predictor-Corrector Methods
+  - The PA is not the first of its kind to follow this "predict-correct-loop" structure.  In fact, there is a whole class of integration algorithms known as _predictor-corrector_ methods.
+  - Hartree-Fock Method (i.e. Self-Consistent Field Theory) is similarly iterative to the PA but iterations are done to minimize energy according to the variational principle of quantum mechanics.
+- Symplectic Integration
 
-// == Analog Cosmology
 
-// Directly measuring the properties of the universe just after the Big Bang is impossible, as that was almost 14 billion years ago.  Even _indirectly_ measuring these properties is extremely difficult via traditional means.  During these brief moments just after the Big Bang, the universe expanded rapidly in a particular way.  During this expansion there were particles popping in and out of existence, each with its own dynamics (e.g. position and momentum).
 
-// What is less difficult is cooling down gases to near absolute-zero (about a billion times colder than empty space).  Gases made of certain atoms or molecules have properties that can be changed to almost any value we want.  Because of this, we can turn our knobs in the lab to make the gas behave in a way that matches a certain mathematical model.
-
-// For some types of gases, we can choose how strongly the particles in the gas interact with each other.  It turns out that we can choose a certain interaction strength so that the mathematical model that describes how the gas behaves *exactly* matches the mathematical model of how particles are produced in the universe in the moments just after the Big Bang!  When this happens, we can call this ultra-cold gas an "analog universe".
-
-// Because of this mathematical equality, we can effectively observe the particles in the moments just after the Big Bang, but in the lab. Moreover, these observations can be made using a tried-and-true system that has been developed and used over the past thirty years@firstBEC.
-
-// Studies have investigated gases with
-// - phonons with a temporal frequency that is nonlinearly related to the spatial frequency (dispersion relation) @Nonlinear_dispersion_Lorentz_breaking_1 @Nonlinear_dispersion_Lorentz_breaking_2 @Nonlinear_dispersion_Lorentz_breaking_3
-
-// - analog massive particles @massive_1 @massive_2 @massive_3
-
-// - analog particles with non-zero spin @massive_and_spin_4 @massive_and_spin_5 @massive_and_spin_6 @massive_and_spin_7
-
-// - analog universes with different expansion behavior @sudden_transition_1 @sudden_transition_2 @cyclic_cosmology @Experimental_interaction_strength_1
-
-// - analog universes with non-zero background velocity @background_velocity_1 @background_velocity_2 @background_velocity_3 @background_velocity_4 @background_velocity_5
-
-// - promising experimental realizations @Experimental_candidate_1 @Experimental_candidate_2 @Experimental_interaction_strength_1 @Experimental_interaction_strength_2
-
-// Computationally, simulations have had to investigate analog universes of reduced dimension due to the unreasonable time it takes to simulate full-dimensional systems without using high-performance computing.  These simulations have been deemed accurate enough as it is proposed that a full-dimensional simulation would yield qualitatively similar results.  In order to be confident in the level of accuracy of the reduced-dimensional simulations, those results need to be compared to those of a full-dimensional simulation.  This will not only allow a quantification of the error in the reduced-dimensional simulation, but also a measure of the error-to-resource efficiency of a full-dimensional simulation.
-
-// Future insight into these analog systems and the fundamental properties of the early universe require computational support.  A readily-usable computational model will not only allow theoretical investigations to make predictions, but also allow experimental research to have a guide on where to go next and have something with which to compare.  The availability of this work is paramount to more efficient and more physically-accurate insight into our universe.
-
-// I choose a gas with linear dispersion, analog massless and spin-0 particles, an analog universe undergoing a de Sitter expansion with zero background velocity.  The de Sitter spacetime is chosen because of its significance to modern cosmology and previously predicted particle production (as done by Hawking) @de_Sitter_inhomogeneities @de_Sitter_particle_production_1 @de_Sitter_particle_production_2. Particle production will be calculated with standard methods @particle_production_1 @particle_production_2.  The numerical parameters chosen in this study also follow from previous studies @parameters.  Computational implementations will be done using high-performance methods.
-
-// === BEC Analogs of FLRW Cosmologies
-// The gas as is outlined is a ground-state Bose-Einstein condensate (BEC) without thermal or quantum fluctuations. The dynamics of the BEC are described by the Gross-Pitaevskii equation (GPE) under a Bogoliubov mean-field approximation (also known as the _nonlinear Schr\u{00F6}dinger equation),_
-
-// $ i planck.reduce diff_t psi (t, harpoon(x)) = [-planck.reduce^2 / (2 m) nabla^2 + V_"ext" (x) + U |psi(t, harpoon(x))|^2] psi(t, harpoon(x)). $ <GPE>
-
-// The wave function $psi$ can be expanded using a linearized Madelung density-phase representation
-
-// $ psi(t, harpoon(x)) = sqrt(n_0 + Delta n(t, harpoon(x))) e^(i (theta_0 + Delta theta(t, harpoon(x))), $ <Madelung>
-
-// where $n_0 + Delta n(t, harpoon(x))$ and $theta_0 + Delta theta(t, harpoon(x))$ are the linearized forms of the real density and phase fields, respectively.  Furthermore, $Delta n(t, harpoon(x))$ and $Delta theta(t, harpoon(x))$ are the density and phase perturbations, respectively.
-
-// With the Madelung representation defined in @Madelung, the GPE in @GPE becomes @Jain
-
-// $ 1 / sqrt(-g) diff_mu [sqrt(-g) g^(mu nu) diff_nu Delta theta] = 0, $ <KG>
-
-// where 
-
-// $ g_(mu nu) = (n_0 / c)^(2 / (d - 1)) mat(
-//         -c^2 , dots, 0;
-//         dots.v, dots.down , dots.v;
-//         0, dots , delta_(i j)
-// )
-// . $ <metric>
-
-// @metric can be interpreted as the covariant metric tensor (with determinant $g$) describing an analog, spatially flat, Friedmann-Lemaître-Robertson-Walker universe, $c$ is the speed of sound in the condensate, and $d$ is the number of spatial dimensions.  @KG describes both the phase-perturbations $Delta theta$ of oscillations with low spatial frequency (i.e. low momentum phonons) in the BEC and also the dynamics of a quantum field that produces massless, spin-0 particles.
-
-// === Variable Speed of Sound and Inflation
-
-// The time dependence of the system is completely captured in the speed of sound by 
-
-// $ c(t)^2 = U(t) n_0 / m = 4 pi planck.reduce ^2 / m^2 n_0 ell(t), $ <speed>
-
-// with atoms of mass $m$, scattering length $ell(t)$, and number density $n_0$.  With the dimensionless scaling function $a(t)$, the interaction strength $U(t)$ (or equivalently the scattering length) has time dependence defined by 
-
-// $ U(t) equiv U_0 a(t), $
-
-// where $U_0 = U(t_0)$ for an initial time $t_0$.  Then @speed becomes 
-
-// $ c(t) = c_0 sqrt(a(t)). $
-
-// This time dependence of the speed of sound and interaction strength allows us to draw another analogy.  If the speed of sound decreases with time, it would appear as if the space between the source and the observer were increasing.  Similarly, if the speed of sound increases with time, it would appear as if the space between the source and observer is decreasing. With this in mind, if the interaction strength between atoms $U(t)$ decreases with $t$, the analog universe is expanding, and if $U(t)$ increases, the analog universe is contracting.
-
-// === The Field Equation
-
-// With the scaling function, @KG becomes #footnote[$(dot(a)(t)) / a(t)$ is the Hubble parameter for an expanding universe with scaling parameter $a(t)$.]
-
-// $ #text[2D Field Equation:] diff^2 Delta theta - 3/2 (dot(a)(t)) / a(t) diff_t Delta theta - c_0^2 a(t) nabla^2 Delta theta = 0 $ <fieldEquation2D>
-// $ #text[3D Field Equation:] diff^2 Delta theta - (dot(a)(t)) / a(t) diff_t Delta theta - c_0^2 a(t) nabla^2 Delta theta = 0 $ <fieldEquation3D>
-
-// These equations only differ in the constant coefficient to the first derivative i.e. the dissipative term.  If we consider the #text(style:"italic", [conformal time]) $eta$ defined by $d eta = sqrt(a(t)) d t$, the two-dimensional field equation (@fieldEquation2D) becomes
-
-// $ diff_eta^2 Delta theta - 1 / 2 (dot(a)(eta)) / a(eta) diff_eta Delta theta - c_0^2 nabla^2 Delta theta = 0. $ <fieldEquationConformal>
-
-// @fieldEquationConformal governs the dynamics of oscillations in the BEC for a time-dependent speed of sound, and the behavior of the massless, spin-0 particles in an expanding universe.
-
-// === Phononic & Free Particle Modes
-
-// The phase $Delta theta(t, harpoon(x))$ and density $Delta n(t, harpoon(x))$ perturbation fields can be expanded in a Fourier plane-wave amplitude representation as 
-
-// $ Delta theta(t, harpoon(x)) = 1 / sqrt(V) sum_harpoon(k) e^(i harpoon(k) dot.c harpoon(x)) tilde(theta)_harpoon(k)(t) hat(b)_harpoon(k)(t) + e^(-i harpoon(k) dot.c harpoon(x)) tilde(theta)_harpoon(k)^*(t) hat(b)_harpoon(k)^dagger (t) $ <FourierExpansionPhase>
-
-// $ Delta n(t, harpoon(x)) = 1 / sqrt(V) sum_harpoon(k) e^(i harpoon(k) dot.c harpoon(x)) tilde(n)_harpoon(k)(t) hat(b)_harpoon(k)(t) + e^(-i harpoon(k) dot.c harpoon(x)) tilde(n)_harpoon(k)^*(t) hat(b)_harpoon(k)^dagger (t) $ <FourierExpansionDensity>
-
-// where $harpoon(k)$ is the wave-vector of the phase and density perturbations, $tilde(theta)$ is the discrete Fourier Transform of the phase perturbation, $hat(b)$ and $hat(b)^dagger$ are the annhilation and creation operators, respectively.  From this, there arises two domains to consider#footnote[These domains can also be described as "acoustic" and "Bogoliubov", respectively.]: phononic quasiparticles with linear dispersion, and free-particle-like quasiparticles with quadratic dispersion.
-
-// The boundary between phononic and free-particle-like quasiparticles is described by the critical wave-number $k_c$.  The critical wave-number $k_c$ is defined @Jain in terms of the healing length of the BEC $xi$, where
-
-// $ xi(t) = planck.reduce / (sqrt(2) m c) = xi_0 / sqrt(a(t)), $ <healing>
-
-// $ k_c (t) = 1 / xi(t) = sqrt(a(t)) / xi_0 $ <critical>
-
-// Wave-vectors $harpoon(k)$ with wave-number $k = ||harpoon(k)||$ such that $k << k_c$ are called _phononic_#footnote[Phononic quasiparticles have linear dispersion $omega = c k$ characterized by neglecting quantum pressure.].  Likewise, those with $k >> k_c$ are called #text(style: "italic")[free-particle-like]#footnote[Free-particle-like quasiparticles have quadratic dispersion characterized by $omega_k (t)^2 = k^2 / (2 m) ((planck.reduce^2 k^2) / (2 m) + 2 U(t) n_0)$ characteried by including quantum-pressure].
-
-// For phononic quasiparticles, the analog between a BEC and an inflationary cosmology is exact.  Including free-particle-like quasiparticles forces the analog to include "trans-Planckian" effects and analog Lorentz violation@Jain.  For these reasons, this investigation focuses only on phononic quasiparticles; namely wave-vectors $harpoon(k)$ such that $||harpoon(k)|| << k_c$.  Additionally, the free-particle-like regime has nonlinear dispersion which significantly increases the complexity of the field equation@Jain.
-
-// Only considering phononic modes, the two-dimensional field (@fieldEquationConformal) then becomes
-
-// $ diff_eta^2 tilde(theta)_harpoon(k) - 1 / 2 (dot(a)(eta)) / (a(eta)) diff_eta tilde(theta)_harpoon(k) - c_0^2 k^2 tilde(theta)_harpoon(k) = 0. $ <fieldEquationConformalFourier>
-
-// For a de Sitter universe, the scaling function is defined such that $a(t) = e^(-t \/ t_s)$.  Therefore, the field equation for a two-dimensional de Sitter universe is
-
-// $ diff_eta^2 tilde(theta)_harpoon(k) - 1 / eta diff_eta tilde(theta)_harpoon(k) + c_0^2 k^2 tilde(theta)_harpoon(k) = 0, $ <fieldEquationdeSitter>
-
-// === Initial Conditions
-
-// As the phase and density perturbations need to be continuous at $t = 0$ when the expansion begins, the initial conditions i.e. spacetime boundary conditions are defined by this physical conservation.  Therefore
-
-// $ tilde(theta)_harpoon(k)(t = 0) = tilde(theta)_(harpoon(k)0) $ <conditionValue>
-// $ diff_t tilde(theta)_harpoon(k)(t = 0) = -U / planck.reduce tilde(n)_(harpoon(k)0) $ <conditionDerivative>
-
-// where the initial derivative of the phase perturbation's Fourier amplitude (@conditionDerivative) is determined by neglecting the quantum pressure@Jain.
-
-// === Particle Production
-
-// The number of particles $N_k (t)$ produced at time $t$ with wave-vector $harpoon(k)$ is described by the equation
-
-// $ N_k(t) = |u_k^("out" *)(t) v_k^("exp" *)(t) - v_k^("out" *) u_k^("exp" *)(t)|^2 $ <particleProduction>
-
-// where
-
-// $ u_k (t) = 1 / (2 sqrt(n_0)) tilde(n)_k (t) + i sqrt(n_0) tilde(theta)_k (t) $ <mixedFourierAmplitudes>
-// $ v_k (t) = 1 / (2 sqrt(n_0)) tilde(n)_k (t) - i sqrt(n_0) tilde(theta)_k (t), $
-
-// "out" and "exp" corresponding to regions of spacetime outside of and inside the expansion of the universe.
-
-// To summarize, to calculate the number of particles produced at position $harpoon(x)$ and time $t$ with wave-vector $harpoon(k)$ looks like the following:
-
-// #align(center, [
-//   + Solve the field equation (@fieldEquationConformalFourier) for $tilde(theta)_harpoon(k)(t)$
-//   + Differentiate $tilde(theta)_harpoon(k)(t)$ to get $tilde(n)_harpoon(k)(t)$ as in equation (@conditionDerivative)
-//   + Combine $tilde(theta)_harpoon(k)(t)$ and $tilde(n)_harpoon(k)(t)$ as in equations (@mixedFourierAmplitudes)
-//   + Calculate the number of particles at time $t$ with wave-vector $harpoon(k)$ as in @particleProduction
-// ]
-// )
-
-#pagebreak()
 == High-Performance Computing <sec:hpc>
 
 Some key aspects of high-performance computing (HPC) are:
@@ -283,7 +147,7 @@ Some key aspects of high-performance computing (HPC) are:
 - GPU multithreading & CUDA
 - GPUs provide significant performance increase for parallel workloads over CPUs because there are more cores
 - different brands have different GPGPU APIs such as NVIDIA with CUDA, AMD with ROCm, and Intel adhering to the oneAPI standard @Fortenberry2022
-- can use high-level abstractions such as OpenMP #cn, OpenACC #cn, or language extensions such as Julia's GPU ecosystem #cn including CUDA.jl #cn
+- can use high-level abstractions such as OpenMP /* #cn */, OpenACC /* #cn */, or language extensions such as Julia's GPU ecosystem /* #cn */ including CUDA.jl /* #cn */
 - Context switching on a GPU is effectively free.
 
 
@@ -309,7 +173,7 @@ Some key aspects of high-performance computing (HPC) are:
 - Because each process has its own memory space, each process must independently load any and all libraries, files, binaries, etc. it needs.
 - Each host effectively needs to be an identical copy of the head node.  This can be achieved by each host referring to a shared file system so they all manifestly the same binaries, versions of packages, etc. This needs to happen because an RPC can be thought of as sending a chunk of raw, textual source code to be run on the other process and/or machine.  If that source code calls some functionality that is not loaded or otherwise available in that process, that call will error. Thus things like a GPU library must be not only available on each machine, but also loaded on each process.
 
-#pagebreak()
+
 == Parallel-in-Time Integration <sec:pint>
 
 There are 3 traditional ways to parallelize the solution of a computational problem: 
@@ -325,12 +189,12 @@ Parareal
 - The Parareal method has mostly been applied to first-order ordinary differential equations.
 - Part of the novelty of this work is that it focuses on building support for second-order ODES
 
-#pagebreak()
+
 = Methods <sec:methods>
 
 Simulating physical processes has traditionally been done sequentially; even during the modern age of hardware supporting parallel execution, using computers to calculate the evolution of physical phenomena has been sequential.  Why haven't scientists just started doing things in parallel? Because of that pesky thing call _causality_; _the ball must go up before it can come down_.  Because of this temporal dependence (spatial dependence has had its own workarounds such as the Barnes-Hut algorithm @Barnes1986 @Hamada2009), simulation of large-time-scale physics has thus taken a long time to execute.  The Parareal algorithm (PA), and other parallel-in-time integration algorithms, have been developed in the last few decades to specifically address this issue @LIONS2001661.
 // These paragraphs should be squished together, after the above gets trimmed down
-Many details and variations of the Parareal algorithm have been investigated to find and address issues such as stability #cn, convergence rates #cn, application to higher-order differential equations #cn.  The main goal of this investigation is to contribute another variation: an implementation of the Parareal algorithm using methods from high-performance computing.
+Many details and variations of the Parareal algorithm have been investigated to find and address issues such as stability /* #cn */, convergence rates /* #cn */, application to higher-order differential equations /* #cn */.  The main goal of this investigation is to contribute another variation: an implementation of the Parareal algorithm using methods from high-performance computing.
 
 Before the PA can be implemented using these high-performance methods, the algorithm must be decomposed into its central components.  The Parareal algorithm begins by partitioning a single IVP into several IVPs on smaller domains via an initial, inaccurate, "root" solution.  Then each of the "subproblems" are solved using a sequential, accurate method on different threads at the same time.  The final data for each of the subsolutions is then combined with the respective data of the root solution to yield a more accurate (i.e. "corrected") root solution.  This new root solution is then used to repeat the process until convergence.
 
@@ -357,7 +221,7 @@ This chapter begins by casting the Parareal Algorithm in a form that is conduciv
 }.$ <eq:root>
 The machine has #threads cores.
 
-#pagebreak()
+
 ==  Scaling the Parareal Algorithm <sec:Parareal>
 
 #v(2em)
@@ -374,7 +238,7 @@ Let the second-order initial value problem $P$ be defined such that
 
 $ P = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_0,  diff_t u(0) = v_0, #h(11pt) [t_0, t_0 + Delta t]}, $ <eq:ivp>
 
-and $D = [t_0, t_0 + Delta t]$ is the closed time interval from $t_0$ to $t_0 + Delta t$. The discretization $N$ of $P$ should be determined by the number of available threads $N_t$ such that $N = m N_t$, for some positive integer $m$.  The discretization should be chosen in this manner for maximum performance and efficiency; if $N = m N_t + r$, and $0 < r < N_t$, each thread will solve a subproblem $m$ times until on the $m+1$ iteration where only $r$ threads would be active while $N_t - r$ threads idle (assuming all threads are synchronized).  This type of optimization is sometimes referred to as "_flooding the threadpool_" to mitigate _thread starvation_ #cn.
+and $D = [t_0, t_0 + Delta t]$ is the closed time interval from $t_0$ to $t_0 + Delta t$. The discretization $N$ of $P$ should be determined by the number of available threads $N_t$ such that $N = m N_t$, for some positive integer $m$.  The discretization should be chosen in this manner for maximum performance and efficiency; if $N = m N_t + r$, and $0 < r < N_t$, each thread will solve a subproblem $m$ times until on the $m+1$ iteration where only $r$ threads would be active while $N_t - r$ threads idle (assuming all threads are synchronized).  This type of optimization is sometimes referred to as "_flooding the threadpool_" to mitigate _thread starvation_ /* #cn */.
 
 With the discretization decided, partition the time domain $D$ into subdomains $D_p$ such that
 
@@ -445,7 +309,7 @@ The result of this process is shown in @diag:it_0.
   caption: "The motion of a ball flying through the air can be partitioned in time to form several initial value problems, each with its own initial position and velocity (upper, blue) determined by a fast integration method. Compared to the true solution (lower, black), this solution is very inaccurate."
 ) <diag:it_0>
 
-// #pagebreak()
+// 
 === Solving the subproblems
 
 Discretizing the domain and propagating initial values as in the previous section constitutes the application of the _coarse propagator_ $cal(G)$ to the root problem.  Because each of the produced subproblems is independent of the others, each can be accurately solved in parallel using a _fine propagator_ $cal(F)$ to reduce the total runtime by a factor equal to the number of subproblems.  In other words, if applying $cal(F)$ to a single subproblem has a runtime $tau_cal(F)$, then applying $cal(F)$ to the root problem directly has a runtime $N * tau_cal(F)$ because there are $N$ subproblems, whereas applying $cal(F)$ in parallel only results in a runtime $tau_cal(F)$ because each application of $cal(F)$ executes at the same time.
@@ -456,7 +320,7 @@ $ cal(P)(I_cal(P), N_cal(P))(P) = {{(t, harpoon(r)_t)}_t, {(t, harpoon(v)_t)}_t}
 
 The application of the propagator to the subproblem is the core, or *kernel*, of the PA. While this description of the kernel is useful for understanding, it does not immediately lead to an algorithm that is well-suited for hardware-agnostic implementation (more details in #lower([@sec:single_gpu]) on #ref(<sec:single_gpu>, form: "page")). To that end, the implementation of the kernel presented here is composed of discretizing the subdomain and propagating the initial values separately.
 
-#pagebreak()
+
 *Discretization:* To avoid performance losses from each kernel allocating memory, each discretization kernel references a specific, pre-allocated, one-dimensional array $delta D$ of length $N_cal(P)$.  In order for the kernel to generate the appropriate samplings of the domain, $delta D$ has its first and last elements pre-populated with the values of the lower and upper bounds of that thread's assigned subproblem such that 
 
 $ delta D = {t_p, [N_cal(P) - 2 "arbitrary elements"], t_(p + 1)}. $
@@ -691,7 +555,7 @@ for some threshold $epsilon$.  @eq:convergence determines convergence when every
 \
 The magic of the Parareal algorithm lies in its divide-and-conquer approach to solving initial value problems.  The "root" problem is sequentially and inaccurately solved to divide it into smaller problems whose initial values are defined by the solution.  Those problems are simultaneously and accurately solved in parallel.  The root problem is then solved in the same way as before, but at each step, the data is modified by combining the previous accurate and inaccurate solutions.  Finally, the new root solution defines new problems, and the loop continues until the the solution has converged.
 
-#pagebreak()
+
 == Implementing the Parareal Algorithm at Scale
 
 #v(2em)
@@ -772,7 +636,7 @@ While the PA can be further parallelized using GPUs, the fact still stands that 
   caption: [The assumed topology of the cluster presented in this work.]
 ) <diag:cluster_topology>
 
-While clusters can take many forms #cn, this implementation considers building a cluster from the ground up in a modular and ad-hoc manner.  This way the cluster can theoretically scale without limit.  The general strucutre, or _topology_, of the cluster is rather simple: A _head node_ runs the _director_ process, which tells _worker_ processes on other _compute nodes_ what to do; this structure is shown in @diag:cluster_topology.  In other words, the director only decides and does not do, while the workers do not decide and only do.  While the workers can solve their problems and communicate with every other worker (and the director), only the director can spawn new processes.  Once the director has finished spawning and configuring the workers as in @alg:cluster_prep, the director moves on to begin the PA.
+While clusters can take many forms /* #cn */, this implementation considers building a cluster from the ground up in a modular and ad-hoc manner.  This way the cluster can theoretically scale without limit.  The general strucutre, or _topology_, of the cluster is rather simple: A _head node_ runs the _director_ process, which tells _worker_ processes on other _compute nodes_ what to do; this structure is shown in @diag:cluster_topology.  In other words, the director only decides and does not do, while the workers do not decide and only do.  While the workers can solve their problems and communicate with every other worker (and the director), only the director can spawn new processes.  Once the director has finished spawning and configuring the workers as in @alg:cluster_prep, the director moves on to begin the PA.
 
 #figure(
   kind: "algorithm",
@@ -932,7 +796,7 @@ Once the devices are assigned, the cluster has been prepared.  The director then
   ]
 ) <alg:parareal_distributed>
 
-#pagebreak()
+
 = Analysis
 
 == Numerical Analysis
@@ -982,13 +846,13 @@ For fixed discretizations, how does domain length affect
 
 - The cluster that was used to benchmark is 
 
-#pagebreak()
+
 = Particle Production in Analog Cosmologies
 - Solve the partial differential equation 
 - spectral decomposition
 - system of equations $partial_t^2 tilde(theta) - (dot(a) / a) partial_t tilde(theta) - a c^2 k^2 tilde(theta) = 0$ for wavenumber $k <= k_c$
 
-#pagebreak()
+
 = Conclusion
 - Equations of motion can now benefit from parallel solvers.
 - Certain problems are well-suited to a divide-and-conquer approach.
@@ -1006,7 +870,7 @@ For fixed discretizations, how does domain length affect
 - Use dynamic parallelism to avoid the cpu having to launch the kernels
 - Use dynamic parallelism to even perform the coarse propagation
 
-#pagebreak()
+
 #set par(spacing: 1.15em)
 #bibliography(
   "bib.bib",
