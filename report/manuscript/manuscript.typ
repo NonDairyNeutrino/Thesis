@@ -179,23 +179,6 @@ Some key aspects of high-performance computing (HPC) are:
 - Because each process has its own memory space, each process must independently load any and all libraries, files, binaries, etc. it needs.
 - Each host effectively needs to be an identical copy of the head node.  This can be achieved by each host referring to a shared file system so they all manifestly the same binaries, versions of packages, etc. This needs to happen because an RPC can be thought of as sending a chunk of raw, textual source code to be run on the other process and/or machine.  If that source code calls some functionality that is not loaded or otherwise available in that process, that call will error. Thus things like a GPU library must be not only available on each machine, but also loaded on each process.
 
-
-== Parallel-in-Time Integration <sec:pint>
-
-There are 3 traditional ways to parallelize the solution of a computational problem: 
-CPU parallelization, 
-GPU parallelization, 
-and Distributed computing.  
-While CPU parallelization is more straightforward to implement, GPU parallelization can allow for runtimes to decrease by many orders of magnitudes.
-Even lower run times can be achieved by combining either of these parallelization schemes with running them on multiple machines.  This investigation focuses on parallelizing the solution of equations of motion using GPUs and multiple machines.
-
-These approaches can offer massive increases in performance, but only for problems that are well-posed to be parallelized.  Traditionally, initial value problems have been unable to be parallelized due their dependence on causality.  Several methods have been created to overcome this limitation.  These methods include the Parareal algorithm, Multigrid Reduction in Time (MGRIT), Parallel Full Approximation Scheme in Space and Time (PFASST).  This investigation focuses on the Parareal algorithm.
-
-Parareal
-- The Parareal method has mostly been applied to first-order ordinary differential equations.
-- Part of the novelty of this work is that it focuses on building support for second-order ODES
-
-
 = Methods <sec:methods>
 
 Simulating physical processes has traditionally been done sequentially; even during the modern age of hardware supporting parallel execution, using computers to calculate the evolution of physical phenomena has been sequential.  Why haven't scientists just started doing things in parallel? Because of that pesky thing call _causality_; _the ball must go up before it can come down_.  Because of this temporal dependence (spatial dependence has had its own workarounds such as the Barnes-Hut algorithm @Barnes1986 @Hamada2009), simulation of large-time-scale physics has thus taken a long time to execute.  The Parareal algorithm (PA), and other parallel-in-time integration algorithms, have been developed in the last few decades to specifically address this issue @LIONS2001661.
