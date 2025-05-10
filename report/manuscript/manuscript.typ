@@ -70,7 +70,7 @@
 #align(right, [_
   This work is dedicated to\
   my friends for sharing laughs and rants,\
-  Mr. Chris Lacey for making physics phun,\
+  Mr. Chris Lacy for making physics phun,\
   Dr. Brandon Peden for showing me how to be a physicist,\
   and Dr. Andy Piacsek for making sure I finish this damn thing.
 _])
@@ -87,12 +87,19 @@ _])
 
 = Background
 
-+ Equations of Motion
-+ High-Performance Computing
-+ Parallel-in-Time Integration
+As this work lies firmly within in the realm of _computational physics_, the core concepts find themselves spanning physics, math, and computer science.  It is the models of physics that give natural processes a mathematical shape so that they may be understood and predicted.  Though, it is only for the most spherical of cows in a vacuum that such predictions can be made with pen and paper.  These structured representations of nature can be combined with well-defined procedures, i.e. _algorithms_, to be able to make predictions that might actually come true.  /* Whether it be making concrete, testable predictions about how certain types of interacting molecules will tilt when exposed to an electric field at temperatures near absolute-zero @chapman2019, or whether or not someone will need their rain jacket in a few days (or 1,000 years). */  The concepts at the core of the following work no more than: _equations of motion_, _high-performance computing_, and _parallel-in-time integration_.
+
+Physically, *equations of motion* (EOM) (section @sec:EOM) are considered in this work to be second order differential equations describing the motion of objects.  Another way of interpreting an EOM is as how the acceleration of an object over time depends on the object's position and velocity at that time.  The solution to an EOM is simply the position of the object as a function of time, from which the velocity can be derived.  The EOMs alone though only provide the behavior of how the position and velocity of the object _changes_ over time.  In order to uniquely define a path the object takes, initial values for the position and velocity must be stipulated.  The EOM together with these initial values, then define an *initial value problem* (IVP).  These IVPs have long been studied, but investigations into physics at the most extreme scale have required significantly more resources.
+
+High-performance computing (HPC) (section @sec:hpc), in the context of this work, focuses on utilizing two core ideas: *multithreading & GPU computing*, and *multiprocessing & distributed computing*.  These ideas contrast _sequential_ procedures where the next calculation cannot be started before the previous has finished.  Multithreading, and more specifically using graphics processing units (GPUs) to do general purpose computation i.e. GPGPU computing, allow several calculations to be done simultaneously on the same physical hardware i.e. in _parallel_.  Futher extending this idea, multiprocessing (not to be confused with multi-_threading_) allows calculations to be executed simultaneously as in the case of several threads, but these calculations "have their own set of knowledge".  This seemingly subtle distinction provides the ability for these multiple processes to be executed on _different_ physical hardware.  These models of parallelism have been used in the past to address the runtime issues arising from simulating complex physical phenomena.
+
+Parallel-in-time integration (PinT) (@sec:pint) algorithms have emerged to reduce the time needed to numerically solve intial value problems.  While many techniques have been created to take advantage of parallelism when solving _boundary_-value problems (i.e. problems over space instead of time), the creation of these "causality defying" methods is rather new.  As such, these algorithms seem to have little history in being implemented to make use of high-performance techniques beyond "simple" multithreading on a central processing unit (CPU).
+
+It is through the combination of these core ideas that testable predictions of "extreme-scale" physics can be made.  But, before those predictions are in fact made, further details of each of these ideas are required to be understood.
 
 #pagebreak()
-== Equations of Motion
+
+== Equations of Motion <sec:EOM>
 
 According to classical mechanics, the motion for any and every object in the universe can be determined for all time using only its current position, current velocity, and the forces acting on it @Landau1976Mechanics .
 
@@ -284,7 +291,7 @@ Some key aspects of high-performance computing (HPC) are:
   caption: [Each thread is assigned an index of the array (`index`) based on its location in its block (`threadIdx.x`), how many threads there are in its block (`blockDim.x`), and the block's location in the grid (`blockIdx.x`). The cells in the image above represent cells of the array to which the labeled thread will write.  Image credit @Harris2017.],
   image(
     alt: "",
-    "../../images/cuda_indexing.png"
+    "images/cuda_indexing.png"
   )
 )
 
@@ -292,7 +299,7 @@ Some key aspects of high-performance computing (HPC) are:
   caption: [When there are more cells in the array than there are threads in the GPU, each thread processes multiple array cells. Once each thread is finished writing to its cell, it "jumps over" all the cells that were just written to by all the other threads in all the other blocks, and writes to the next one.  The number of cells the thread "jumps", i.e. the _stride_, is determined by the number of threads in each block (`blockDim.x`) and the number of blocks in each grid (`gridDim.x`).  This is known as _index striding_ and is frequently used in GPU programming to process arrays of arbitrary dimension @Harris2013. Image credit @Singal2021],
   image(
     alt: "",
-    "../../images/grid-stride-1.png"
+    "images/grid-stride-1.png"
   )
 )
 
@@ -431,7 +438,7 @@ The result of this process is shown in @diag:it_0.
 
 #figure(
   image(
-    "../../images/root_solution.png", 
+    "images/root_solution.png", 
     width: 100%,
     alt: "Plot showing the height of the ball vs time so that each subproblem is a column with its initial position as a blue dot at the start of each subdomain, and its velocity as a blue arrow coming from the respective dot.  The true solution is also shown with the same form but in black."
   ),
@@ -525,7 +532,7 @@ Otherwise, the propagation kernel is no more than a traditional IVP solver as de
 
 #figure(
   image(
-    "../../images/parallel_propagation_intermediate.png",
+    "images/parallel_propagation_intermediate.png",
     width: 100%,
     alt: "The same plot as before, but now also with a curve of small, red dots coming from each initial position progressing to the right."
   ),
@@ -752,7 +759,7 @@ So, why is the PA well-suited to be implemented to use GPUs?  Because the data i
   image(
     width: 91%,
     alt: "",
-    "../../images/parallel_propagation_gpu.png"
+    "images/parallel_propagation_gpu.png"
   )
 ) <diag:gpu_propagation>
 
@@ -761,7 +768,7 @@ So, why is the PA well-suited to be implemented to use GPUs?  Because the data i
 While the PA can be further parallelized using GPUs, the fact still stands that the PA is quasi-embarrassingly-parallel.  In other words, each subproblem is independent of the others while each is being solved, and each of these subproblems can be assigned its own thread.  So, if there are more threads available, higher performance or accuracy can be achieved.  The implementation presented here provides more threads by sending problems to remote machines where they can be run simultaneously; in other words, multiple machines with their own CPUs and GPUs are networked together to form a _cluster_ where the work is distributed amongst all machines.
 
 #figure(
-  image("../../images/cluster_topology.png", width: 80%),
+  image("images/cluster_topology.png", width: 80%),
   caption: [The assumed topology of the cluster presented in this work.]
 ) <diag:cluster_topology>
 
@@ -969,7 +976,11 @@ For fixed discretizations, how does domain length affect
 
 === Space Complexity
 
+- If the position and velocity sequences from the propagation are kept, then there is a massive increase of data that needs to be stored and sent between processes.
+
 == Benchmarks
+
+- The cluster that was used to benchmark is 
 
 #pagebreak()
 = Particle Production in Analog Cosmologies
