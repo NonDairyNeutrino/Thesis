@@ -134,13 +134,13 @@ The difference between the simulated energy at any point in time and the initial
 
 While almost all methods _can_ be used for any problem, some methods result in less energy drift for the same time-step.  A specific class of these methods is known as *symplectic integrators*.  The underlying reasons for this are out of the scope of this work, but an important note is that even though these methods mititgate the effects of energy drift substantially, they do not yield exactly zero drift @RackauckasSymplectic.  It is these symplectic integration methods that are considered in this work.
 
-=== Predictor-Corrector Methods
+=== Iterative & Multiple-Shooting Methods
 
-// - Predictor-Corrector Methods
-//   - The PA is not the first of its kind to follow this "predict-correct-loop" structure.  In fact, there is a whole class of integration algorithms known as _predictor-corrector_ methods.
 //   - Hartree-Fock Method (i.e. Self-Consistent Field Theory) is similarly iterative to the PA but iterations are done to minimize energy according to the variational principle of quantum mechanics
- 
 
+When it comes to simulating physics that only depends on spatial behavior, certain methods can be used that aren't immediately available in the time-dependent case.  Two classes of these methods are _iterative_ and _multiple-shooting_ methods.  An *iterative method* can be considered a form of "guess and check" algorithm where an initial solution is given, some quantity is calcluated using this solution, and then the process repeats after adjusting the solution to potentially result in a "better" calculated quantity.  A *multiple-shooting method* is when one big problem is divided into many problems, each of which only considers a subset of the original domain, and each of these problems is solved independently such that the its values at the domain boundaries agree with those of its neighboors.
+
+An iterative method known as the Hartree-Fock algorithm (also known as the Self-Consistent Field Method) can be used to find the configuration of atoms and molecules that minimizes the system's quantum energy @cramer2013essentials.  Likewise, multiple-shooting methods have been used for solving optimal control problems @BOCK19841603. While these methods have traditionally been used for spatial physics, this work relies on the combination of these principles to solve time-dependent problems.
 
 == High-Performance Computing <sec:hpc>
 
