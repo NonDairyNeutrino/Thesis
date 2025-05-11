@@ -67,11 +67,12 @@
 
 #v(1fr)
 #align(right, [_
-  This work is dedicated to\
+  This work is made possible thanks to\
   my friends for sharing laughs and rants,\
   Mr. Chris Lacy for making physics phun,\
   Dr. Brandon Peden for showing me how to be a physicist,\
-  and Dr. Andy Piacsek for making sure I finish this damn thing.
+  and Dr. Andy Piacsek for making sure I finish this damn thing.\ \
+  I wouldn't have been able to do it without you.
 _])
 #v(1fr)
 #pagebreak()
@@ -90,7 +91,7 @@ Physically, *equations of motion* (EOM) (section @sec:EOM) are considered in thi
 
 High-performance computing (HPC) (section @sec:hpc), in the context of this work, focuses on utilizing two core ideas: *multithreading & GPU computing*, and *multiprocessing & distributed computing*.  These ideas contrast _sequential_ procedures where the next calculation cannot be started before the previous has finished.  Multithreading, and more specifically using graphics processing units (GPUs) to do general purpose computation i.e. GPGPU computing, allow several calculations to be done simultaneously on the same physical hardware i.e. in _parallel_.  Futher extending this idea, multiprocessing (not to be confused with multi-_threading_) allows calculations to be executed simultaneously as in the case of several threads, but these calculations "have their own set of knowledge".  This seemingly subtle distinction provides the ability for these multiple processes to be executed on _different_ physical hardware.  These models of parallelism have been used in the past to address the runtime issues arising from simulating complex physical phenomena.
 
-Parallel-in-time integration (PinT) (@sec:pint) algorithms have emerged to reduce the time needed to numerically solve intial value problems.  While many techniques have been created to take advantage of parallelism when solving _boundary_-value problems (i.e. problems over space instead of time), the creation of these "causality defying" methods is rather new.  As such, these algorithms seem to have little history in being implemented to make use of high-performance techniques beyond "simple" multithreading on a central processing unit (CPU).
+Parallel-in-time integration (PinT) (@) algorithms have emerged to reduce the time needed to numerically solve intial value problems.  While many techniques have been created to take advantage of parallelism when solving _boundary_-value problems (i.e. problems over space instead of time), the creation of these "causality defying" methods is rather new.  As such, these algorithms seem to have little history in being implemented to make use of high-performance techniques beyond "simple" multithreading on a central processing unit (CPU).
 
 It is through the combination of these core ideas that testable predictions of "extreme-scale" physics can be made.  But, before those predictions are in fact made, further details of each of these ideas are required to be understood.
 
@@ -136,42 +137,49 @@ While almost all methods _can_ be used for any problem, some methods result in l
 
 === Iterative & Multiple-Shooting Methods
 
-//   - Hartree-Fock Method (i.e. Self-Consistent Field Theory) is similarly iterative to the PA but iterations are done to minimize energy according to the variational principle of quantum mechanics
-
 When it comes to simulating physics that only depends on spatial behavior, certain methods can be used that aren't immediately available in the time-dependent case.  Two classes of these methods are _iterative_ and _multiple-shooting_ methods.  An *iterative method* can be considered a form of "guess and check" algorithm where an initial solution is given, some quantity is calcluated using this solution, and then the process repeats after adjusting the solution to potentially result in a "better" calculated quantity.  A *multiple-shooting method* is when one big problem is divided into many problems, each of which only considers a subset of the original domain, and each of these problems is solved independently such that the its values at the domain boundaries agree with those of its neighboors.
 
 An iterative method known as the Hartree-Fock algorithm (also known as the Self-Consistent Field Method) can be used to find the configuration of atoms and molecules that minimizes the system's quantum energy @cramer2013essentials.  Likewise, multiple-shooting methods have been used for solving optimal control problems @BOCK19841603. While these methods have traditionally been used for spatial physics, this work relies on the combination of these principles to solve time-dependent problems.
 
 == High-Performance Computing <sec:hpc>
 
-Some key aspects of high-performance computing (HPC) are:
-- the difference between processes and threads
-- the difference between a CPU "core" and GPU "core"
+When problems get big enough, or more concretely when there is enough data that needs to be processed, traditional computers are unable to complete the task in a reasonable amount of time.  When such cases arise, not only are more performant computers needed, but also the methods used to _implement_ the calculations need to be changed as well.  In essence, *high-performance computing* (HPC) is about performing as many as calculations as possible in the least amount of time.  One of the most direct methods to reduce the time needed to perform calculations is to "simply" perform multiple of them at the same time, otherwise known as *parallel processing*.  There are several ways in which parallel processing can be acheived; some of which being using a multi-core CPU, a GPU, and multiple physical computers.
+
+@sec:multithreading covers the basics of utilizing multiple _threads_ to perform computations simultaneously.  In the case of _multithreading_ for HPC, even using multiple threads on a CPU is insufficient as CPUs are only capable of performing, at the time of writing, on the order of 10s of calculations simultaneously.  For this reason, the massively-parallel architecture of GPUs has been utilized to performing 10s of _thousands_ of calculations simultaneously.  Though the extra power does not come freely.
+
+@sec:mulitprocesing covers the basics of utilizing multiple _processes_ and even multiple physical machines to perform _many_ calculations simultaneously.  Much like multithreading, the potential performance increase from utilizing multiple processes on a single CPU is still limited by its "10s of calculations" ability, and in fact is lower than with multithreading due to processes needing more resources to exist.  Unlike multithreading, multiprocessing allows for calculations to be distributed amongst resources that are not even physically located on the same machine, allowing for theoretically _unlimited_ performance increases.  Though, like multithreading, this utilizing this power does not come without its challenges.
+
+One of the core goals of this work is to combine the power of massive multithreading from GPUs and the unbound potential from distributed computing to solve EOMs.  This will allow "extreme-scale", time-dependent problems to be solved in reasonable time.
 
 === Multi-threading & GPU Computing <sec:multithreading>
-- CPU multithreading
-- GPU multithreading & CUDA
-- GPUs provide significant performance increase for parallel workloads over CPUs because there are more cores
-- different brands have different GPGPU APIs such as NVIDIA with CUDA, AMD with ROCm, and Intel adhering to the oneAPI standard @Fortenberry2022
-- can use high-level abstractions such as OpenMP /* #cn */, OpenACC /* #cn */, or language extensions such as Julia's GPU ecosystem /* #cn */ including CUDA.jl /* #cn */
-- Context switching on a GPU is effectively free.
 
+For the purposes of this work, there are three ideas that need to be understood.  The first is that data needs to be copied between the CPU and the GPU. The second is how the GPU can read and write that data safely.  Finally, the third is how the GPU performs calculations on that data.  A note on terminology: when discussing GPGPU computing, the nomenclature refers to the memory and overall system accessible to the CPU as the *host*, and similarly the memory and resources available to the GPU is known as the *device*.
 
-#figure(
-  caption: [Each thread is assigned an index of the array (`index`) based on its location in its block (`threadIdx.x`), how many threads there are in its block (`blockDim.x`), and the block's location in the grid (`blockIdx.x`). The cells in the image above represent cells of the array to which the labeled thread will write.  Image credit @Harris2017.],
-  image(
-    alt: "",
-    "images/cuda_indexing.png"
-  )
-)
+When data is processed and stored by the host in RAM, that data is not automatically accessible to the device.  The device has its own memory and can only read and write to it, so any data that is used on the GPU must first be copied to it.  When the device has finished its calculations and written the new data to its memory, that data must then be copied from the device to the host.  This host-device commuication is orders-of-magnitude slower than the communication between the resources on the device @Harris2012, and thus should be minimized.  Note this does not take into account the time needed to _allocate_ memory, which only exacerbates the issue.
+
+The data that's transfered between the host and device usually takes the form of an array.  Because each thread on the device executes the same program (called the *kernel*), each thread needs to access different elements of the array based on its position relative to the other threads.  This follows the _single instruction, multiple thread_ (SIMT) model of parallelism.  This pattern of indexing is shown in @img:cuda_indexing.
 
 #figure(
-  caption: [When there are more cells in the array than there are threads in the GPU, each thread processes multiple array cells. Once each thread is finished writing to its cell, it "jumps over" all the cells that were just written to by all the other threads in all the other blocks, and writes to the next one.  The number of cells the thread "jumps", i.e. the _stride_, is determined by the number of threads in each block (`blockDim.x`) and the number of blocks in each grid (`gridDim.x`).  This is known as _index striding_ and is frequently used in GPU programming to process arrays of arbitrary dimension @Harris2013. Image credit @Singal2021],
+  caption: [Each thread accesses an index of the array (`index`) based on the thread's location (`threadIdx.x`) in its block, how many threads there are in its block (`blockDim.x`), and the block's location (`blockIdx.x`) in the grid. Image credit @Harris2017.],
   image(
     alt: "",
-    "images/grid-stride-1.png"
+    "images/cuda_indexing.png",
+    width: 100%
   )
-)
+) <img:cuda_indexing>
+
+When there are more elements in the array than there are threads on the device, each thread must process multiple array elements. Once each thread is finished writing to its index (either in-place to the original array, or to another array copied from the host), it "jumps over" all the indices that were just written to by all the other threads in all the other blocks, and writes to the next one.  The number of indices the thread "jumps", called the _stride_, is determined by the number of threads in each block (`blockDim.x`) and the number of blocks in each grid (`gridDim.x`).  This is known as _index striding_ and is frequently used in GPU programming to process arrays of arbitrary dimension @Harris2013.  This idea is shown in @img:cuda_stride.
+
+Once each thread knows its array index, all threads execute the kernel simultaneously.  This is where the increased performance comes in.  If the program takes $T$ time to execute on a single array element, and there are $N$ array elements, then the total time to calculate sequentially would be $T N$.  Because the device processes each element simultaneously (as long as there are more threads than elements), the total time to calculate is that of a single executtion i.e $T$.  If there are $M$ times as many elements are there are threads, then the total time would simply be $M T$ as each thread processes $M$ elements.  Further paralllelization can be achieved by distributing the array elements over multiple devices and machines.
+
+#figure(
+  caption: [The indices a specific thread processes are based on how many total threads there are.\ Image credit @Singal2021],
+  image(
+    alt: "",
+    "images/grid-stride-1.png",
+    width: 80%
+  )
+) <img:cuda_stride>
 
 === Multi-processing & Distributed Computing <sec:mulitprocesing>
 - Message Passing & Remote Call Procedure (RPC)
@@ -248,7 +256,7 @@ $ P_1 = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_1^0,  dif
 
 #figure(
   kind: "algorithm",
-  supplement: [Alg],
+  supplement: [Algorithm],
   caption: [Prepare the subproblems],
   pseudocode-list(
     numbered-title: smallcaps[Prepare the subproblems],
@@ -318,7 +326,7 @@ With each kernel accessing this data, it can simply calculate and write the doma
 
 #figure(
   kind: "algorithm",
-  supplement: [Alg],
+  supplement: [Algorithm],
   caption: [Each discretized subdomain is calculated by uniformly stepping from the lower bound to the upper bound.  These results are written in-place.],
   pseudocode-list(
     numbered-title: smallcaps[Parallel Discretization Kernel],
@@ -343,7 +351,7 @@ Otherwise, the propagation kernel is no more than a traditional IVP solver as de
 
 #figure(
   kind: "algorithm",
-  supplement: [Alg],
+  supplement: [Algorithm],
   caption: [Each subproblem is solved in parallel using traditional methods.],
   pseudocode-list(
     numbered-title: smallcaps[Parallel Propagation Kernel],
@@ -366,7 +374,7 @@ Otherwise, the propagation kernel is no more than a traditional IVP solver as de
 
 #figure(
   kind: "algorithm",
-  supplement: [Alg],
+  supplement: [Algorithm],
   caption: [Put it all together],
   pseudocode-list(
     numbered-title: smallcaps[The Parareal Kernel],
@@ -397,7 +405,7 @@ Otherwise, the propagation kernel is no more than a traditional IVP solver as de
 
 // #figure(
 //   kind: "algorithm",
-//   supplement: [Alg],
+//   supplement: [Algorithm],
 //   caption: [Solutions are formed from the results of the discretization and propagation kernels.],
 //   pseudocode-list(
 //     numbered-title: smallcaps[Solution Constructor],
@@ -485,7 +493,7 @@ $ <eq:prop_corrector>
 
 #figure(
   kind: "algorithm",
-  supplement: [Alg],
+  supplement: [Algorithm],
   caption: [New position and velocity solutions are generated by coarse propagating the previous solution in the current iteration and combining it with the difference between the fine and coarse solutions from the previous iteration.  The new solutions are pushed to a the end of the solution arrays.],
   pseudocode-list(
     numbered-title: smallcaps[New Solution Generator],
@@ -522,7 +530,7 @@ for some threshold $epsilon$.  @eq:convergence determines convergence when every
 
 #figure(
   kind: "algorithm",
-  supplement: [Alg],
+  supplement: [Algorithm],
   caption: [The Parareal Algorithm is composed of looping two steps: finding the fine solutions in parallel, then finding the root solution sequentially.  The loop stops when the root solution stops changing.],
   pseudocode-list(
     numbered-title: smallcaps[The Parareal Algorithm],
@@ -583,7 +591,7 @@ So, why is the PA well-suited to be implemented to use GPUs?  Because the data i
 
 #figure(
   kind: "algorithm",
-  supplement: [Alg],
+  supplement: [Algorithm],
   caption: [The Parareal Algorithm is composed of looping two steps: finding the fine solutions in parallel, then finding the root solution sequentially.  The loop stops when the root solution stops changing.],
   pseudocode-list(
     numbered-title: smallcaps[The GPU-Based Parareal Algorithm],
@@ -629,7 +637,7 @@ While clusters can take many forms /* #cn */, this implementation considers buil
 
 #figure(
   kind: "algorithm",
-  supplement: [Alg],
+  supplement: [Algorithm],
   caption: [The cluster can be created and prepared in 4 simple steps.],
   pseudocode-list(
     numbered-title: smallcaps[Prepare the Cluster],
@@ -649,7 +657,7 @@ In order for this implementation to be flexible, the director does not assume an
 
 #figure(
   kind: "algorithm",
-  supplement: [Alg],
+  supplement: [Algorithm],
   caption: [Manager processes are created to identify the number of devices on a host, and can manage the network communication between hosts.],
   pseudocode-list(
     numbered-title: smallcaps[Spawn Manager Processes],
@@ -667,7 +675,7 @@ Once the managers have been spawned, the director asks them how many devices are
 
 #figure(
   kind: "algorithm",
-  supplement: [Alg],
+  supplement: [Algorithm],
   caption: [Worker processes are spawned by the director on each host\ based on the number of devices available to that host.],
   pseudocode-list(
     numbered-title: smallcaps[Spawn Worker Processes],
@@ -689,7 +697,7 @@ Once the workers are spawned on their respective hosts, each of them needs a dev
 
 #figure(
   kind: "algorithm",
-  supplement: [Alg],
+  supplement: [Algorithm],
   caption: [Pairing workers and devices is trivial at a high level],
   pseudocode-list(
     numbered-title: smallcaps[Assign Devices - High Level],
@@ -718,7 +726,7 @@ One way to address this issue is to create "host objects" by collecting the host
 
 #figure(
   kind: "algorithm",
-  supplement: [Alg],
+  supplement: [Algorithm],
   caption: [To aid in the pairing of devices and workers, host objects can be created to make sure devices are assigned to workers on the same host.],
   pseudocode-list(
     numbered-title: smallcaps[Create Host Objects],
@@ -740,7 +748,7 @@ A host object packages together the worker IDs and number of devices on the same
 
 #figure(
   kind: "algorithm",
-  supplement: [Alg],
+  supplement: [Algorithm],
   caption: [A more detailed algorithm of assigning devices to workers on the same host.],
   pseudocode-list(
     numbered-title: smallcaps[Assign Devices],
@@ -763,7 +771,7 @@ Once the devices are assigned, the cluster has been prepared.  The director then
 
 #figure(
   kind: "algorithm",
-  supplement: [Alg],
+  supplement: [Algorithm],
   caption: [The Parareal Algorithm can distribute its subproblems amongs multiple machines\ in order to achieve higher performance.],
   pseudocode-list(
     numbered-title: smallcaps[The Parareal Algorithm at Scale],
@@ -858,7 +866,6 @@ For fixed discretizations, how does domain length affect
 - use a variable size time discretization algorithm, then base integration of those differences
 - Use dynamic parallelism to avoid the cpu having to launch the kernels
 - Use dynamic parallelism to even perform the coarse propagation
-
 
 #set par(spacing: 1.15em)
 #bibliography(
