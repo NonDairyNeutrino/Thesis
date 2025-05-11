@@ -8,6 +8,10 @@
 #let us    = h(2pt)          // unit space
 #let ex    = [*Example:*]
 
+#set document(
+  title: [title],
+  author: "Nathan Chapman"
+)
 #set page(
   paper: "us-letter",
   margin: (top: auto, rest: 1in),
@@ -22,25 +26,18 @@
 )
 #set par(justify: true, leading: 1em, spacing: 2em) // "leading" == "line spacing"
 #set text(font: "New Computer Modern", size: 10pt)
+#set math.equation(numbering: "(1)", supplement: [Eq.])
 #set enum(numbering: "1.1)", full: true)
 #set heading(numbering: "1.",)
 #show heading: set block(below: 1em)
 #show heading.where(level: 1): it => pagebreak(weak: true) + it
 #show heading.where(level: 2): it => pagebreak(weak: true) + it
 #show outline.entry.where(
-  level: 1
-): it => {
-  v(12pt, weak: true)
-  strong(it)
-}
-#set document(
-  title: [title],
-  author: "Nathan Chapman"
-)
-#set math.equation(numbering: "(1)", supplement: [Eq.])
-
-// #show link: set text(fill: blue, style: "italic")
-// #show link: lnk => underline(lnk)
+    level: 1
+  ): it => {
+    v(12pt, weak: true)
+    strong(it)
+  }
 
 // TITLE
 #v(1fr)
@@ -79,21 +76,21 @@ _])
 
 // TABLE OF CONTENTS
 #outline(indent: auto)
+
 #set page(numbering: "1/1")
 #counter(page).update(1)
+
 = Introduction
 
 = Background
 
-As this work lies firmly within in the realm of _computational physics_, the core concepts find themselves spanning physics, math, and computer science.  It is the models of physics that give natural processes a mathematical shape so that they may be understood and predicted.  Though, it is only for the most spherical of cows in a vacuum that such predictions can be made with pen and paper.  These structured representations of nature can be combined with well-defined procedures, i.e. _algorithms_, to be able to make predictions that might actually come true.  /* Whether it be making concrete, testable predictions about how certain types of interacting molecules will tilt when exposed to an electric field at temperatures near absolute-zero @chapman2019, or whether or not someone will need their rain jacket in a few days (or 1,000 years). */  The concepts at the core of the following work no more than: _equations of motion_, _high-performance computing_, and _parallel-in-time integration_.
+As this work lies firmly within in the realm of _computational physics_, the core concepts find themselves spanning physics, math, and computer science.  It is the models of physics that give natural processes a mathematical shape so that they may be understood and predicted.  Though, it is only for the most spherical of cows in a vacuum that such predictions can be made with pen and paper.  These structured representations of nature can be combined with well-defined procedures, i.e. _algorithms_, to be able to make predictions that might actually come true.  Whether it be making concrete, testable predictions about how certain types of interacting molecules will tilt when exposed to an electric field at temperatures near absolute-zero @chapman2019, or whether or not someone will need their rain jacket in a few days (or 1,000 years).  The concepts at the core of the following work are no more than: _equations of motion_, _high-performance computing_.
 
 Physically, *equations of motion* (EOM) (section @sec:EOM) are considered in this work to be second order differential equations describing the motion of objects.  Another way of interpreting an EOM is as how the acceleration of an object over time depends on the object's position and velocity at that time.  The solution to an EOM is simply the position of the object as a function of time, from which the velocity can be derived.  The EOMs alone though only provide the behavior of how the position and velocity of the object _changes_ over time.  In order to uniquely define a path the object takes, initial values for the position and velocity must be stipulated.  The EOM together with these initial values, then define an *initial value problem* (IVP).  These IVPs have long been studied, but investigations into physics at the most extreme scale have required significantly more resources.
 
 High-performance computing (HPC) (section @sec:hpc), in the context of this work, focuses on utilizing two core ideas: *multithreading & GPU computing*, and *multiprocessing & distributed computing*.  These ideas contrast _sequential_ procedures where the next calculation cannot be started before the previous has finished.  Multithreading, and more specifically using graphics processing units (GPUs) to do general purpose computation i.e. GPGPU computing, allow several calculations to be done simultaneously on the same physical hardware i.e. in _parallel_.  Futher extending this idea, multiprocessing (not to be confused with multi-_threading_) allows calculations to be executed simultaneously as in the case of several threads, but these calculations "have their own set of knowledge".  This seemingly subtle distinction provides the ability for these multiple processes to be executed on _different_ physical hardware.  These models of parallelism have been used in the past to address the runtime issues arising from simulating complex physical phenomena.
 
-Parallel-in-time integration (PinT) (@) algorithms have emerged to reduce the time needed to numerically solve intial value problems.  While many techniques have been created to take advantage of parallelism when solving _boundary_-value problems (i.e. problems over space instead of time), the creation of these "causality defying" methods is rather new.  As such, these algorithms seem to have little history in being implemented to make use of high-performance techniques beyond "simple" multithreading on a central processing unit (CPU).
-
-It is through the combination of these core ideas that testable predictions of "extreme-scale" physics can be made.  But, before those predictions are in fact made, further details of each of these ideas are required to be understood.
+It is through the combination of these core ideas that testable predictions of "extreme-scale" physics can be made.  There are many more details and nuances that are not covered here, and many more to improve this work, but that is outside the scope of this discussion.  The following presentation of ideas is meant to deliver a functional understanding of the foundational concepts on which this work has been derived.
 
 == Equations of Motion <sec:EOM>
 
@@ -177,15 +174,25 @@ Once each thread knows its array index, all threads execute the kernel simultane
   image(
     alt: "",
     "images/grid-stride-1.png",
-    width: 80%
+    width: 100%
   )
 ) <img:cuda_stride>
 
 === Multi-processing & Distributed Computing <sec:mulitprocesing>
-- Message Passing & Remote Call Procedure (RPC)
-  - An RPC is effectively when one process tells another "Here's an explicit list of instructions i.e. a recipe.  Do it without thinking."
-- Because each process has its own memory space, each process must independently load any and all libraries, files, binaries, etc. it needs.
-- Each host effectively needs to be an identical copy of the head node.  This can be achieved by each host referring to a shared file system so they all manifestly the same binaries, versions of packages, etc. This needs to happen because an RPC can be thought of as sending a chunk of raw, textual source code to be run on the other process and/or machine.  If that source code calls some functionality that is not loaded or otherwise available in that process, that call will error. Thus things like a GPU library must be not only available on each machine, but also loaded on each process.
+
+The three most important ideas to understand in multiprocessing and distributed computing for this work are: different processes do not have access to the same data, one process can tell another to perform an action, and the time associated with communicating between processes.  To distinguish processes and threads, consider two homes A and B each with its own family.  Each home represents a process with its associated family members being that process's threads.
+
+// Unshared memory spaces
+Unlike threads, the context, or _memory space_, a process has is distinct from that of other processes.  Thus, if something changes in one process, other processes are unaware of the change.  Considering the analogy, if home A's phone is moved from the dining room to the living room by Alice who then writes the new location on the fridge, the other family members in home A can all see this change because they all have access to the same fridge.  As for home B, not only does the home phone not move, but family B also does not know home A's phone moved, because they do not have access to home B's fridge.  It is only when information is explicitly communicated between these processes/homes that the other has this new information.
+
+The communciation of data between between processes is much slower and requires much more overhead than communicating between threads.  Considering the analogy, when a family member in home A can't find the phone, they simply go to the fridge for the updated information.  If, for some reason, family B needs the location of family A's phone, someone from family A would probably walk over to home B and update them.  This takes much more time and resources than going to the fridge in the same home (and even more time and effort is required to update in the next town over!).  But what if Bob in home B wants Alice in home A to do something?
+
+#pagebreak()
+*Remote Procedure Calls:* While there are many methods to communicate information between processes, the most important method for this work involves one processes telling another process to execute some procedure, which is aptly named a _remote procedure call_ (RPC).  RPC allows one process, such as the one launched by a user running a program, to direct another process to execute some command using its own resources.  Though, because each process has its own memory space, any references to objects that don't exist in the _remote_ process e.g. variable, libraries, etc., will fail, and references to objects "with the same name" can produce unintended results.
+
+In the analogy, Alice in home A wants to compare the location of her phone to the location of Bob's phone in home B, so she asks Bob "Where is the phone?".  Because both homes have phones, but they are in different locations, Alice would answer "the living room" and Bob would answer "the kitchen" because "the phone" is relative to each home.  If Alice and Bob wanted to have the same answer, then either they would have to communicate where they want the phone to be and put it there, or refer to the same physical instance of a phone.
+
+Out of the analogy, each remote host effectively needs to be an identical copy of the local host.  This can be achieved by each host referring to a shared file system so they all manifestly the same binaries, versions of packages, etc. This needs to happen because an RPC can be thought of as sending a chunk of raw, textual source code to be run on the other process and/or machine.  If that source code calls some functionality that is not loaded or otherwise available in that process, that call will error. Thus things like a GPU library must be not only available on each machine, but also loaded on each process.
 
 = Methods <sec:methods>
 
@@ -843,12 +850,11 @@ For fixed discretizations, how does domain length affect
 
 - The cluster that was used to benchmark is 
 
-
-= Particle Production in Analog Cosmologies
-- Solve the partial differential equation 
-- spectral decomposition
-- system of equations $partial_t^2 tilde(theta) - (dot(a) / a) partial_t tilde(theta) - a c^2 k^2 tilde(theta) = 0$ for wavenumber $k <= k_c$
-
+// don't have time right now :(
+// = Particle Production in Analog Cosmologies
+// - Solve the partial differential equation 
+// - spectral decomposition
+// - system of equations $partial_t^2 tilde(theta) - (dot(a) / a) partial_t tilde(theta) - a c^2 k^2 tilde(theta) = 0$ for wavenumber $k <= k_c$
 
 = Conclusion
 - Equations of motion can now benefit from parallel solvers.
