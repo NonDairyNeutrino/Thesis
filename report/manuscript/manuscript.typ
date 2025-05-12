@@ -194,7 +194,7 @@ In the analogy, Alice in home A wants to compare the location of her phone to th
 
 Out of the analogy, each remote host effectively needs to be an identical copy of the local host.  This can be achieved by each host referring to a shared file system so they all manifestly the same binaries, versions of packages, etc. This needs to happen because an RPC can be thought of as sending a chunk of raw, textual source code to be run on the other process and/or machine.  If that source code calls some functionality that is not loaded or otherwise available in that process, that call will error. Thus things like a GPU library must be not only available on each machine, but also loaded on each process.
 
-= Methods <sec:methods>
+= The Parareal Algorithm <sec:methods>
 
 Simulating physical processes has traditionally been done sequentially; even during the modern age of hardware supporting parallel execution, using computers to calculate the evolution of physical phenomena has been sequential.  Why haven't scientists just started doing things in parallel? Because of that pesky thing call _causality_; _the ball must go up before it can come down_.  Because of this temporal dependence (spatial dependence has had its own workarounds such as the Barnes-Hut algorithm @Barnes1986 @Hamada2009), simulation of large-time-scale physics has thus taken a long time to execute.  The Parareal algorithm (PA), and other parallel-in-time integration algorithms, have been developed in the last few decades to specifically address this issue @LIONS2001661.
 // These paragraphs should be squished together, after the above gets trimmed down
@@ -803,35 +803,76 @@ Once the devices are assigned, the cluster has been prepared.  The director then
 
 = Analysis
 
+When it comes to analyzing the performance and implementation of work, there are three key areas that must be investigated.  The first is numerical analysis where 
+
+Numerical analysis focsuses on measuring the effects of numerical approximation.  Some of the most notable effects to conisder are error, stability, and convergence. Instead of considering raw error, in this work energy-drift will be used as a proxy (as outlined in @sec:energy_drift).  In this case, stability refers to how the error of the result changes with respect the length of the time domain of the root problem.  Convergence measures how many iterations the implementation takes to converge against the coarse and fine discretizations.
+
+Algorithm analysis focuses on two main aspects: how the runtime of the program is affected by changes in size of the input, and how the needed amount of memory is affected by changes in the size of the input.  For this work, the "input" will be the coarse and fine discretizations.
+
+Benchmarks  
+
 == Numerical Analysis
 
-- use the pendulum i.e. the simple harmonic oscillator to test numerical analysis properties since we know the analytic solutions and can compare.
+In order to understand the error of a numerical approximation, it must be compared to a known value.  For this analysis, that reference is the simple pendulum.  The energy of the simple pendulum, neglecting friction and other dissipative forces, is constant.  While the energy of the pendulum itself is directly proportional to its mass, the length by which it hangs, and the acceleration due to gravity, the following error and stability analyses consider the error relative to the the true so that these parameters do not affect the result.  Additionally, the considered pendulum begins at its low point with unit velocity.
 
-=== Error
+Because the PA acts as a "meta-algorithm", the underlying integration methods must also be chosen.  For these results, the integration schemes for the coarse and fine propagators are the symplectic-Euler and velocity-Verlet methods, respectively.  The symplectic-Euler method is chosen for the coarse propagation because it computationally "cheap" while still being symplectic.  The velocity-Verlet method is chosen for the fine propagation due to its higher accuracy, while still being computationally inexpensive.  While these methods are simliar in their computational cost and accuracy for a single propagation, the multiple resolutions of the time domain provide the ability for the fine propagator to have a higher discretization and thus a much smaller time-step compared to the coarse propagator.
 
-Show error of simple harmonic oscillator with respect to 
+An important item to note is that because this implementation uses the GPU, the precision of the data is restricted to 32-bit floating-point representations i.e. 32-bit floats.  On consumer-grade GPUs, significant performance increases are seen between using 32 and 64 (or larger) represenations.  Though, when the combination of the coarse discretization and integration method yield low-accuracy data, their error accumulates rapidly.  This usally ends with the data at later times becoming too large to be represented by only 32 bits ($approx 10^38$).  In any instance, the result could either overflow to their negative maximum, return a "32-bit infinity", or a Not-a-Number (NaN), which is only determined by implementation and hardware specifics.  
+
+Another note pertaining to the restrictions imposed by 32-bit floats is that of the so-called _machine epsilon_.  For a 32-bit float, the smallest difference between numbers that can be detected is $approx 10^-7$.
+
+=== Error & Energy Drift
+
 - coarse discretization
+#figure(
+  caption: [],
+  image(
+    "images/analysis/energy_fd3_2_6.png",
+    width: 80%
+  )
+)
+
+
+
 - fine discretization
 
-Show the local and global/accumulated error at each iteration.
-
-=== Convergence
-
-For a fixed domain, how does convergence depend on
-- coarse discretization
-- fine discretization
-- number of available threads
-- number of problems per thread
+#figure(
+  caption: [],
+  image(
+    "images/analysis/energy_cd6_2_6.png",
+    width: 80%
+  )
+)
 
 === Stability
 
-For fixed discretizations, how does domain length affect
-- number of iterations to converge
-- 
+#figure(
+  caption: [],
+  image(
+    "images/analysis/stability_cd64_fd8_tf20.png",
+    width: 80%
+  )
+)
 
+=== Convergence
+
+#figure(
+  caption: [],
+  image(
+    "images/analysis/convergence_fd8.png",
+    width: 80%
+  )
+)
+
+#figure(
+  caption: [],
+  image(
+    "images/analysis/convergence_cd64.png",
+    width: 80%
+  )
+)
+ 
 == Algorithm Analysis
-
-=== Analysis of Parallel Algorithms
 
 === Time Complexity
 
@@ -846,7 +887,7 @@ For fixed discretizations, how does domain length affect
 
 - If the position and velocity sequences from the propagation are kept, then there is a massive increase of data that needs to be stored and sent between processes.
 
-== Benchmarks
+== Speedup
 
 - The cluster that was used to benchmark is 
 
