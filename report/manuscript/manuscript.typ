@@ -44,7 +44,7 @@
 #align(center)[
   #text(size: 15pt)[*#title1*]
   #v(1em)
-  Nathaniel Chapman#super[1]\
+  Nathan Chapman#super[1]\
   #super[1]Department of Computer Science, Central Washington University\
   #datetime.today().display("[month repr:long] [day], [year]")
 ]
@@ -82,7 +82,30 @@ _])
 
 = Introduction
 
-= Background
+// - Big ideas
+//   - Big Simulations take big time
+//   - Initial value problems are hard to speed up because of causality
+//   - Simulating the motion, or motion-like, physics is of great interest (i.e. equations of motion)
+//     - Ex: N-Body with Barnes-Hut and Oct-tree binary space partitioning #sym.arrow.l approximation!
+//   - Parallel in time integration algorithms have been created to speed up calculations without making approximations
+
+// - Outline
+//   - @sec:Background covers the fundamental ideas needed to put this work into context
+//     - @sec:EOM covers initial value problems, energy drift and symplectic integrators, and computational methods such as iterative and multiple-shooting algorithms.
+//     - @sec:hpc covers the basics of multithreading and GPU computing, and multiprocessing and distributed computing.
+//   - @sec:methods covers the core of this work, including first presenting and interpreting the Parareal algorithm in such as way that a high-performance implemenation is a natural extension
+//     - @sec:Parareal presents the Parareal algorithm in a way such that the following implementation is a natural extension.
+//     - @sec:pahpc presents how the scalable version of the PA can be implemnted to use GPU and distributed computing
+//   - @sec:analysis covers analysis of this implementation including that of numerical effects, time and space complexity, and the speedup factor.
+//   - @sec:conclusion concludes this work, including reflections on gaps and proposing areas on which future work could begin.
+
+At the time of writing, a computer can add two numbers in about a nanosecond (or $10^(-9)$ seconds).  Naively extending this, a computer then should take 2 nanoseconds to add a number to the result of an addition of two numbers. Thus three nanoseconds are needed to perform three of these additions, and so on.  Considering an actual computer needs to perform many operations that are not directly related to computing the sum of number the user gives it (e.g. running the operating system), these calculations will take (much) more time.  Nevertheless, the fact remains that because the result of an addition is needed for the following computation, these operations must be executed sequentially.  This constraint means that, for (literally) an astronomical number of additions, the time needed for the full calculation to complete might itself be, astronomical.
+
+The procedure just described is not too disimilar than what occurs in _Euler's method_, which is an incredibly simple technique for approximating the solution to a differential equation.  The main idea of this method (as considered in physics) is to produce the value of some physical quantity at some time given its value at a previous time, how that quantity changes over time, and how much time has passed.  In fact, this procedure is composed of only two arithermetic executions: an addition, and a multiplication.  While this time may be "small" for even billions of executions of the Euler method, what if more are needed?
+
+
+
+= Background <sec:Background>
 
 As this work lies firmly within in the realm of _computational physics_, the core concepts find themselves spanning physics, math, and computer science.  It is the models of physics that give natural processes a mathematical shape so that they may be understood and predicted.  Though, it is only for the most spherical of cows in a vacuum that such predictions can be made with pen and paper.  These structured representations of nature can be combined with well-defined procedures, i.e. _algorithms_, to be able to make predictions that might actually come true.  Whether it be making concrete, testable predictions about how certain types of interacting molecules will tilt when exposed to an electric field at temperatures near absolute-zero @chapman2019, or whether or not someone will need their rain jacket in a few days (or 1,000 years).  The concepts at the core of the following work are no more than: _equations of motion_, _high-performance computing_.
 
@@ -194,7 +217,7 @@ In the analogy, Alice in home A wants to compare the location of her phone to th
 
 Out of the analogy, each remote host effectively needs to be an identical copy of the local host.  This can be achieved by each host referring to a shared file system so they all manifestly the same binaries, versions of packages, etc. This needs to happen because an RPC can be thought of as sending a chunk of raw, textual source code to be run on the other process and/or machine.  If that source code calls some functionality that is not loaded or otherwise available in that process, that call will error. Thus things like a GPU library must be not only available on each machine, but also loaded on each process.
 
-= The Parareal Algorithm <sec:methods>
+= Scaling The Parareal Algorithm <sec:methods>
 
 Simulating physical processes has traditionally been done sequentially; even during the modern age of hardware supporting parallel execution, using computers to calculate the evolution of physical phenomena has been sequential.  Why haven't scientists just started doing things in parallel? Because of that pesky thing call _causality_; _the ball must go up before it can come down_.  Because of this temporal dependence (spatial dependence has had its own workarounds such as the Barnes-Hut algorithm @Barnes1986 @Hamada2009), simulation of large-time-scale physics has thus taken a long time to execute.  The Parareal algorithm (PA), and other parallel-in-time integration algorithms, have been developed in the last few decades to specifically address this issue @LIONS2001661.
 // These paragraphs should be squished together, after the above gets trimmed down
@@ -226,7 +249,7 @@ This chapter begins by casting the Parareal Algorithm in a form that is conduciv
 The machine has #threads cores.
 
 
-==  Scaling the Parareal Algorithm <sec:Parareal>
+== The Parareal Algorithm <sec:Parareal>
 
 #v(2em)
 #align(right, [_The Parareal Algorithm aimed to solve the problem of physics taking too long to simulate; it didn't._])
@@ -560,10 +583,10 @@ for some threshold $epsilon$.  @eq:convergence determines convergence when every
 The magic of the Parareal algorithm lies in its divide-and-conquer approach to solving initial value problems.  The "root" problem is sequentially and inaccurately solved to divide it into smaller problems whose initial values are defined by the solution.  Those problems are simultaneously and accurately solved in parallel.  The root problem is then solved in the same way as before, but at each step, the data is modified by combining the previous accurate and inaccurate solutions.  Finally, the new root solution defines new problems, and the loop continues until the the solution has converged.
 
 
-== Implementing the Parareal Algorithm at Scale
+== Implementing the Parareal Algorithm at Scale <sec:pahpc>
 
 #v(2em)
-#align(right, [_Surely more threads is the answer?_])
+#align(right, [_Surely more threads is the answer!_])
 #v(2em)
 
 @sec:Parareal highlights the PA's nature of being quasi-embarrassingly-parallel i.e. the performance of the algorithm scales with the number of threads, while still being bottlenecked by a periodic sequential process. That being said, the previous discussion ignores the details and nuances of implementing the PA including the actual form of the threads.  The primary goal of this work is to provide two new implementation models that both take advantage of increased parallelism and allow easy scaling: using the massively parallel architecture of graphics processing units (GPUs), and the scalability of distributed systems. Instances of these implementations are also provided @Chapman_PararealGPU_jl.
@@ -801,7 +824,7 @@ Once the devices are assigned, the cluster has been prepared.  The director then
 ) <alg:parareal_distributed>
 
 
-= Analysis
+= Analysis <sec:analysis>
 
 When it comes to analyzing the performance and implementation of work, there are three key areas that must be investigated.  The first is numerical analysis where 
 
@@ -811,38 +834,42 @@ Algorithm analysis focuses on two main aspects: how the runtime of the program i
 
 Benchmarks  
 
-== Numerical Analysis
+== Numerical Analysis <sec:numerical>
 
 In order to understand the error of a numerical approximation, it must be compared to a known value.  For this analysis, that reference is the simple pendulum.  The energy of the simple pendulum, neglecting friction and other dissipative forces, is constant.  While the energy of the pendulum itself is directly proportional to its mass, the length by which it hangs, and the acceleration due to gravity, the following error and stability analyses consider the error relative to the the true so that these parameters do not affect the result.  Additionally, the considered pendulum begins at its low point with unit velocity.
 
 Because the PA acts as a "meta-algorithm", the underlying integration methods must also be chosen.  For these results, the integration schemes for the coarse and fine propagators are the symplectic-Euler and velocity-Verlet methods, respectively.  The symplectic-Euler method is chosen for the coarse propagation because it computationally "cheap" while still being symplectic.  The velocity-Verlet method is chosen for the fine propagation due to its higher accuracy, while still being computationally inexpensive.  While these methods are simliar in their computational cost and accuracy for a single propagation, the multiple resolutions of the time domain provide the ability for the fine propagator to have a higher discretization and thus a much smaller time-step compared to the coarse propagator.
 
-An important item to note is that because this implementation uses the GPU, the precision of the data is restricted to 32-bit floating-point representations i.e. 32-bit floats.  On consumer-grade GPUs, significant performance increases are seen between using 32 and 64 (or larger) represenations.  Though, when the combination of the coarse discretization and integration method yield low-accuracy data, their error accumulates rapidly.  This usally ends with the data at later times becoming too large to be represented by only 32 bits ($approx 10^38$).  In any instance, the result could either overflow to their negative maximum, return a "32-bit infinity", or a Not-a-Number (NaN), which is only determined by implementation and hardware specifics.  
+An important item to note is that because this implementation uses the GPU, the precision of the data is restricted to 32-bit floating-point representations i.e. 32-bit floats.  On consumer-grade GPUs, significant performance increases are seen between using 32 and 64 (or larger) represenations.  Though, when the combination of the coarse discretization and integration method yield low-accuracy data, their error accumulates rapidly.  This usally ends with the data at later times becoming too large to be represented by only 32 bits ($approx 10^38$).  In any instance, the result could either overflow to their negative maximum, return a "32-bit infinity", or a Not-a-Number (NaN), which is only determined by implementation and hardware specifics.
 
 Another note pertaining to the restrictions imposed by 32-bit floats is that of the so-called _machine epsilon_.  For a 32-bit float, the smallest difference between numbers that can be detected is $approx 10^-7$.
 
+#pagebreak()
 === Error & Energy Drift
 
-- coarse discretization
+The error in a simulation depends on how close the taken approximation is to the analytic description.  For this work, the approximation is completely determined by the time-step; though, the time-step is not determined directly but rather by the discretization of the given time domain.  As the PA uses multiple discretizations, there are multiple time steps.  The time step used by the coarse propagation only depends on the coarse discretization while the time step used in the fine propagation, because it is simply a fraction of the coarse time step, depends on both the coarse and fine discretizations.
+
+@plt:energy_coarse shows how the energy drift of the simulation is affected by the coarse discretization for a particular choice of the fine discretization.  There are two key features that should be noted here: the error changes the most between a coarse discretization of 2^2 and 2^3, the difference in the difference of error is non-monotonic for different fine discretizations.  In other words, the difference in the change in error for difference coarse discretizations first increases, then decreases for increasing fine discretization.  For a fine discretization fo 2^2, the difference in the error for a coarse discretization of 2^2 and 2^3 is big, and it increases with fine discretization until it begins decreasing resulting in the 2^11 (purple) and 2^15 (gold) lines.  While it makes sense that this difference should get smaller with a higher fine discretization, the non-monotonicity is interesting and might stem from the $1 / (x y)$ structure of the time step.
+
 #figure(
-  caption: [],
+  caption: [The order of magnitude of the normalized percent error of the final state of the pendulum for different coarse and fine discretizations.],
   image(
-    "images/analysis/energy_fd3_2_6.png",
-    width: 80%
+    "images/analysis/energy_coarse_2_9_10_11_15_fine_2_14.png",
+    width: 86%
   )
-)
+) <plt:energy_coarse>
 
-
+Starts high, and immediately converges
 
 - fine discretization
 
 #figure(
   caption: [],
   image(
-    "images/analysis/energy_cd6_2_6.png",
-    width: 80%
+    "images/analysis/energy_fine_2_9_10_11_14_coarse_2_14.png",
+    width: 86%
   )
-)
+)  <plt:energy_fine>
 
 === Stability
 
@@ -852,7 +879,7 @@ Another note pertaining to the restrictions imposed by 32-bit floats is that of 
     "images/analysis/stability_cd64_fd8_tf20.png",
     width: 80%
   )
-)
+)  <plt:stability>
 
 === Convergence
 
@@ -862,7 +889,7 @@ Another note pertaining to the restrictions imposed by 32-bit floats is that of 
     "images/analysis/convergence_fd8.png",
     width: 80%
   )
-)
+) <plt:convergence_coarse>
 
 #figure(
   caption: [],
@@ -870,9 +897,9 @@ Another note pertaining to the restrictions imposed by 32-bit floats is that of 
     "images/analysis/convergence_cd64.png",
     width: 80%
   )
-)
+) <plt:convergence_fine>
  
-== Algorithm Analysis
+== Algorithm Analysis <sec:algorithm>
 
 === Time Complexity
 
@@ -887,7 +914,7 @@ Another note pertaining to the restrictions imposed by 32-bit floats is that of 
 
 - If the position and velocity sequences from the propagation are kept, then there is a massive increase of data that needs to be stored and sent between processes.
 
-== Speedup
+== Speedup <sec:speedup>
 
 - The cluster that was used to benchmark is 
 
@@ -897,13 +924,13 @@ Another note pertaining to the restrictions imposed by 32-bit floats is that of 
 // - spectral decomposition
 // - system of equations $partial_t^2 tilde(theta) - (dot(a) / a) partial_t tilde(theta) - a c^2 k^2 tilde(theta) = 0$ for wavenumber $k <= k_c$
 
-= Conclusion
+= Conclusion <sec:conclusion>
 - Equations of motion can now benefit from parallel solvers.
 - Certain problems are well-suited to a divide-and-conquer approach.
 - Problems with "doubly parallel" characteristics can leverage both local and distributed parallelism, achieving significant computational efficiency.
 - These advancements pave the way for modeling acoustics in expanding volumes.
 
-== Future work & Possible Optimizations
+== Future work & Possible Optimizations <sec:future>
 - Krylov enhanced subspaces
 - CUDA dynamic parallelism
 - Implement with C, Fortran, CUDA, NVSHMEM, MPI
