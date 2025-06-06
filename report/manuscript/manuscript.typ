@@ -67,7 +67,7 @@
   my friends for sharing laughs and rants,\
   Mr. Chris Lacy for making physics phun,\
   Dr. Brandon Peden for showing me how to be a physicist,\
-  and Dr. Andy Piacsek for making sure I finish this damn thing.\ \
+  and Dr. Andy Piacsek for never giving up on me.\ \
   I wouldn't have been able to do it without you.
 _])
 #v(1fr)
