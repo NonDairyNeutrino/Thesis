@@ -103,7 +103,15 @@ At the time of writing, a computer can add two numbers in about a nanosecond (or
 
 The procedure just described is not too disimilar than what occurs in _Euler's method_, which is an incredibly simple technique for approximating the solution to a differential equation.  The main idea of this method (as considered in physics) is to produce the value of some physical quantity at some time given its value at a previous time, how that quantity changes over time, and how much time has passed.  In fact, this procedure is composed of only two arithermetic executions: an addition, and a multiplication.  While this time may be "small" for even billions of executions of the Euler method, what if more are needed?
 
+more introduction stuff
 
+The work presented here is partitioned into three key parts: @sec:Background covers key concepts that are necessary to understand the main purpose of and the methods used to build the following tool, @sec:methods covers the details of the implementation of th tool, and @sec:analysis the analysis of different aspects of the tool.
+
+The two most important concepts presented in @sec:Background are: equations of motion, and high-performance computing.  Equations of motion (@sec:EOM) covers the basics of the mathematical and computional methods that have been used to model physical phenomena, such as the motion of a ball flying through the air.  High-Performance Computing (@sec:hpc) covers the fundamentals of using mutliple threads to execute multiple calculations simultaneously, including a high-level description of the GPU/Single-Program-Multiple-Thread model of parallelism, as well as the fundamentals of using multiple processes to achieve further parallelization, including a similarly high-level description of how multiple computers (i.e. unshared memory) can be used.
+
+@sec:methods comprises the core of this work and presents the Parareal algorithm and how it can be implemented to take advantage of massively-parallel frameworks.  @sec:Parareal more specifically introduces the Parareal algorithm and presents it in such a way that using high-performance methods is a natural extension.  @sec:pahpc details how to construct and use a cluster of computers such that the Parareal algorithm can be executed on GPUs across multiple machines that are possibly not even in the same physical location.
+
+@sec:analysis covers analysis of this implementation including that of numerical effects, time and space complexity, and the speedup factor.
 
 = Background <sec:Background>
 
@@ -940,6 +948,7 @@ Starts high, and immediately converges
 - use a variable size time discretization algorithm, then base integration of those differences
 - Use dynamic parallelism to avoid the cpu having to launch the kernels
 - Use dynamic parallelism to even perform the coarse propagation
+- Look into effects of cluster topology
 
 #set par(spacing: 1.15em)
 #bibliography(
