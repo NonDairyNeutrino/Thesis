@@ -53,11 +53,10 @@
 #align(center)[
   #set par(justify: false)
   *Abstract*\
-  Simulating time-dependent physics has traditionally been constrained to using sequential algorithms, thus not benefiting from advances in parallel computing.
-  Parallel-in-time integration attempts to address this limitation with methods such as the Parareal algorithm.
-  As the performance of the Parareal algorithm scales with the number of processors, it is well-suited to use the massively-parallel nature of graphics processing units.
-  Additional performance gains are seen when the physics is wave-like, as using a spectral method allows for each node in a distributed system to evaluate the Parareal algorithm.
-  Particle production in different cosmologies is used to highlight the performance gains from these methods.
+  Simulating time-dependent physics has traditionally been constrained to using sequential algorithms and thus has not benefitted from advances in parallel computing.
+  Parallel-in-time integration attempts to address this limitation with methods such as the Parareal algorithm, but little work has been done to implement this algorithm using high-performance methods or for Hamiltonian systems.
+  This work provides an implementation of the Parareal algorithm that takes advantage of both the massively-parallel architecture of GPUs as well as the scalability of distributed systems.
+  Benchmarks are additionally provided to showcase the efficiency of this implementation, as well as how cluster topology affects the runtime.
 ]
 #v(1fr)
 #pagebreak()
