@@ -88,16 +88,6 @@ _])
 //     - Ex: N-Body with Barnes-Hut and Oct-tree binary space partitioning #sym.arrow.l approximation!
 //   - Parallel in time integration algorithms have been created to speed up calculations without making approximations
 
-// - Outline
-//   - @sec:Background covers the fundamental ideas needed to put this work into context
-//     - @sec:EOM covers initial value problems, energy drift and symplectic integrators, and computational methods such as iterative and multiple-shooting algorithms.
-//     - @sec:hpc covers the basics of multithreading and GPU computing, and multiprocessing and distributed computing.
-//   - @sec:methods covers the core of this work, including first presenting and interpreting the Parareal algorithm in such as way that a high-performance implemenation is a natural extension
-//     - @sec:Parareal presents the Parareal algorithm in a way such that the following implementation is a natural extension.
-//     - @sec:pahpc presents how the scalable version of the PA can be implemnted to use GPU and distributed computing
-//   - @sec:analysis covers analysis of this implementation including that of numerical effects, time and space complexity, and the speedup factor.
-//   - @sec:conclusion concludes this work, including reflections on gaps and proposing areas on which future work could begin.
-
 At the time of writing, a computer can add two numbers in about a nanosecond (or $10^(-9)$ seconds).  Naively extending this, a computer then should take 2 nanoseconds to add a number to the result of an addition of two numbers. Thus three nanoseconds are needed to perform three of these additions, and so on.  Considering an actual computer needs to perform many operations that are not directly related to computing the sum of number the user gives it (e.g. running the operating system), these calculations will take (much) more time.  Nevertheless, the fact remains that because the result of an addition is needed for the following computation, these operations must be executed sequentially.  This constraint means that, for (literally) an astronomical number of additions, the time needed for the full calculation to complete might itself be, astronomical.
 
 The procedure just described is not too disimilar than what occurs in _Euler's method_, which is an incredibly simple technique for approximating the solution to a differential equation.  The main idea of this method (as considered in physics) is to produce the value of some physical quantity at some time given its value at a previous time, how that quantity changes over time, and how much time has passed.  In fact, this procedure is composed of only two arithermetic executions: an addition, and a multiplication.  While this time may be "small" for even billions of executions of the Euler method, what if more are needed?
@@ -114,13 +104,13 @@ The two most important concepts presented in @sec:background are: equations of m
 
 As this work lies firmly within in the realm of _computational physics_, the core concepts find themselves spanning physics, math, and computer science.  It is the models of physics that give natural processes a mathematical shape so that they may be understood and predicted.  Though, it is only for the most spherical of cows in a vacuum that such predictions can be made with pen and paper.  These structured representations of nature can be combined with well-defined procedures, i.e. _algorithms_, to be able to make predictions that might actually come true.  Whether it be making concrete, testable predictions about how certain types of interacting molecules will tilt when exposed to an electric field at temperatures near absolute-zero @chapman2019, or whether or not someone will need their rain jacket in a few days (or 1,000 years).  The concepts at the core of the following work are no more than: _equations of motion_, _high-performance computing_.
 
-Physically, *equations of motion* (EOM) (section @sec:EOM) are considered in this work to be second order differential equations describing the motion of objects.  Another way of interpreting an EOM is as how the acceleration of an object over time depends on the object's position and velocity at that time.  The solution to an EOM is simply the position of the object as a function of time, from which the velocity can be derived.  The EOMs alone though only provide the behavior of how the position and velocity of the object _changes_ over time.  In order to uniquely define a path the object takes, initial values for the position and velocity must be stipulated.  The EOM together with these initial values, then define an *initial value problem* (IVP).  These IVPs have long been studied, but investigations into physics at the most extreme scale have required significantly more resources.
+Physically, *equations of motion* (EOM) (section @sec:background_eom) are considered in this work to be second order differential equations describing the motion of objects.  Another way of interpreting an EOM is as how the acceleration of an object over time depends on the object's position and velocity at that time.  The solution to an EOM is simply the position of the object as a function of time, from which the velocity can be derived.  The EOMs alone though only provide the behavior of how the position and velocity of the object _changes_ over time.  In order to uniquely define a path the object takes, initial values for the position and velocity must be stipulated.  The EOM together with these initial values, then define an *initial value problem* (IVP).  These IVPs have long been studied, but investigations into physics at the most extreme scale have required significantly more resources.
 
-High-performance computing (HPC) (section @sec:hpc), in the context of this work, focuses on utilizing two core ideas: *multithreading & GPU computing*, and *multiprocessing & distributed computing*.  These ideas contrast _sequential_ procedures where the next calculation cannot be started before the previous has finished.  Multithreading, and more specifically using graphics processing units (GPUs) to do general purpose computation i.e. GPGPU computing, allow several calculations to be done simultaneously on the same physical hardware i.e. in _parallel_.  Futher extending this idea, multiprocessing (not to be confused with multi-_threading_) allows calculations to be executed simultaneously as in the case of several threads, but these calculations "have their own set of knowledge".  This seemingly subtle distinction provides the ability for these multiple processes to be executed on _different_ physical hardware.  These models of parallelism have been used in the past to address the runtime issues arising from simulating complex physical phenomena.
+High-performance computing (HPC) (section @sec:background_hpc), in the context of this work, focuses on utilizing two core ideas: *multithreading & GPU computing*, and *multiprocessing & distributed computing*.  These ideas contrast _sequential_ procedures where the next calculation cannot be started before the previous has finished.  Multithreading, and more specifically using graphics processing units (GPUs) to do general purpose computation i.e. GPGPU computing, allow several calculations to be done simultaneously on the same physical hardware i.e. in _parallel_.  Futher extending this idea, multiprocessing (not to be confused with multi-_threading_) allows calculations to be executed simultaneously as in the case of several threads, but these calculations "have their own set of knowledge".  This seemingly subtle distinction provides the ability for these multiple processes to be executed on _different_ physical hardware.  These models of parallelism have been used in the past to address the runtime issues arising from simulating complex physical phenomena.
 
 It is through the combination of these core ideas that testable predictions of "extreme-scale" physics can be made.  There are many more details and nuances that are not covered here, and many more to improve this work, but that is outside the scope of this discussion.  The following presentation of ideas is meant to deliver a functional understanding of the foundational concepts on which this work has been derived.
 
-== Equations of Motion <sec:EOM>
+== Equations of Motion <sec:background_eom>
 
 According to classical mechanics, the motion for any and every object in the universe can be determined for all time using only its current position, current velocity, and the forces acting on it @Landau1976Mechanics. The foundation on which this principle lies is the _equation of motion_ (e.g. Newton's Second Law), which dictates how motion changes in time, or both time and space.  These EOMs can be solved via numerical methods, but some methods better suited for specific problems than others, especially when considering the tradeoff between the accuracy of the result and the level of approximation.  Additionally, some straight-forward methods solve the EOM by accurately stepping through time, but others first make an estimate of the solution, somehow make corrections to that guess, and then keep doing that until the desired accuracy is achieved.
 
@@ -148,7 +138,7 @@ $ {
   )
 }. $
 
-In some sense, anything that fits this structure, could be considered an IVP (more on this in @sec:Parareal).  Because initial values "lock in" the trajectory of an object based on the EOM's physics, the IVP can be solved numerically.
+In some sense, anything that fits this structure, could be considered an IVP (more on this in @sec:methods_parareal).  Because initial values "lock in" the trajectory of an object based on the EOM's physics, the IVP can be solved numerically.
 
 === Energy Drift & Symplectic Integrators <sec:energy_drift>
 
@@ -166,7 +156,7 @@ When it comes to simulating physics that only depends on spatial behavior, certa
 
 An iterative method known as the Hartree-Fock algorithm (also known as the Self-Consistent Field Method) can be used to find the configuration of atoms and molecules that minimizes the system's quantum energy @cramer2013essentials.  Likewise, multiple-shooting methods have been used for solving optimal control problems @BOCK19841603. While these methods have traditionally been used for spatial physics, this work relies on the combination of these principles to solve time-dependent problems.
 
-== High-Performance Computing <sec:hpc>
+== High-Performance Computing <sec:background_hpc>
 
 When problems get big enough, or more concretely when there is enough data that needs to be processed, traditional computers are unable to complete the task in a reasonable amount of time.  When such cases arise, not only are more performant computers needed, but also the methods used to _implement_ the calculations need to be changed as well.  In essence, *high-performance computing* (HPC) is about performing as many as calculations as possible in the least amount of time.  One of the most direct methods to reduce the time needed to perform calculations is to "simply" perform multiple of them at the same time, otherwise known as *parallel processing*.  There are several ways in which parallel processing can be acheived; some of which being using a multi-core CPU, a GPU, and multiple physical computers.
 
@@ -254,7 +244,7 @@ This chapter begins by casting the Parareal Algorithm in a form that is conduciv
 The machine has #threads cores.
 
 
-== The Parareal Algorithm <sec:Parareal>
+== The Parareal Algorithm <sec:methods_parareal>
 
 #v(2em)
 #align(right, [_The Parareal Algorithm aimed to solve the problem of physics taking too long to simulate; it didn't._])
@@ -588,39 +578,39 @@ for some threshold $epsilon$.  @eq:convergence determines convergence when every
 The magic of the Parareal algorithm lies in its divide-and-conquer approach to solving initial value problems.  The "root" problem is sequentially and inaccurately solved to divide it into smaller problems whose initial values are defined by the solution.  Those problems are simultaneously and accurately solved in parallel.  The root problem is then solved in the same way as before, but at each step, the data is modified by combining the previous accurate and inaccurate solutions.  Finally, the new root solution defines new problems, and the loop continues until the the solution has converged.
 
 
-== Implementing the Parareal Algorithm at Scale <sec:pahpc>
+== Implementing the Parareal Algorithm at Scale <sec:methods_hpc>
 
 #v(2em)
 #align(right, [_Surely more threads is the answer!_])
 #v(2em)
 
-@sec:Parareal highlights the PA's nature of being quasi-embarrassingly-parallel i.e. the performance of the algorithm scales with the number of threads, while still being bottlenecked by a periodic sequential process. That being said, the previous discussion ignores the details and nuances of implementing the PA including the actual form of the threads.  The primary goal of this work is to provide two new implementation models that both take advantage of increased parallelism and allow easy scaling: using the massively parallel architecture of graphics processing units (GPUs), and the scalability of distributed systems. Instances of these implementations are also provided @Chapman_PararealGPU_jl.
+@sec:methods_parareal highlights the PA's nature of being quasi-embarrassingly-parallel i.e. the performance of the algorithm scales with the number of threads, while still being bottlenecked by a periodic sequential process. That being said, the previous discussion ignores the details and nuances of implementing the PA including the actual form of the threads.  The primary goal of this work is to provide two new implementation models that both take advantage of increased parallelism and allow easy scaling: using the massively parallel architecture of graphics processing units (GPUs), and the scalability of distributed systems. Instances of these implementations are also provided @Chapman_PararealGPU_jl.
 
 The PA as defined in @alg:parareal does not change in it _what_ it does when implemented to use GPUs, but rather _how_ it does.  There are several issues that arise when utilizing general-purpose GPU computing (GPGPU) such as the GPU needing to wait until the CPU tells it to do something, better performance with less precision, and the restriction to using primitive types like "ints" and "floats".  Though, the biggest issue is the need to consider the movement of data between RAM and VRAM, or more generally host memory and device memory; considering unshared memory spaces will be even more important in section @sec:distributed.
 
-The distributed-based implementation focuses on distributing problems across multiple remote machines.  These machines solve their problems simultaneously with the other machines, thus achieving a form of parallelism only limited by the number of accessible machines. These problems could either arise from the coarse propagation of a single root problem, yielding a "problem tree" (@diag:problem_tree) where each machine would create-distribute-collect its own set of problems, or if there are multiple "true root" problems e.g. a system of ODEs.
+The distributed-based implementation focuses on distributing problems across multiple remote machines.  These machines solve their problems simultaneously with the other machines, thus achieving a form of parallelism only limited by the number of accessible machines. These problems could either arise from the coarse propagation of a single root problem, yielding a "problem tree" (/* @diag:problem_tree */) where each machine would create-distribute-collect its own set of problems, or if there are multiple "true root" problems e.g. a system of ODEs.
 
 The GPU- and distribution-based methods can be combined to further parallelize solving an initial value problem.  If each of the machines available to the distributed network has at least one GPU (a single machine can have multiple; more details in @sec:distributed), this implementation will automatically identify, manage, and use all of them.  Thus these methods can be composed to provide a scalable model of parallel-in-time integration for equations of motion.
 
-#figure(
-  // replace with diagram of problem tree
-  // image(
-  //   "",
-  //   alt: 
-  // )
-  rect(width: 100%, height: 12.5%, [#v(1fr) recursive problem distribution and partition tree #v(1fr)]),
-  caption: "The problems can be distributed providing a recursively parallelized solution."
-) <diag:problem_tree>
+// #figure(
+//   // replace with diagram of problem tree
+//   // image(
+//   //   "",
+//   //   alt: 
+//   // )
+//   rect(width: 100%, height: 12.5%, [#v(1fr) recursive problem distribution and partition tree #v(1fr)]),
+//   caption: "The problems can be distributed providing a recursively parallelized solution."
+// ) <diag:problem_tree>
 
 === Massively Parallelizing the Parareal Algorithm <sec:single_gpu>
 
-The GPU-based implementation focuses on three ideas. The first is utilizing the massively-parallel architecture of a GPU to _simultaneously_ use orders-of-magnitude more threads than what would be possible with a CPU.  The second is considering the movement of data between the host memory (RAM) and the device memory (VRAM). And the last is needing to use primitive data-types.  Otherwise, the underlying algorithm is no different than what is presented in @sec:Parareal.
+The GPU-based implementation focuses on three ideas. The first is utilizing the massively-parallel architecture of a GPU to _simultaneously_ use orders-of-magnitude more threads than what would be possible with a CPU.  The second is considering the movement of data between the host memory (RAM) and the device memory (VRAM). And the last is needing to use primitive data-types.  Otherwise, the underlying algorithm is no different than what is presented in @sec:methods_parareal.
 
 The PA (@alg:parareal) is only limited by the number of threads at its disposal.  When the number of threads is greater than the number of cores, the processor needs to switch thread contexts in order to balance the evolution of each thread.  On a CPU, this context switching is very costly and can lead to drastic decreases in performance @stallings2011operating @Li2007.  On a GPU however, switching thread-contexts is nearly free @cook2012cuda, allowing there to be _many_ more threads than processors without sacrificing efficiency.  So, it is very beneficial to execute the PA on hardware that not only can efficiently handle many threads, but also have them running at the same time.
 
 All relevant data is first allocated and pre-populated by the CPU on the host.  Then the CPU copies that data to the device. Then the CPU tells the GPU to execute the parareal kernel on its copy of the data, producing solution data. The CPU then copies the solution data from the device to the host and recreates the problems.  The transfer of data (and the CPU launching the kernel on the GPU) between the host and the device serves as the main performance bottleneck in this process. @cook2012cuda Dynamic parallelism can be used to launch kernels directly from the GPU, thus circumventing the performance drawbacks of host-device communication @cook2012cuda.
 
-GPUs can only process primitive types of data such as integers, floats, booleans, and other "bits-types".  This precludes collecting the problem and solution data in more intuitive forms like one would do when representing them mathematically.  In other words, whereas a CPU is happy to handle several boxes each with its own set of elements e.g. domain, acceleration, initial position, and initial velocity, GPUs need this same underlying data to be collected such that all domains are in one box, all acceleration functions are in another box, all initial positions are another, and initial velocities in another.  These "boxes" take the form of arrays.  It is for this reason, the PA as described in @sec:Parareal uses its data as arrays.
+GPUs can only process primitive types of data such as integers, floats, booleans, and other "bits-types".  This precludes collecting the problem and solution data in more intuitive forms like one would do when representing them mathematically.  In other words, whereas a CPU is happy to handle several boxes each with its own set of elements e.g. domain, acceleration, initial position, and initial velocity, GPUs need this same underlying data to be collected such that all domains are in one box, all acceleration functions are in another box, all initial positions are another, and initial velocities in another.  These "boxes" take the form of arrays.  It is for this reason, the PA as described in @sec:methods_parareal uses its data as arrays.
 
 So, why is the PA well-suited to be implemented to use GPUs?  Because the data is only composed of numbers, it can be simply represented in a GPU-friendly array structure.  The massive number of cores on a GPU can simultaneously process these arrays with a much lower cost of switching between threads and problems.  And finally, the solution data can be easily copied back to the host.  This process is shown in @alg:parareal_gpu and @diag:gpu_propagation.
 
@@ -839,7 +829,7 @@ Algorithm analysis focuses on two main aspects: how the runtime of the program i
 
 Benchmarks  
 
-== Numerical Analysis <sec:numerical>
+== Numerical Analysis <sec:analysis_numerical>
 
 In order to understand the error of a numerical approximation, it must be compared to a known value.  For this analysis, that reference is the simple pendulum.  The energy of the simple pendulum, neglecting friction and other dissipative forces, is constant.  While the energy of the pendulum itself is directly proportional to its mass, the length by which it hangs, and the acceleration due to gravity, the following error and stability analyses consider the error relative to the the true so that these parameters do not affect the result.  Additionally, the considered pendulum begins at its low point with unit velocity.
 
@@ -904,7 +894,7 @@ Starts high, and immediately converges
   )
 ) <plt:convergence_fine>
  
-== Algorithm Analysis <sec:algorithm>
+== Algorithm Analysis <sec:analysis_algorithm>
 
 === Time Complexity
 
