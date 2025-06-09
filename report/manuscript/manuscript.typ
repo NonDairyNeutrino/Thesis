@@ -909,9 +909,40 @@ Starts high, and immediately converges
 
 - If the position and velocity sequences from the propagation are kept, then there is a massive increase of data that needs to be stored and sent between processes.
 
-== Speedup <sec:speedup>
+== Benchmarks <sec:analysis_benchmarks>
 
-- The cluster that was used to benchmark is 
+Benchmarks and other performance evaluations are meaningless without the appropriate context into how the data was gathered.  Just as an engineer should include the relevant model of their equipment in their reported data, if the computational scientist wishes their work to be reproducible, such information must be included with the data.  As such, the hardware and software specifications that were used in these experiments is presented in @tab:cluster_spec.
+
+#figure(
+  caption: [],
+  grid(
+    columns: 2,
+    row-gutter: 1%,
+    column-gutter: 5%,
+    [*Director*], [*Worker*],
+    table(
+      columns: 2,
+      [Operating System], [Arch Linux (64-bit)],
+      [Kernel], [6.14.10],
+      [Motherboard], [ASRock B760M],
+      [CPU], [Intel i7-13700K \ 24 logical cores \@ 5.40 GHz],
+      [GPU], [NVIDIA RTX 3060 Ti \ #linebreak()],
+      [Memory], [32 GB]
+    ),
+    table(
+      columns: 2,
+      [Operating System], [Arch Linux (64-bit)],
+      [Kernel], [6.14.9],
+      [Motherboard], [ASUS H170],
+      [CPU], [Intel i5-6500 \ 4 logical cores \@ 3.60 GHz],
+      [GPU], [NVIDIA GTX 1660 Super\ NVIDIA GTX 960],
+      [Memory], [16 GB]
+    ),
+    v(3%)
+  )
+) <tab:cluster_spec>
+
+The most significant 
 
 // don't have time right now :(
 // = Particle Production in Analog Cosmologies
