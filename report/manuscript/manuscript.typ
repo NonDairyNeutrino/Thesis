@@ -915,32 +915,34 @@ Benchmarks and other performance evaluations are meaningless without the appropr
 
 #figure(
   caption: [],
-  grid(
-    columns: 2,
-    row-gutter: 1%,
-    column-gutter: 5%,
-    [*Director*], [*Worker*],
-    table(
-      columns: 2,
-      [Operating System], [Arch Linux (64-bit)],
-      [Kernel], [6.14.10],
-      [Motherboard], [ASRock B760M],
-      [CPU], [Intel i7-13700K \ 24 logical cores \@ 5.40 GHz],
-      [GPU], [NVIDIA RTX 3060 Ti \ #linebreak()],
-      [Memory], [32 GB]
-    ),
-    table(
-      columns: 2,
-      [Operating System], [Arch Linux (64-bit)],
-      [Kernel], [6.14.9],
-      [Motherboard], [ASUS H170],
-      [CPU], [Intel i5-6500 \ 4 logical cores \@ 3.60 GHz],
-      [GPU], [NVIDIA GTX 1660 Super\ NVIDIA GTX 960],
-      [Memory], [16 GB]
-    ),
-    v(3%)
-  )
+  table(
+      columns: 3,
+      table.header[][*Director*][*Worker*],
+      [Operating System], [Arch Linux (64-bit)], [Arch Linux (64-bit)],
+      [Kernel], [6.14.10], [6.14.9],
+      [Motherboard], [ASRock B760M], [ASUS H170],
+      [CPU], [Intel i7-13700K \ 24 logical cores \@ 5.40 GHz], [Intel i5-6500 \ 4 logical cores \@ 3.60 GHz],
+      [GPU], [NVIDIA RTX 3060 Ti \ #linebreak()], [NVIDIA GTX 1660 Super\ NVIDIA GTX 960],
+      [Memory], [32 GB \@ 6500 MHz], [16 GB \@ 1600 MHz]
+    )
 ) <tab:cluster_spec>
+
+#figure(
+  caption: [Data gathered from techpowerup.com/gpu-specs/],
+  table(
+    columns: 4,
+    table.header[][*3060*][*1660*][*960*],
+    [Cores],                     [4864], [1408], [1024],
+    [Streaming Multiprocessors], [38],   [22],   [8],
+    [Base Clock (MHz)],          [1410], [1530], [1176],
+    [Boost Clock (MHz)],         [1665], [1785], [1201],
+    [Memory Clock (Gb/s)],       [14],   [14],   [7],
+    [Memory Size (GB)],          [8],    [6],    [4],
+    [Memory Bandwidth (GB/s)],   [448],  [336],  [112],
+    [FP16, 32, 64 Performance (TFLOPS)],  [16.2, 16.2, 0.253], [10.0, 5.03, 0.157], [N/A, 2.46, 0.077],
+    [Compatible CUDA up to],     [8.6], [7.5], [5.2]
+  )
+) <tab:gpu_spec>
 
 The most significant 
 
