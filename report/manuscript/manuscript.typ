@@ -911,10 +911,10 @@ Starts high, and immediately converges
 
 == Benchmarks <sec:analysis_benchmarks>
 
-Benchmarks and other performance evaluations are meaningless without the appropriate context into how the data was gathered.  Just as an engineer should include the relevant model of their equipment in their reported data, if the computational scientist wishes their work to be reproducible, such information must be included with the data.  As such, the hardware and software specifications that were used in these experiments is presented in @tab:cluster_spec.
+Benchmarks and other performance evaluations are meaningless without the appropriate context into how the data was gathered.  Just as an engineer should include the relevant model of their equipment in their reported data, if the computational scientist wishes their work to be reproducible, such information must be included with the data.  As such, the hardware and software specifications that were used in these experiments is presented in @tab:cluster_spec.  Further specifications on the GPUs that were used is collected in @tab:gpu_spec.  Additionally, inter-node network traffic was routed through a TP-Link TL-SG108 1Gb/s network switch.
 
 #figure(
-  caption: [],
+  caption: [Specifications for each host/node in the used cluster.],
   table(
       columns: 3,
       table.header[][*Director*][*Worker*],
@@ -928,7 +928,7 @@ Benchmarks and other performance evaluations are meaningless without the appropr
 ) <tab:cluster_spec>
 
 #figure(
-  caption: [Data gathered from techpowerup.com/gpu-specs/],
+  caption: [Hardware specifications for the GPUs used in this cluster.  /* Data gathered from techpowerup.com/gpu-specs/. */],
   table(
     columns: 4,
     table.header[][*3060*][*1660*][*960*],
@@ -944,7 +944,18 @@ Benchmarks and other performance evaluations are meaningless without the appropr
   )
 ) <tab:gpu_spec>
 
-The most significant 
+On the software side, the Julia language was used to encode the calculations.  The Julia standard library's Distributed.jl package was used to perform any and all distributed functionality.  Additionally, the CUDA.jl package was used to facilitate the implementation of GPU-based calculations.  The versions of these packages are detailed in @tab:soft_spec.
+
+#figure(
+  caption: [The software versions used in the calculations presented in this work.],
+  table(
+    columns: 4,
+    [Julia Runtime], [1.11.5],
+    [LLVM], [libLLVM-16.0.6],
+    [Distributed.jl], [1.11.0],
+    [CUDA.jl], [5.7.3]
+  )
+) <tab:soft_spec>
 
 // don't have time right now :(
 // = Particle Production in Analog Cosmologies
