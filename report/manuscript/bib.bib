@@ -836,3 +836,33 @@ abstract = {An algorithm for the numerical solution of parameterized optimal con
   url = {https://developer.nvidia.com/blog/how-optimize-data-transfers-cuda-cc/},
   urldate = {2025-05-10}
 }
+
+@online{Adinets2014,
+  author = {Andy Adinets},
+  title = {CUDA Dynamic Parallelism API and Principles},
+  year = 2014,
+  url = {https://developer.nvidia.com/blog/cuda-dynamic-parallelism-api-principles/},
+  urldate = {2025-07-03}
+}
+
+@article{Deng2020,
+author={Deng, Yuefan
+and Guo, Meng
+and Ramos, Alexandre F.
+and Huang, Xiaolong
+and Xu, Zhipeng
+and Liu, Weifeng},
+title={Optimal low-latency network topologies for cluster performance enhancement},
+journal={The Journal of Supercomputing},
+year={2020},
+month={Dec},
+day={01},
+volume={76},
+number={12},
+pages={9558-9584},
+abstract={We propose that clusters interconnected with network topologies having minimal mean path length will increase their processing speeds. We approach our heuristic by constructing clusters of up to 32 nodes having torus, ring, Chvatal, Wagner, Bidiakis and optimal topology for minimal mean path length and by simulating the performance of 256 nodes clusters with the same network topologies. The optimal (or near-optimal) low-latency network topologies are found by minimizing the mean path length of regular graphs. The selected topologies are benchmarked using ping-pong messaging, the MPI collective communications and the standard parallel applications including effective bandwidth, FFTE, Graph 500 and NAS parallel benchmarks. We established strong correlations between the clusters' performances and the network topologies, especially the mean path lengths, for a wide range of applications. In communication-intensive benchmarks, optimal graphs enabled network topologies with multifold performance enhancement in comparison with mainstream graphs. It is striking that mere adjustment of the network topology suffices to reclaim performance from the same computing hardware.},
+issn={1573-0484},
+doi={10.1007/s11227-020-03216-y},
+url={https://doi.org/10.1007/s11227-020-03216-y}
+}
+

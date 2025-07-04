@@ -821,13 +821,13 @@ Once the devices are assigned, the cluster has been prepared.  The director then
 
 = Analysis <sec:analysis>
 
-When it comes to analyzing the performance and implementation of work, there are three key areas that must be investigated.  The first is numerical analysis where 
+While there are many significant aspects of this work that could be analyzed, there are only three that will be considered here.  The effects of transferring data betwene the host and the device repeatedly arises only in the implementation and the theoretical nature of this bottleneck is investigated.  Similary, the significance of transferring data between hosts is analyzed.  And finally, empirical benchmarks are given to highlight the efficacy of the implementation.
 
 Numerical analysis focsuses on measuring the effects of numerical approximation.  Some of the most notable effects to conisder are error, stability, and convergence. Instead of considering raw error, in this work energy-drift will be used as a proxy (as outlined in @sec:energy_drift).  In this case, stability refers to how the error of the result changes with respect the length of the time domain of the root problem.  Convergence measures how many iterations the implementation takes to converge against the coarse and fine discretizations.
 
 Algorithm analysis focuses on two main aspects: how the runtime of the program is affected by changes in size of the input, and how the needed amount of memory is affected by changes in the size of the input.  For this work, the "input" will be the coarse and fine discretizations.
 
-Benchmarks  
+Benchmarks
 
 == Numerical Analysis <sec:analysis_numerical>
 
@@ -896,18 +896,30 @@ Starts high, and immediately converges
  
 == Algorithm Analysis <sec:analysis_algorithm>
 
-=== Time Complexity
+As noted in @sec:background_hpc, any data that is computed in one memory space must be transferred or copied to another memory space in order for that data to be used in that space.  Again, this applies for both GPUs and remote hosts (or more generally processes).  Because these transfers happen over either PCIe or network channels, they serve as the single greatest bottlenecks for performance in this implementation.  
 
-- A detailed analysis of the convergence rates of the PA has been done @gander2007.
-- Network communication is slow, and thus there's overheard to distrubuted computing.
-  - Problems need to take long enough to make the overhead of network communication worth it.
-- Each level of the problem tree loops say $T$ times, so level $l$ of the tree loops $T^l$ times by the end
-- If the problem tree is $N$-ary, then there are $N^l$ processes at level $l$, thus $N^l T^l = (N T)^l$ loops happen on level $l$ by the end.
-  - For example, there is a cluster with 2 levels consisting of 3 total processes (i.e. $N = 2$), and the coarse discretization is $T = 2^10 = 1024$.  So level 1 will provide at most (because the PA should converge well before iteration == discretization) a total of $(2 * 1024)^1 = 2048$ loops.
+=== Host-Device Data Transfer
 
-=== Space Complexity
+Transfers happen over PCIe, which is really slow compared to the speeds of keeping everything local.
 
-- If the position and velocity sequences from the propagation are kept, then there is a massive increase of data that needs to be stored and sent between processes.
+This could be solved by moving the coarse propagation to be done on the device while taking advantage of dynamic parallelism @Adinets2014.
+
+=== Host-Host Data Transfer & Cluster Topology
+
+Network is slow.  Might drastically depend on cluster topology @Deng2020.
+
+// === Time Complexity
+
+// - A detailed analysis of the convergence rates of the PA has been done @gander2007.
+// - Network communication is slow, and thus there's overheard to distrubuted computing.
+//   - Problems need to take long enough to make the overhead of network communication worth it.
+// - Each level of the problem tree loops say $T$ times, so level $l$ of the tree loops $T^l$ times by the end
+// - If the problem tree is $N$-ary, then there are $N^l$ processes at level $l$, thus $N^l T^l = (N T)^l$ loops happen on level $l$ by the end.
+//   - For example, there is a cluster with 2 levels consisting of 3 total processes (i.e. $N = 2$), and the coarse discretization is $T = 2^10 = 1024$.  So level 1 will provide at most (because the PA should converge well before iteration == discretization) a total of $(2 * 1024)^1 = 2048$ loops.
+
+// === Space Complexity
+
+// - If the position and velocity sequences from the propagation are kept, then there is a massive increase of data that needs to be stored and sent between processes.
 
 == Benchmarks <sec:analysis_benchmarks>
 
