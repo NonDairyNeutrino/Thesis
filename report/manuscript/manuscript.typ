@@ -894,15 +894,24 @@ Starts high, and immediately converges
   )
 ) <plt:convergence_fine>
  
-== Algorithm Analysis <sec:analysis_algorithm>
+== Performance Analysis <sec:analysis_algorithm>
 
-As noted in @sec:background_hpc, any data that is computed in one memory space must be transferred or copied to another memory space in order for that data to be used in that space.  Again, this applies for both GPUs and remote hosts (or more generally processes).  Because these transfers happen over either PCIe or network channels, they serve as the single greatest bottlenecks for performance in this implementation.  
+As noted in @sec:background_hpc, any data that is computed in one memory space must be transferred to another memory space in order for that data to be used in that space.  Again, this applies for both GPUs and remote hosts (or more generally processes).  Because these transfers happen over either PCI-E or network channels, respectively, they serve as the single greatest bottlenecks for performance in this implementation. The following discussion will address to what extent this implementation is limited by these bottlenecks and some strategies on how to mitigate them.
+
+recover the basic parareal algorithm and highlight where the transfers happen
 
 === Host-Device Data Transfer
 
-Transfers happen over PCIe, which is really slow compared to the speeds of keeping everything local.
+A fundamental bottleneck, as it's part of the algorithm, is the need for all parallel computation to stop and the serial execution of the coarse propagation to complete.  While the serial execution is itself a bottleneck in terms of performance, the coarse propagation requires the fine-propagation data on the device, and thus it must first be transferred to the host; similarly, the new data must be transferred to the device after it's been created.  These transfers happen over PCI-E, which is really slow compared to the speeds on-device memory transfers.  In fact, the bandwidth of global memory on a device can be at least an order of magnitude greater than the PCI-E bandwidth @cook2012cuda.
 
-This could be solved by moving the coarse propagation to be done on the device while taking advantage of dynamic parallelism @Adinets2014.
+These slow transfers could be completely circumvented by moving the coarse propagation to a single thread on the device, then using dynamic parallelism to launch the parareal kernel also on the device @Adinets2014.  While a single device-thread is likely to take more time than a single host-thread when performing the same task, the increase in time from this trade is likely to be less than the decrease in time from not needing to transfer data.  Thus the net time difference from this change would be beneficial.
+
+Though, this makes sense only when computing everything locally as any distribution to other nodes would requires the use of the host system.  That being said, this implementation would make the "problem-tree" approach much more feasible
+
+Another point that should be addressed is that the transfer rate between the host and device is not independent of the size of the transfer itself.  On some devices, the transfer rate is nowhere near optimal when then the size of the transfer is below \~2 MB (even with pinned memory).  Peak efficiency is only gained with transfers of 16 MB or more @cook2012cuda.
+
+- Pinned/Page-locked memory @cook2012cuda
+- Zero-copy memory @cook2012cuda
 
 === Host-Host Data Transfer & Cluster Topology
 
