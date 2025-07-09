@@ -898,7 +898,9 @@ Starts high, and immediately converges
 
 As noted in @sec:background_hpc, any data that is computed in one memory space must be transferred to another memory space in order for that data to be used in that space.  Again, this applies for both GPUs and remote hosts (or more generally processes).  Because these transfers happen over either PCI-E or network channels, respectively, they serve as the single greatest bottlenecks for performance in this implementation. The following discussion will address to what extent this implementation is limited by these bottlenecks and some strategies on how to mitigate them.
 
-recover the basic parareal algorithm and highlight where the transfers happen
+To highlight the bottlenecks in the PA, we focus our attention back to @alg:parareal_distributed.  After the director has created the subproblems, it transfers them to each of the worker processes via a network communication.  Then the director has to further communicate that the worker execute the PA on the GPU.  The worker host then transfers the problem data to the worker device.  After the GPU executes the parareal kernel, the new data is transferred back to the host.  Finally, the director requests the new data from the host, to which the worker transfers the new data over the network.
+
+These transfer bottlenecks fall into two classifications: host-device, and host-host communication.  There are several methods that can be used to mitigate the consequences of the host-device transfer, including taking advantage of dynamic parallelism (where the coarse propagation would be done on the device), pinned/page-locked memory, and zero-copy memory.  As for host-host communication, which is done over the network and is the slowest part of the entire implementation, not much can be done to improve it directly other than using faster hardware and/or potentially an optimized cluster configuration, however, the relative efficiency could be improved by transferring as much data at once as possible.
 
 === Host-Device Data Transfer
 
