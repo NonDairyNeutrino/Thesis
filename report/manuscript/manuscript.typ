@@ -110,6 +110,10 @@ High-performance computing (HPC) (section @sec:background_hpc), in the context o
 
 It is through the combination of these core ideas that testable predictions of "extreme-scale" physics can be made.  There are many more details and nuances that are not covered here, and many more to improve this work, but that is outside the scope of this discussion.  The following presentation of ideas is meant to deliver a functional understanding of the foundational concepts on which this work has been derived.
 
+== Parallel-in-Time Integration and Simulating Extreme Time Scales <sec:background_pint>
+
+
+
 == Equations of Motion <sec:background_eom>
 
 According to classical mechanics, the motion for any and every object in the universe can be determined for all time using only its current position, current velocity, and the forces acting on it @Landau1976Mechanics. The foundation on which this principle lies is the _equation of motion_ (e.g. Newton's Second Law), which dictates how motion changes in time, or both time and space.  These EOMs can be solved via numerical methods, but some methods better suited for specific problems than others, especially when considering the tradeoff between the accuracy of the result and the level of approximation.  Additionally, some straight-forward methods solve the EOM by accurately stepping through time, but others first make an estimate of the solution, somehow make corrections to that guess, and then keep doing that until the desired accuracy is achieved.
@@ -212,7 +216,7 @@ In the analogy, Alice in home A wants to compare the location of her phone to th
 
 Out of the analogy, each remote host effectively needs to be an identical copy of the local host.  This can be achieved by each host referring to a shared file system so they all manifestly the same binaries, versions of packages, etc. This needs to happen because an RPC can be thought of as sending a chunk of raw, textual source code to be run on the other process and/or machine.  If that source code calls some functionality that is not loaded or otherwise available in that process, that call will error. Thus things like a GPU library must be not only available on each machine, but also loaded on each process.
 
-= Scaling The Parareal Algorithm <sec:methods>
+= Scaling the Parareal Algorithm <sec:methods>
 
 Simulating physical processes has traditionally been done sequentially; even during the modern age of hardware supporting parallel execution, using computers to calculate the evolution of physical phenomena has been sequential.  Why haven't scientists just started doing things in parallel? Because of that pesky thing call _causality_; _the ball must go up before it can come down_.  Because of this temporal dependence (spatial dependence has had its own workarounds such as the Barnes-Hut algorithm @Barnes1986 @Hamada2009), simulation of large-time-scale physics has thus taken a long time to execute.  The Parareal algorithm (PA), and other parallel-in-time integration algorithms, have been developed in the last few decades to specifically address this issue @LIONS2001661.
 // These paragraphs should be squished together, after the above gets trimmed down
@@ -904,17 +908,22 @@ These transfer bottlenecks fall into two classifications: host-device, and host-
 
 === Host-Device Data Transfer
 
-A fundamental bottleneck, as it's part of the algorithm, is the need for all parallel computation to stop and the serial execution of the coarse propagation to complete.  While the serial execution is itself a bottleneck in terms of performance, the coarse propagation requires the fine-propagation data on the device, and thus it must first be transferred to the host; similarly, the new data must be transferred to the device after it's been created.  These transfers happen over PCI-E, which is really slow compared to the speeds on-device memory transfers.  In fact, the bandwidth of global memory on a device can be at least an order of magnitude greater than the PCI-E bandwidth @cook2012cuda.
+// PCI-E is really slow
+A fundamental bottleneck, as it's part of the algorithm, is the need for all parallel computation to stop and the serial execution of the coarse propagation to complete.  While the serial execution is itself a bottleneck in terms of performance, the coarse propagation requires the fine-propagation data on the device, and thus it must first be transferred to the host; similarly, the new data must be transferred to the device after it's been created.  These transfers happen over PCI-E, which is really slow compared to the speeds of on-device memory transfers.  In fact, the bandwidth of global memory on a device can be at least an order of magnitude greater than the PCI-E bandwidth @cook2012cuda.
 
-These slow transfers could be completely circumvented by moving the coarse propagation to a single thread on the device, then using dynamic parallelism to launch the parareal kernel also on the device @Adinets2014.  While a single device-thread is likely to take more time than a single host-thread when performing the same task, the increase in time from this trade is likely to be less than the decrease in time from not needing to transfer data.  Thus the net time difference from this change would be beneficial.  Though, this makes sense only when computing everything locally as any distribution to other nodes would requires the use of the host system.
-#pagebreak()
+// dynamic parallelism
+These slow transfers could be completely circumvented by moving the coarse propagation to a single thread on the device, then using dynamic parallelism to launch the parareal kernel also on the device @Adinets2014.  While a single device-thread is likely to take more time than a single host-thread when performing the same task, the increase in time from this trade is likely to be less than the decrease in time from not needing to transfer data.  Thus the net time difference from this change would be beneficial.  Though, this makes sense only when computing everything locally as any distribution to other nodes would requires the use of the host system or NVIDIA's remote direct memory access (GPUDirect RDMA).
+
+#pagebreak() // - Pinned/Page-locked memory
+If the number of transfers is unchanged, the implementation could make use of pinned/page-locked memory.  Pinned memory being memory on the host which the device can access directly without first requesting the host CPU to retrieve it and send it.  Additionally, pinned memory is guaranteed to never /*needs citation*/ be swapped out to disk and thus the device does not need to wait for it to first be transferred to pinned memory @cook2012cuda.  Using this technique could greatly improve performance; the implementation provided in this work does not use it but could be included via library calls @besard2018juliagpu @besard2019prototyping.
+
+// transfer speed depends on size of the transfer
 Another point that should be addressed is that the transfer rate between the host and device is not independent of the size of the transfer itself.  On some devices, the transfer rate is nowhere near optimal when then the size of the transfer is below \~2 MB (even with pinned memory), and peak efficiency is only gained with transfers of 16 MB or more @cook2012cuda.  If the coarse discretization is equal to the number of threads the device can execute simultaneously, say $N_t = 5 * 10^3$, (i.e. there is a single problem for each device thread), and each problem needs and generates two 3-dimensional vectors (the position and velocity) composed of 32-bit floats ($S = 2 * 3 * 4 "bytes" = 24$ bytes), then each transfer into and out of the device would only consist of $N_t S = 120$ KB.  As this is orders-of-magnitude smaller than what is needed for optimal efficiency, each thread of the device could instead operate on $16 "MB" \/ 20 "KB" approx 133$ problems!
 
-// - Pinned/Page-locked memory
-If the number of transfers is unchanged, the implementation could make use of pinned/page-locked memory.  Pinned memory being memory on the host which the device can access directly without first requesting the host CPU to retrieve it and send it.  Additionally, pinned memory is guarunteed to never /*needs citation*/ be swapped out to disk and thus the device does not need to wait for it to first be transferred to pinned memory @cook2012cuda.  Using this technique could greatly improve performance; the implementation provided in this work does not use it but could be included via library calls @besard2018juliagpu @besard2019prototyping.
+// zero-copy memory
+If there are indeed multiple problems per device-thread, then zero-copy memory could be used to write a solution to global memory before the thread begins on the next one @cook2012cuda.  This way coarse propagation could begin while problems are still being finely propagated on the device.  That being said, there is no guarantee the solutions needed in the coarse propagation will be written in the order they are needed.
 
-// - Zero-copy memory @cook2012cuda
-
+Overall, transfers can be avoided nearly completely by executing the coarse propagation on the device and distributing the problems to remote machines via RDMA. If problems are distributed, then the transfers would need to use pinned memory to avoid waiting for the CPU.  In any case, the transfer-rate across PCI-E directly depends on the amount of data being transferred, so it's best to saturate not only all available threads on the device, but also the number of problems per thread.  Even with optimally efficient data transfers, the PA is still bottlenecked by its sequential coarse propagation.
 
 === Host-Host Data Transfer & Cluster Topology
 
