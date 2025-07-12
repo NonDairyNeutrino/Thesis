@@ -344,7 +344,7 @@ In general, a *propagator* $cal(P)$ is defined by two key components: its integr
 
 $ cal(P)(I_cal(P), N_cal(P))(P) = {{(t, harpoon(r)_t)}_t, {(t, harpoon(v)_t)}_t} =: S_P. $ <eq:solution>
 
-The application of the propagator to the subproblem is the core, or *kernel*, of the PA. While this description of the kernel is useful for understanding, it does not immediately lead to an algorithm that is well-suited for hardware-agnostic implementation (more details in #lower([@sec:single_gpu]) on #ref(<sec:single_gpu>, form: "page")). To that end, the implementation of the kernel presented here is composed of discretizing the subdomain and propagating the initial values separately.
+The application of the propagator to the subproblem is the core, or *kernel*, of the PA. While this description of the kernel is useful for understanding, it does not immediately lead to an algorithm that is well-suited for hardware-agnostic implementation (more details in #lower([@sec:methods_gpu]) on #ref(<sec:methods_gpu>, form: "page")). To that end, the implementation of the kernel presented here is composed of discretizing the subdomain and propagating the initial values separately.
 
 
 *Discretization:* To avoid performance losses from each kernel allocating memory, each discretization kernel references a specific, pre-allocated, one-dimensional array $delta D$ of length $N_cal(P)$.  In order for the kernel to generate the appropriate samplings of the domain, $delta D$ has its first and last elements pre-populated with the values of the lower and upper bounds of that thread's assigned subproblem such that 
@@ -477,7 +477,7 @@ $ P_p = {
   + Populate the beginning of each position array with the initial position of each problem.
   + Populate the beginning of each velocity array with the initial velocity of each problem.
 + Launch the Parareal Kernel with the propagators and prepared arrays
-  - *Note:* If there are more problems than threads, the kernel can index stride @Harris2013; more on this in @sec:single_gpu.
+  - *Note:* If there are more problems than threads, the kernel can index stride @Harris2013; more on this in @sec:methods_gpu.
 
 === Solving the root problem <sec:corrections>
 
@@ -590,11 +590,11 @@ The magic of the Parareal algorithm lies in its divide-and-conquer approach to s
 
 @sec:methods_parareal highlights the PA's nature of being quasi-embarrassingly-parallel i.e. the performance of the algorithm scales with the number of threads, while still being bottlenecked by a periodic sequential process. That being said, the previous discussion ignores the details and nuances of implementing the PA including the actual form of the threads.  The primary goal of this work is to provide two new implementation models that both take advantage of increased parallelism and allow easy scaling: using the massively parallel architecture of graphics processing units (GPUs), and the scalability of distributed systems. Instances of these implementations are also provided @Chapman_PararealGPU_jl.
 
-The PA as defined in @alg:parareal does not change in it _what_ it does when implemented to use GPUs, but rather _how_ it does.  There are several issues that arise when utilizing general-purpose GPU computing (GPGPU) such as the GPU needing to wait until the CPU tells it to do something, better performance with less precision, and the restriction to using primitive types like "ints" and "floats".  Though, the biggest issue is the need to consider the movement of data between RAM and VRAM, or more generally host memory and device memory; considering unshared memory spaces will be even more important in section @sec:distributed.
+The PA as defined in @alg:parareal does not change in it _what_ it does when implemented to use GPUs, but rather _how_ it does.  There are several issues that arise when utilizing general-purpose GPU computing (GPGPU) such as the GPU needing to wait until the CPU tells it to do something, better performance with less precision, and the restriction to using primitive types like "ints" and "floats".  Though, the biggest issue is the need to consider the movement of data between RAM and VRAM, or more generally host memory and device memory; considering unshared memory spaces will be even more important in section @sec:methods_distributed.
 
 The distributed-based implementation focuses on distributing problems across multiple remote machines.  These machines solve their problems simultaneously with the other machines, thus achieving a form of parallelism only limited by the number of accessible machines. These problems could either arise from the coarse propagation of a single root problem, yielding a "problem tree" (/* @diag:problem_tree */) where each machine would create-distribute-collect its own set of problems, or if there are multiple "true root" problems e.g. a system of ODEs.
 
-The GPU- and distribution-based methods can be combined to further parallelize solving an initial value problem.  If each of the machines available to the distributed network has at least one GPU (a single machine can have multiple; more details in @sec:distributed), this implementation will automatically identify, manage, and use all of them.  Thus these methods can be composed to provide a scalable model of parallel-in-time integration for equations of motion.
+The GPU- and distribution-based methods can be combined to further parallelize solving an initial value problem.  If each of the machines available to the distributed network has at least one GPU (a single machine can have multiple; more details in @sec:methods_distributed), this implementation will automatically identify, manage, and use all of them.  Thus these methods can be composed to provide a scalable model of parallel-in-time integration for equations of motion.
 
 // #figure(
 //   // replace with diagram of problem tree
@@ -606,7 +606,7 @@ The GPU- and distribution-based methods can be combined to further parallelize s
 //   caption: "The problems can be distributed providing a recursively parallelized solution."
 // ) <diag:problem_tree>
 
-=== Massively Parallelizing the Parareal Algorithm <sec:single_gpu>
+=== Massively Parallelizing the Parareal Algorithm <sec:methods_gpu>
 
 The GPU-based implementation focuses on three ideas. The first is utilizing the massively-parallel architecture of a GPU to _simultaneously_ use orders-of-magnitude more threads than what would be possible with a CPU.  The second is considering the movement of data between the host memory (RAM) and the device memory (VRAM). And the last is needing to use primitive data-types.  Otherwise, the underlying algorithm is no different than what is presented in @sec:methods_parareal.
 
@@ -653,7 +653,7 @@ So, why is the PA well-suited to be implemented to use GPUs?  Because the data i
   )
 ) <diag:gpu_propagation>
 
-=== Distributing the Parareal Algorithm <sec:distributed>
+=== Distributing the Parareal Algorithm <sec:methods_distributed>
 
 While the PA can be further parallelized using GPUs, the fact still stands that the PA is quasi-embarrassingly-parallel.  In other words, each subproblem is independent of the others while each is being solved, and each of these subproblems can be assigned its own thread.  So, if there are more threads available, higher performance or accuracy can be achieved.  The implementation presented here provides more threads by sending problems to remote machines where they can be run simultaneously; in other words, multiple machines with their own CPUs and GPUs are networked together to form a _cluster_ where the work is distributed amongst all machines.
 
@@ -921,26 +921,31 @@ If the number of transfers is unchanged, the implementation could make use of pi
 Another point that should be addressed is that the transfer rate between the host and device is not independent of the size of the transfer itself.  On some devices, the transfer rate is nowhere near optimal when then the size of the transfer is below \~2 MB (even with pinned memory), and peak efficiency is only gained with transfers of 16 MB or more @cook2012cuda.  If the coarse discretization is equal to the number of threads the device can execute simultaneously, say $N_t = 5 * 10^3$, (i.e. there is a single problem for each device thread), and each problem needs and generates two 3-dimensional vectors (the position and velocity) composed of 32-bit floats ($S = 2 * 3 * 4 "bytes" = 24$ bytes), then each transfer into and out of the device would only consist of $N_t S = 120$ KB.  As this is orders-of-magnitude smaller than what is needed for optimal efficiency, each thread of the device could instead operate on $16 "MB" \/ 20 "KB" approx 133$ problems!
 
 // zero-copy memory
-If there are indeed multiple problems per device-thread, then zero-copy memory could be used to write a solution to global memory before the thread begins on the next one @cook2012cuda.  This way coarse propagation could begin while problems are still being finely propagated on the device.  That being said, there is no guarantee the solutions needed in the coarse propagation will be written in the order they are needed.
+If there are indeed multiple problems per device-thread, then zero-copy memory could be used to write a solution to global memory before the thread begins on the next one @cook2012cuda.  This way coarse propagation could begin while problems are still being fine-propagated on the device as shown in @img:zero-copy.  That being said, there is no guarantee the solutions needed in the coarse propagation will be written in the order they are needed.
+
+#figure(
+  caption: [When only using pinned memory, all data needs to be copied from the host to the device before any computation can begin (top). Using zero-copy memory (bottom) allows for data transfers to happen at the same time as computation.  Sourced from @cudaCppBestPractices.],
+  image(
+    "images/zero-copy.png",
+    width: 80%
+  )
+) <img:zero-copy>
 
 Overall, transfers can be avoided nearly completely by executing the coarse propagation on the device and distributing the problems to remote machines via RDMA. If problems are distributed, then the transfers would need to use pinned memory to avoid waiting for the CPU.  In any case, the transfer-rate across PCI-E directly depends on the amount of data being transferred, so it's best to saturate not only all available threads on the device, but also the number of problems per thread.  Even with optimally efficient data transfers, the PA is still bottlenecked by its sequential coarse propagation.
 
 === Host-Host Data Transfer & Cluster Topology
 
-Network is slow.  Might drastically depend on cluster topology @Deng2020.
+// intro
+As described in @sec:methods_hpc, every time this implementation finishes coarse-propagating and creating the subproblems, those problems are distrubuted from the director to a collection of worker nodes using network techniques and hardware.  Not only does there need to be more work done in order to transmit the problems (i.e. the problems need to be converted from structured data to a bit-stream a la serialization) but the throughput of networking hardware is much, much slower compared even to PCI-E.
 
-// === Time Complexity
+// cluster topology
+It has been shown that cluster topology can have a significant affect on the performance of inter-machine communication @Deng2020.  In this case there are two networks that need to be considered: the network associated with different nodes abilities to communicate, and the network associated with the physical path any data takes.  This relationship is analogous to sending mail through the post office.
 
-// - A detailed analysis of the convergence rates of the PA has been done @gander2007.
-// - Network communication is slow, and thus there's overheard to distrubuted computing.
-//   - Problems need to take long enough to make the overhead of network communication worth it.
-// - Each level of the problem tree loops say $T$ times, so level $l$ of the tree loops $T^l$ times by the end
-// - If the problem tree is $N$-ary, then there are $N^l$ processes at level $l$, thus $N^l T^l = (N T)^l$ loops happen on level $l$ by the end.
-//   - For example, there is a cluster with 2 levels consisting of 3 total processes (i.e. $N = 2$), and the coarse discretization is $T = 2^10 = 1024$.  So level 1 will provide at most (because the PA should converge well before iteration == discretization) a total of $(2 * 1024)^1 = 2048$ loops.
+// load balancing across nodes
 
-// === Space Complexity
+// 
 
-// - If the position and velocity sequences from the propagation are kept, then there is a massive increase of data that needs to be stored and sent between processes.
+// conclusion
 
 == Benchmarks <sec:analysis_benchmarks>
 
@@ -1002,7 +1007,7 @@ On the software side, the Julia language was used to encode the calculations.  T
 - Problems with "doubly parallel" characteristics can leverage both local and distributed parallelism, achieving significant computational efficiency.
 - These advancements pave the way for modeling acoustics in expanding volumes.
 
-== Future work & Possible Optimizations <sec:future>
+== Future work & Possible Optimizations <sec:conc_future>
 - Krylov enhanced subspaces
 - CUDA dynamic parallelism
 - Implement with C, Fortran, CUDA, NVSHMEM, MPI
