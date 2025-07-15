@@ -90,7 +90,7 @@ _])
 
 At the time of writing, a computer can add two numbers in about a nanosecond (or $10^(-9)$ seconds).  Naively extending this, a computer then should take 2 nanoseconds to add a number to the result of an addition of two numbers. Thus three nanoseconds are needed to perform three of these additions, and so on.  Considering an actual computer needs to perform many operations that are not directly related to computing the sum of number the user gives it (e.g. running the operating system), these calculations will take (much) more time.  Nevertheless, the fact remains that because the result of an addition is needed for the following computation, these operations must be executed sequentially.  This constraint means that, for (literally) an astronomical number of additions, the time needed for the full calculation to complete might itself be, astronomical.
 
-The procedure just described is not too disimilar than what occurs in _Euler's method_, which is an incredibly simple technique for approximating the solution to a differential equation.  The main idea of this method (as considered in physics) is to produce the value of some physical quantity at some time given its value at a previous time, how that quantity changes over time, and how much time has passed.  In fact, this procedure is composed of only two arithermetic executions: an addition, and a multiplication.  While this time may be "small" for even billions of executions of the Euler method, what if more are needed?
+The procedure just described is not too disimilar than what occurs in _Euler's method_, which is an incredibly simple technique for approximating the solution to a differential equation.  The main idea of this method (as considered in physics) is to produce the value of some physical quantity at some time given its value at a previous time, how that quantity changes over time, and how much time has passed.  In fact, this procedure is composed of only two arithmetic executions: an addition, and a multiplication.  While this time may be "small" for even billions of executions of the Euler method, what if more are needed?
 
 The work presented here is partitioned into three key parts: @sec:background covers key concepts that are necessary to understand the main purpose of and the methods used to build the following tool, @sec:methods covers the details of the implementation of th tool, and @sec:analysis the analysis of different aspects of the tool.
 
@@ -108,7 +108,7 @@ The two most important concepts presented in @sec:background are: equations of m
 
 
 
-= Review of Foundational Concepts
+= Review
 
 As this work lies firmly within in the realm of _computational physics_, the core concepts find themselves spanning physics, math, and computer science.  It is the models of physics that give natural processes a mathematical shape so that they may be understood and predicted.  Though, it is only for the most spherical of cows in a vacuum that such predictions can be made with pen and paper.  These structured representations of nature can be combined with well-defined procedures, i.e. _algorithms_, to be able to make predictions that might actually come true.  Whether it be making concrete, testable predictions about how certain types of interacting molecules will tilt when exposed to an electric field at temperatures near absolute-zero @chapman2019, or whether or not someone will need their rain jacket in a few days (or 1,000 years).  The concepts at the core of the following work are no more than: _equations of motion_, _high-performance computing_.
 
@@ -220,7 +220,7 @@ In the analogy, Alice in home A wants to compare the location of her phone to th
 
 Out of the analogy, each remote host effectively needs to be an identical copy of the local host.  This can be achieved by each host referring to a shared file system so they all manifestly the same binaries, versions of packages, etc. This needs to happen because an RPC can be thought of as sending a chunk of raw, textual source code to be run on the other process and/or machine.  If that source code calls some functionality that is not loaded or otherwise available in that process, that call will error. Thus things like a GPU library must be not only available on each machine, but also loaded on each process.
 
-= Scaling the Parareal Algorithm <sec:methods>
+= High-Performance Parareal Integration <sec:methods>
 
 Simulating physical processes has traditionally been done sequentially; even during the modern age of hardware supporting parallel execution, using computers to calculate the evolution of physical phenomena has been sequential.  Why haven't scientists just started doing things in parallel? Because of that pesky thing call _causality_; _the ball must go up before it can come down_.  Because of this temporal dependence (spatial dependence has had its own workarounds such as the Barnes-Hut algorithm @Barnes1986 @Hamada2009), simulation of large-time-scale physics has thus taken a long time to execute.  The Parareal algorithm (PA), and other parallel-in-time integration algorithms, have been developed in the last few decades to specifically address this issue @LIONS2001661.
 // These paragraphs should be squished together, after the above gets trimmed down
@@ -586,7 +586,7 @@ for some threshold $epsilon$.  @eq:convergence determines convergence when every
 The magic of the Parareal algorithm lies in its divide-and-conquer approach to solving initial value problems.  The "root" problem is sequentially and inaccurately solved to divide it into smaller problems whose initial values are defined by the solution.  Those problems are simultaneously and accurately solved in parallel.  The root problem is then solved in the same way as before, but at each step, the data is modified by combining the previous accurate and inaccurate solutions.  Finally, the new root solution defines new problems, and the loop continues until the the solution has converged.
 
 
-== Implementing the Parareal Algorithm at Scale <sec:methods_hpc>
+== The Parareal Algorithm at Scale <sec:methods_hpc>
 
 #v(2em)
 #align(right, [_Surely more threads is the answer!_])
