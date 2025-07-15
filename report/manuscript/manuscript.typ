@@ -910,6 +910,7 @@ To highlight the bottlenecks in the PA, we focus our attention back to @alg:para
 
 These transfer bottlenecks fall into two classifications: host-device, and host-host communication.  There are several methods that can be used to mitigate the consequences of the host-device transfer, including taking advantage of dynamic parallelism (where the coarse propagation would be done on the device), pinned/page-locked memory, and zero-copy memory.  As for host-host communication, which is done over the network and is the slowest part of the entire implementation, not much can be done to improve it directly other than using faster hardware and/or potentially an optimized cluster configuration, however, the relative efficiency could be improved by transferring as much data at once as possible.
 
+=== Host-Device Data Transfers
 
 // PCI-E is really slow
 A fundamental bottleneck, as it's part of the algorithm, is the need for all parallel computation to stop and the serial execution of the coarse propagation to complete.  While the serial execution is itself a bottleneck in terms of performance, the coarse propagation requires the fine-propagation data on the device, and thus it must first be transferred to the host; similarly, the new data must be transferred to the device after it's been created.  These transfers happen over PCI-E, which is really slow compared to the speeds of on-device memory transfers.  In fact, the bandwidth of global memory on a device can be at least an order of magnitude greater than the PCI-E bandwidth @cook2012cuda.
@@ -936,17 +937,15 @@ If there are indeed multiple problems per device-thread, then zero-copy memory c
 
 Overall, transfers can be avoided nearly completely by executing the coarse propagation on the device and distributing the problems to remote machines via RDMA. If problems are distributed, then the transfers would need to use pinned memory to avoid waiting for the CPU.  In any case, the transfer-rate across PCI-E directly depends on the amount of data being transferred, so it's best to saturate not only all available threads on the device, but also the number of problems per thread.  Even with optimally efficient data transfers, the PA is still bottlenecked by its sequential coarse propagation.
 
-=== Host-Host Data Transfer & Cluster Topology
+=== Host-Host Data Transfers
 
 // intro
-As described in @sec:methods_hpc, every time this implementation finishes coarse-propagating and creating the subproblems, those problems are distrubuted from the director to a collection of worker nodes using network techniques and hardware.  Not only does there need to be more work done in order to transmit the problems (i.e. the problems need to be converted from structured data to a bit-stream a la serialization) but the throughput of networking hardware is much, much slower compared even to PCI-E.
+As described in @sec:methods_hpc, every time this implementation finishes coarse-propagating and creating the subproblems, those problems are distrubuted from the director to a worker nodes over the network.  Not only does there need to be more work done in order to transmit the problems (e.g. the problems need to be converted from structured data to a bit-stream by serialization) but the throughput of networking hardware is much, much slower compared even to PCI-E.
 
 // cluster topology
-It has been shown that cluster topology can have a significant affect on the performance of inter-machine communication @Deng2020.  In this case there are two networks that need to be considered: the network associated with different nodes abilities to communicate, and the network associated with the physical path any data takes.  This relationship is analogous to sending mail through the post office.
+It has been shown that cluster topology (i.e. how workers are related to each other, not necessarily physically) can have a significant effect on the performance of inter-machine communication @Deng2020.  Additionally, there are two topologies to consider: the network associated with the physical path any data takes (e.g. all data has to go through the director), and the network of nodes each node can "see".  For example, the cluster shown in @diag:cluster_topology was designed to have the worker processes only communicate with the manager process on the same machine so only the manager would need to send a single batch of data between physical machines.  While this the "logical" network, the actual path the data takes is that the 
 
-// load balancing across nodes
-
-// 
+// send enough work to make the transfer time worth it and also to get optimal transfer speed i.e. best to batch work
 
 // conclusion
 
