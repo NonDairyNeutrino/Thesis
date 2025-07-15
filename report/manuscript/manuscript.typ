@@ -827,7 +827,7 @@ Once the devices are assigned, the cluster has been prepared.  The director then
 ) <alg:parareal_distributed>
 
 
-= Analysis <sec:analysis>
+= Performance Analysis <sec:analysis>
 
 While there are many significant aspects of this work that could be analyzed, there are only three that will be considered here.  The effects of transferring data betwene the host and the device repeatedly arises only in the implementation and the theoretical nature of this bottleneck is investigated.  Similary, the significance of transferring data between hosts is analyzed.  And finally, empirical benchmarks are given to highlight the efficacy of the implementation.
 
@@ -902,7 +902,7 @@ Starts high, and immediately converges
   )
 ) <plt:convergence_fine>
  
-== Identifying Bottlenecks <sec:analysis_algorithm>
+== Data Transfer Latency <sec:analysis_algorithm>
 
 As noted in @sec:background_hpc, any data that is computed in one memory space must be transferred to another memory space in order for that data to be used in that space.  Again, this applies for both GPUs and remote hosts (or more generally processes).  Because these transfers happen over either PCI-E or network channels, respectively, they serve as the single greatest bottlenecks for performance in this implementation. The following discussion will address to what extent this implementation is limited by these bottlenecks and some strategies on how to mitigate them.
 
@@ -943,11 +943,24 @@ Overall, transfers can be avoided nearly completely by executing the coarse prop
 As described in @sec:methods_hpc, every time this implementation finishes coarse-propagating and creating the subproblems, those problems are distrubuted from the director to a worker nodes over the network.  Not only does there need to be more work done in order to transmit the problems (e.g. the problems need to be converted from structured data to a bit-stream by serialization) but the throughput of networking hardware is much, much slower compared even to PCI-E.
 
 // cluster topology
-It has been shown that cluster topology (i.e. how workers are related to each other, not necessarily physically) can have a significant effect on the performance of inter-machine communication @Deng2020.  Additionally, there are two topologies to consider: the network associated with the physical path any data takes (e.g. all data has to go through the director), and the network of nodes each node can "see".  For example, the cluster shown in @diag:cluster_topology was designed to have the worker processes only communicate with the manager process on the same machine so only the manager would need to send a single batch of data between physical machines.  While this the "logical" network, the actual path the data takes is that the 
+It has been shown that cluster topology (i.e. how workers are related to each other, not necessarily physically) can have a significant effect on the performance of inter-machine communication @Deng2020.  As such, there are two topologies to consider: the network associated with the physical path any data takes (e.g. all data has to go through the director), and the network of nodes each node can "see".  The former _physical topology_ consists of the tangible material through which electrical impulses are sent such as ethernet cabling.  The latter _logical topology_ encodes the worker that a particular worker can share data.
 
-// send enough work to make the transfer time worth it and also to get optimal transfer speed i.e. best to batch work
+// example for this cluster
+For example, the cluster shown in @diag:cluster_topology was designed to have the worker processes only communicate with the manager process on the same machine.  This is so only the manager would need to send a single batch of data between physical machines to the director.  While this logical topology seems sound, the actual path the data takes (according to the underlying physical topology) may be significantly detrimental to the overall performance of the cluster.  If the software that manages the message passing requires the director to act as an intermediary, then what looks like a straightfoward intra-machine communication in the logical topology between worker and manager actually results in data being transferred from the worker process to the director, then from the director to the manager, and then (after doing nothing at the manager) from the manager back to the director; this is effectively the a star topology as shown in @img:star_topo.
+
+#figure(
+  caption: [While a cluster might have the logical form as shown in @diag:cluster_topology, the physical characteristics of the network connections and how the communication management controls the flow of data must still be considered.  It is possible for the physical topology to be a star.  Image sourced from @starNetwork.],
+  image(
+    "images/StarNetwork.png",
+    width: 33%
+  )
+) <img:star_topo>
+
+// use threads for each device instead of processes
+Situations such as these can be mitigated in the future "simply" by only creating manager processes on the compute nodes, and having each device communicate with the host on its own dedicated thread.  This way the device-manager-director trace truly is linear and efficient.  Though, while this idea is simple in description, the implementation to have the manager process control multiple devices on different threads needs more care, but is still reasonable @besard2019prototyping.
 
 // conclusion
+While distributed functionality is key to achieving scalability, the inter-process and inter-machine communication overhead is unavoidable, and thus so is its overhead.  As long as care is taken when considering potentially hidden aspects of working with unshared memory spaces, such the physical versus logical topologies, this communication overhead can be minimized.  Additional performance can be gained by minimizing the number of unshared memory spaces in general and opting for shared memory spaces such as multiple threads where no such overhead arises.
 
 == Benchmarks <sec:analysis_benchmarks>
 
