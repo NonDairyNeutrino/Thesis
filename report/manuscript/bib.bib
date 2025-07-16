@@ -905,3 +905,58 @@ url={https://doi.org/10.1007/s11227-020-03216-y}
  url     = "https://commons.wikimedia.org/wiki/File:StarNetwork.svg",
  note    = "File: \ttfamily{StarNetwork.svg}",
 }
+
+@misc{masthay2018pararealalgorithmimplementationsimulation,
+      title={Parareal Algorithm Implementation and Simulation in Julia}, 
+      author={Tyler M. Masthay and Saverio Perugini},
+      year={2018},
+      eprint={1706.08569},
+      archivePrefix={arXiv},
+      primaryClass={cs.MS},
+      url={https://arxiv.org/abs/1706.08569}, 
+}
+
+@misc{schreiber2016decentralizedparallelizationintimeapproachparareal,
+      title={A Decentralized Parallelization-in-Time Approach with Parareal}, 
+      author={Martin Schreiber and Adam Peddle and Terry Haut and Beth Wingate},
+      year={2016},
+      eprint={1506.05157},
+      archivePrefix={arXiv},
+      primaryClass={cs.DC},
+      url={https://arxiv.org/abs/1506.05157}, 
+}
+
+@article{Blumers2021,
+author={Blumers, Ansel L.
+and Yin, Minglang
+and Nakajima, Hiroyuki
+and Hasegawa, Yosuke
+and Li, Zhen
+and Karniadakis, George Em},
+title={Multiscale parareal algorithm for long-time mesoscopic simulations of microvascular blood flow in zebrafish},
+journal={Computational Mechanics},
+year={2021},
+month={Nov},
+day={01},
+volume={68},
+number={5},
+pages={1131-1152},
+abstract={Various biological processes such as transport of oxygen and nutrients, thrombus formation, vascular angiogenesis and remodeling are related to cellular/subcellular level biological processes, where mesoscopic simulations resolving detailed cell dynamics provide a key to understanding and identifying the cellular basis of disease. However, the intrinsic stochastic effects can play an important role in mesoscopic processes, while the time step allowed in a mesoscopic simulation is restricted by rapid cellular/subcellular dynamic processes. These challenges significantly limit the timescale that can be reached by mesoscopic simulations even with high-performance computing. To break this bottleneck and achieve a biologically meaningful timescale, we propose a multiscale parareal algorithm in which a continuum-based solver supervises a mesoscopic simulation in the time-domain. Using an iterative prediction-correction strategy, the parallel-in-time mesoscopic simulation supervised by its continuum-based counterpart can converge fast. The effectiveness of the proposed method is first verified in a time-dependent flow with a sinusoidal flowrate through a Y-shaped bifurcation channel. The results show that the supervised mesoscopic simulations of both Newtonian fluids and non-Newtonian bloods converge to reference solutions after a few iterations. Physical quantities of interest including velocity, wall shear stress and flowrate are computed to compare against those of reference solutions, showing a less than 1{\%} relative error on flowrate in the Newtonian flow and a less than 3{\%} relative error in the non-Newtonian blood flow. The proposed method is then applied to a large-scale mesoscopic simulation of microvessel blood flow in a zebrafish hindbrain for temporal acceleration. The three-dimensional geometry of the vasculature is constructed directly from the images of live zebrafish under a confocal microscope, resulting in a complex vascular network with 95 branches and 57 bifurcations. The time-dependent blood flow from heartbeats in this realistic vascular network of zebrafish hindbrain is simulated using dissipative particle dynamics as the mesoscopic model, which is supervised by a one-dimensional blood flow model (continuum-based model) in multiple temporal sub-domains. The computational analysis shows that the resulting microvessel blood flow converges to the reference solution after only two iterations. The proposed method is suitable for long-time mesoscopic simulations with complex fluids and geometries. It can be readily combined with classical spatial decomposition for further acceleration.},
+issn={1432-0924},
+doi={10.1007/s00466-021-02062-w},
+url={https://doi.org/10.1007/s00466-021-02062-w}
+}
+
+@article{Kreienbuehl_2017,
+   title={Time-parallel gravitational collapse simulation},
+   volume={12},
+   ISSN={1559-3940},
+   url={http://dx.doi.org/10.2140/camcos.2017.12.109},
+   DOI={10.2140/camcos.2017.12.109},
+   number={1},
+   journal={Communications in Applied Mathematics and Computational Science},
+   publisher={Mathematical Sciences Publishers},
+   author={Kreienbuehl, Andreas and Benedusi, Pietro and Ruprecht, Daniel and Krause, Rolf},
+   year={2017},
+   month=may, pages={109–128} 
+}
