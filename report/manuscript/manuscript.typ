@@ -53,10 +53,7 @@
 #align(center)[
   #set par(justify: false)
   *Abstract*\
-  Simulating time-dependent physics has traditionally been constrained to using sequential algorithms and thus has not benefitted from advances in parallel computing.
-  Parallel-in-time integration attempts to address this limitation with methods such as the Parareal algorithm, but little work has been done to implement this algorithm using high-performance methods or for Hamiltonian systems.
-  This work provides an implementation of the Parareal algorithm that takes advantage of both the massively-parallel architecture of GPUs as well as the scalability of distributed systems.
-  Benchmarks are additionally provided to showcase the efficiency of this implementation, as well as how cluster topology affects the runtime.
+  Physical simulations always need to balance accuracy and run-time.  This work implements the Parareal Algorithm using graphics processing units across a distributed system to accurately simulate time-dependent physics while minimizing runtime.  Several methods are identified that could further improve performance by minimizing latency associated with transferring data between host and device as well as between hosts in the system.  Preliminary benchmarks are provided.
 ]
 #v(1fr)
 #pagebreak()
