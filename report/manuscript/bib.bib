@@ -960,3 +960,46 @@ url={https://doi.org/10.1007/s00466-021-02062-w}
    year={2017},
    month=may, pages={109–128} 
 }
+
+@InProceedings{gander2015,
+author="Gander, Martin J.",
+editor="Carraro, Thomas
+and Geiger, Michael
+and K{\"o}rkel, Stefan
+and Rannacher, Rolf",
+title="50 Years of Time Parallel Time Integration",
+booktitle="Multiple Shooting and Time Domain Decomposition Methods",
+year="2015",
+publisher="Springer International Publishing",
+address="Cham",
+pages="69--113",
+abstract="Time parallel time integration methods have received renewed interest over the last decade because of the advent of massively parallel computers, which is mainly due to the clock speed limit reached on today's processors. When solving time dependent partial differential equations, the time direction is usually not used for parallelization. But when parallelization in space saturates, the time direction offers itself as a further direction for parallelization. The time direction is however special, and for evolution problems there is a causality principle: the solution later in time is affected (it is even determined) by the solution earlier in time, but not the other way round. Algorithms trying to use the time direction for parallelization must therefore be special, and take this very different property of the time dimension into account.We show in this chapter how time domain decomposition methods were invented, and give an overview of the existing techniques. Time parallel methods can be classified into four different groups: methods based on multiple shooting, methods based on domain decomposition and waveform relaxation, space-time multigrid methods and direct time parallel methods. We show for each of these techniques the main inventions over time by choosing specific publications and explaining the core ideas of the authors. This chapter is for people who want to quickly gain an overview of the exciting and rapidly developing area of research of time parallel methods.",
+isbn="978-3-319-23321-5"
+}
+
+@article{Ong2020Apps,
+author={Ong, Benjamin W.
+and Schroder, Jacob B.},
+title={Applications of time parallelization},
+journal={Computing and Visualization in Science},
+year={2020},
+month={Sep},
+day={23},
+volume={23},
+number={1},
+pages={11},
+abstract={This review article serves to summarize the many advances in time-parallel computations since the excellent review article by Gander, ``50 years of Time Parallel Integration'' (Gander, in: 50 years of time parallel time integration. Multiple shooting and time domain decomposition, Springer, Berlin, 2015). We focus, when possible, on applications of time parallelism and the observed speedup and efficiency, highlighting the challenges and benefits of parallel time computations. The applications covered range from numerous PDE-based simulations (both hyperbolic and parabolic), to PDE-constrained optimization, powergrid simulations, and machine learning. The time-parallel methods covered range from various iterative schemes (multigrid, waveform, multiple shooting, domain decomposition) to direct time-parallel methods.},
+issn={1433-0369},
+doi={10.1007/s00791-020-00331-4},
+url={https://doi.org/10.1007/s00791-020-00331-4}
+}
+
+@misc{xbraid-package,  
+title = {{XB}raid: Parallel multigrid in time},  
+howpublished = {\url{http://llnl.gov/casc/xbraid}}  
+}
+
+@online{pintorg,
+url = {https://parallel-in-time.org},
+urldate = {2025-07-16}
+}
