@@ -98,40 +98,55 @@ The procedure just described is not too dissimilar than what occurs in _Euler's 
 @sec:analysis covers analysis of this implementation. @sec:analysis_numerical details the numerical effects of discretization on error/energy drift, stability, and convergence.  @sec:analysis_algorithm considers how using high-performance methods directly affects the runtime and needed memory i.e. time and space complexity.  @sec:analysis_benchmarks addresses the core goal of this work, how this implementation affects the runtime needed to approximate motion.
 
 = Background <sec:background>
+/* 
+Outline
+1. problems takes a long time.  we don't like that
+2. PINT methods have been developed and grown more popular over the last 20 years along with the ubiquity of multi-core computers
+3. 
+4. actual science has been done with these methods
+*/
 
-- Interest in parallel-in-time integration has significantly increased over the past 20 years 
+// PROBLEMS TAKES A LONG
+- Problems have been easily parallelizable in space, but remained sequential in time, which takes a long time to run.
+- Here are some examples of problems that have been parallelized in space but not time
 
+// PARALLEL IN TIME INTEGRATION AIMS TO SOLVE THIS PROBLEM
+- So some really smart people developed methods to also parallelize computations in the time dimension for even further speedup.  These methods are real good so more people are doing them as shown in @img:pint_history.
 #figure(
-  caption: [Image credit @pintorg],
+  caption: [The number of papers published regarding parallel-in-time integration has significantly, and steadily, increased over the past few decades.  It is also worth noting that at the time of writing, the number of papers published this is year is on track to match last year's.   Image credit @pintorg],
   image(
     "images/pint_history.png",
     width: 80%,
     alt: ""
   )
 ) <img:pint_history>
-
-- There has been previous work to implement the PA
-  - Previous work has already been done to implement a small-scale version of the PA in Julia @masthay2018pararealalgorithmimplementationsimulation
-    - Aimed at first-order ivp
-    - used Euler's and RK methods
-    - Only used multi-processing
-  - Work has also been done to implement a distributed PA using MPI in Python @schreiber2016decentralizedparallelizationintimeapproachparareal
-
-- The PA has been used for actual science
-  - Long-time simulations of blood flow in fish @Blumers2021
-  - TIME PARALLEL GRAVITATIONAL COLLAPSE SIMULATION @Kreienbuehl_2017
-
 - There are four main categories of time-parallel integration @gander2015 @Ong2020Apps
   - multiple shooting
   - waveform relaxation and domain decomposition
   - multigrid
   - direct time-parallel methods
+- I am focusing on the Parareal algorithm @parareal_og_2001 which is possibly the most studied of the the PinT methods
 
-- XBraid, developed by Lawrence Livermore National Laboratory, uses multi-grid reduction in time (MGRIT) @xbraid-package
+// ACTUAL SCIENCE HAS BEEN DONE WITH THEM
+- These methods have also been used for concrete scientific problems
+  - Long-time simulations of blood flow in fish @Blumers2021
+  - TIME PARALLEL GRAVITATIONAL COLLAPSE SIMULATION @Kreienbuehl_2017
+
+// NON-HPC IMPLEMENTATIONS OF THE PARAREAL ALGORITHM AND OTHER PINT METHODS E.G. MGRIT
+- There have been implementations in the past including XBraid, developed by Lawrence Livermore National Laboratory, uses multi-grid reduction in time (MGRIT) @xbraid-package
+- Previous work has already been done to implement a small-scale version of the PA in Julia @masthay2018pararealalgorithmimplementationsimulation
+    - Aimed at first-order ivp
+    - used Euler's and RK methods
+    - Only used multiprocessing
+- Work has also been done to implement a distributed PA using MPI in Python @schreiber2016decentralizedparallelizationintimeapproachparareal
+
+While some have used multiprocessing, there doesn't seem to have been implementations using graphics processing units (GPU) to achieve massive parallelism locally or distributedly.  This is where I come in.  Because the actual computations are solely arithmetic, the reduced capability of GPUs is perfectly fine while the parallelism they offer is very good compared to central processing units (CPU).  
+
+The goal of this work is to provide an implementation of the Parareal Algorithm that can scale as much as it needs to for whatever problem is given to it.  The only thing that limits its performance is the number of threads able to be running at once.
 
 = The Parareal Algorithm <sec:parareal>
 
-Simulating physical processes has traditionally been done sequentially; even during the modern age of hardware supporting parallel execution, using computers to calculate the evolution of physical phenomena has been sequential.  Why haven't scientists just started doing things in parallel? Because of that pesky thing call _causality_; _the ball must go up before it can come down_.  Because of this temporal dependence (spatial dependence has had its own workarounds such as the Barnes-Hut algorithm @Barnes1986 @Hamada2009), simulation of large-time-scale physics has thus taken a long time to execute.  The Parareal algorithm (PA), and other parallel-in-time integration algorithms, have been developed in the last few decades to specifically address this issue @LIONS2001661.
+Simulating physical processes has traditionally been done sequentially; even during the modern age of hardware supporting parallel execution, using computers to calculate the evolution of physical phenomena has been sequential.  Why haven't scientists just started doing things in parallel? Because of that pesky thing call _causality_; _the ball must go up before it can come down_.  Because of this temporal dependence (spatial dependence has had its own workarounds such as the Barnes-Hut algorithm @Barnes1986 @Hamada2009), simulation of large-time-scale physics has thus taken a long time to execute.  The Parareal algorithm (PA), and other parallel-in-time integration algorithms, have been developed in the last few decades to specifically address this issue @parareal_og_2001.
 // These paragraphs should be squished together, after the above gets trimmed down
 Many details and variations of the Parareal algorithm have been investigated to find and address issues such as stability /* #cn */, convergence rates /* #cn */, application to higher-order differential equations /* #cn */.  The main goal of this investigation is to contribute another variation: an implementation of the Parareal algorithm using methods from high-performance computing.
 
@@ -440,7 +455,7 @@ $ P_p = {
 
 Because the root solution has been calculated via an inaccurate method, it can be made more accurate using the results of the fine propagator.  Though the root solution is not corrected only with the results of the fine propagator, but rather by coarsely propagating the root initial values again but adding a corrector determined by a combination of the results of the fine propagator and the previous iteration's root solution.  The main idea of this process is known as _Deferred Corrections_ @Ong2020.
 
-The correction phase, as defined in literature @LIONS2001661, takes the deceptively-simple recursive form
+The correction phase, as defined in literature @parareal_og_2001, takes the deceptively-simple recursive form
 
 $ u_t^i := underbrace(cal(G)(u_(t-1)^i), "predictor") + underbrace(cal(F)(u_(t-1)^(i-1)) - cal(G)(u_(t-1)^(i-1)), "corrector"), $ <eq:correction>
 
@@ -564,7 +579,7 @@ When problems get big enough, or more concretely when there is enough data that 
 
 One of the core goals of this work is to combine the power of massive multithreading from GPUs and the unbound potential from distributed computing to solve EOMs.  This will allow "extreme-scale", time-dependent problems to be solved in reasonable time.
 
-=== Multi-threading & GPU Computing <sec:multithreading>
+=== Multithreading & GPU Computing <sec:multithreading>
 
 For the purposes of this work, there are three ideas that need to be understood.  The first is that data needs to be copied between the CPU and the GPU. The second is how the GPU can read and write that data safely.  Finally, the third is how the GPU performs calculations on that data.  A note on terminology: when discussing GPGPU computing, the nomenclature refers to the memory and overall system accessible to the CPU as the *host*, and similarly the memory and resources available to the GPU is known as the *device*.
 
@@ -594,7 +609,7 @@ Once each thread knows its array index, all threads execute the kernel simultane
   )
 ) <img:cuda_stride>
 
-=== Multi-processing & Distributed Computing <sec:multiprocessing>
+=== multiprocessing & Distributed Computing <sec:multiprocessing>
 
 The three most important ideas to understand in multiprocessing and distributed computing for this work are: different processes do not have access to the same data, one process can tell another to perform an action, and the time associated with communicating between processes.  To distinguish processes and threads, consider two homes A and B each with its own family.  Each home represents a process with its associated family members being that process's threads.
 
