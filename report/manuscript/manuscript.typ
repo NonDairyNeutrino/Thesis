@@ -78,33 +78,43 @@ _])
 
 = Introduction
 
-// - Big ideas
-//   - Big Simulations take big time
-//   - Initial value problems are hard to speed up because of causality
-//   - Simulating the motion, or motion-like, physics is of great interest (i.e. equations of motion)
-//     - Ex: N-Body with Barnes-Hut and Oct-tree binary space partitioning #sym.arrow.l approximation!
-//   - Parallel in time integration algorithms have been created to speed up calculations without making approximations
+The idea is simple: calculations take time, and that is bad.
+Heuristically, the total time needed for all calculations to finish depends on both the number of calculations needed to be done, and the number of calculations that can finish in some time.
+To minimize the total time, either the number of calculations needs to be minimized, the number of calculations per time needs to be maximized, or both.
+This work focuses on the latter.
 
-At the time of writing, a computer can add two numbers in about a nanosecond (or $10^(-9)$ seconds).  Naively extending this, a computer then should take 2 nanoseconds to add a number to the result of an addition of two numbers. Thus three nanoseconds are needed to perform three of these additions, and so on.  Considering an actual computer needs to perform many operations that are not directly related to computing the sum of number the user gives it (e.g. running the operating system), these calculations will take (much) more time.  Nevertheless, the fact remains that because the result of an addition is needed for the following computation, these operations must be executed sequentially.  This constraint means that, for (literally) an astronomical number of additions, the time needed for the full calculation to complete might itself be, astronomical.
+While the speed of computers has increased significantly, the most recent advances have seen diminishing returns in reducing the time needed for a single calculation.
+Parallel computing allows multiple calculations to finish in the same amount of time as a single calculation, thus increasing the number of calculations that can occur per time.
+For scientific problems concerning both space and time, parallelism has reduced the time needed to the spatial part of the problem, leaving the temporal component to still be done sequentially.
+Parallel-in-Time Integration (PTI) allows the dynamics of the problem to be calculated in parallel along with the spatial behavior, thus further reducing the time needed.
 
-The procedure just described is not too dissimilar than what occurs in _Euler's method_, which is an incredibly simple technique for approximating the solution to a differential equation.  The main idea of this method (as considered in physics) is to produce the value of some physical quantity at some time given its value at a previous time, how that quantity changes over time, and how much time has passed.  In fact, this procedure is composed of only two arithmetic executions: an addition, and a multiplication.  While this time may be "small" for even billions of executions of the Euler method, what if more are needed?
+Even though PTI allows every dimension of problem to be calculated simultaneously, the speedup factor is still limited by how many calculations can happen simultaneously.
+A single central processing unit (CPU), at the time of writing, can execute about ten calculations at the same time.
+On the other hand, a single graphics processing unit (GPU) can execute about ten *thousand* calculations at the same time.
+Likewise, multiple machines can be used to distribute calculations among them, which are similar executed simultaneously.
+The use of GPUs and distributed systems of machines together offers a foundation on which an arbitrarily large problem could be solved.
 
+// Supercomputers and HPC are now available so spatially saturated problems can gain more performance.
+It's not uncommon for available hardware to provide more power than what's needed for a problem to only be spatially parallelized.
+For example, a simulation of a wave could discretize space to a degree such that any higher resolution would not provide a significant increase in accuracy, and to satisfy the Courant-Friedrichs-Lewy condition (CFL), time must be discretized to a similar degree. Modern high-performance computing (HPC) systems can execute all calculations for all spatial intervals simultaneously while having compute capability left over.
+Thus, in order to fully utilize these HPC systems, PTI methods must be not only used, but implemented to take advantage of the resources provided such as GPUs and distributed systems.
+That's where this work comes in.
+
+This work focuses on implementing the Parareal algorithm from PTI to use HPC methods and resources in order to more efficiently simulate the dynamics of physical systems, in particular wave-like motion.
+While wave-like motion is the focus of the physics, this implementation and can be used to simulate other types of motion such as molecular dynamics, weather and climate forecasting, plasma dynamics in fusion reactors, or any system that is modeled by an equation of motion.
+With this work, computational modeling and simulation can scale not only with the needed accuracy of the problem but also with the performance and availability of hardware.
+Overall, HPC resources will be more efficiently utilized, results will be accurate as possible, and most importantly, time will be minimized.
+
+// ROADMAP OF OF CHAPTERS
 // The work presented here is partitioned into three key parts: @sec:background covers key concepts that are necessary to understand the main purpose of and the methods used to build the following tool, @sec: covers the details of the implementation of th tool, and @sec:analysis the analysis of different aspects of the tool.
 
 // The two most important concepts presented in @sec:background are: equations of motion, and high-performance computing.  Equations of motion (@sec:parareal_eom) covers the basics of the mathematical and computational methods that have been used to model physical phenomena, such as the motion of a ball flying through the air.  High-Performance Computing (@sec:scale_hpc) covers the fundamentals of using multiple threads to execute multiple calculations simultaneously, including a high-level description of the GPU/Single-Program-Multiple-Thread model of parallelism, as well as the fundamentals of using multiple processes to achieve further parallelization, including a similarly high-level description of how multiple computers (i.e. unshared memory) can be used.
 
-@sec:scale comprises the core of this work and presents the Parareal algorithm and how it can be implemented to take advantage of massively-parallel frameworks.  @sec:parareal more specifically introduces the Parareal algorithm and presents it in such a way that using high-performance methods is a natural extension.  @sec:scale_hpc details how to construct and use a cluster of computers such that the Parareal algorithm can be executed on GPUs across multiple machines that are possibly not even in the same physical location.
+// @sec:scale comprises the core of this work and presents the Parareal algorithm and how it can be implemented to take advantage of massively-parallel frameworks.  @sec:parareal more specifically introduces the Parareal algorithm and presents it in such a way that using high-performance methods is a natural extension.  @sec:scale_hpc details how to construct and use a cluster of computers such that the Parareal algorithm can be executed on GPUs across multiple machines that are possibly not even in the same physical location.
 
-@sec:analysis covers analysis of this implementation. @sec:analysis_numerical details the numerical effects of discretization on error/energy drift, stability, and convergence.  @sec:analysis_algorithm considers how using high-performance methods directly affects the runtime and needed memory i.e. time and space complexity.  @sec:analysis_benchmarks addresses the core goal of this work, how this implementation affects the runtime needed to approximate motion.
+// @sec:analysis covers analysis of this implementation. @sec:analysis_numerical details the numerical effects of discretization on error/energy drift, stability, and convergence.  @sec:analysis_algorithm considers how using high-performance methods directly affects the runtime and needed memory i.e. time and space complexity.  @sec:analysis_benchmarks addresses the core goal of this work, how this implementation affects the runtime needed to approximate motion.
 
 = Background <sec:background>
-/* 
-Outline
-1. problems takes a long time.  we don't like that
-2. PINT methods have been developed and grown more popular over the last 20 years along with the ubiquity of multi-core computers
-3. 
-4. actual science has been done with these methods
-*/
 
 // PROBLEMS TAKES A LONG
 - Problems have been easily parallelizable in space, but remained sequential in time, which takes a long time to run.
@@ -140,7 +150,7 @@ Outline
     - Only used multiprocessing
 - Work has also been done to implement a distributed PA using MPI in Python @schreiber2016decentralizedparallelizationintimeapproachparareal
 
-While some have used multiprocessing, there doesn't seem to have been implementations using graphics processing units (GPU) to achieve massive parallelism locally or distributedly.  This is where I come in.  Because the actual computations are solely arithmetic, the reduced capability of GPUs is perfectly fine while the parallelism they offer is very good compared to central processing units (CPU).  
+While some have used multiprocessing, there doesn't seem to have been implementations using graphics processing units (GPU) to achieve massive parallelism locally or distributedly.  This is where I come in.  Because the actual computations are solely arithmetic, the reduced capability of GPUs is perfectly fine while the parallelism they offer is very good compared to central processing units (CPU).
 
 The goal of this work is to provide an implementation of the Parareal Algorithm that can scale as much as it needs to for whatever problem is given to it.  The only thing that limits its performance is the number of threads able to be running at once.
 
@@ -160,16 +170,16 @@ This chapter begins by casting the Parareal Algorithm in a form that is conduciv
 #let threads = 8
 #ex To help understand and clarify the mechanisms of the scalable PA, including the important details that are not explicitly covered in the algorithm itself, an example problem is used.  Consider the motion of a thrown ball just after it leaves the hand over the course of #tmax seconds (ignoring air resistance).  This motion is modeled by: $P = {
   underbrace(
-    diff_t^2 harpoon(r) = harpoon(g) , 
+    diff_t^2 harpoon(r) = harpoon(g) ,
     "Acceleration"
-  ), #h(11pt)  
+  ), #h(11pt)
   underbrace(
-    harpoon(r)(0) = harpoon(r)_0 \, #h(5pt) 
-    harpoon(v)(0) = harpoon(v)_0, 
+    harpoon(r)(0) = harpoon(r)_0 \, #h(5pt)
+    harpoon(v)(0) = harpoon(v)_0,
     "Initial values"
-  ), #h(11pt) 
+  ), #h(11pt)
   underbrace(
-    [0 "s", #tmax "s"], 
+    [0 "s", #tmax "s"],
     "time span"
   )
 }.$ <eq:root>
@@ -185,22 +195,22 @@ According to classical mechanics, the motion for any and every object in the uni
 
 Take, for example, the motion of a simple pendulum.  While the overall motion of bob is determined from length on which it hangs, and the gravity affecting it, the angle at which the bob finds only depends on time.  Now, the position of a point on a guitar string does not only change in time, but is also affected by the motion of the points around it.  Both of these systems can be modeled by an EOM, but the pendulum can be modeled an *ordinary differential equation* (ODE), and the guitar string can be modeled by a *partial differential equation* (PDE).
 
-The nuances on each of these ideas are better left covered by your friendly neighborhood math department, but the detail that is indeed important to this work is that there are techniques that can transform a PDE to a collection of ODEs.  One such procedure is known as the _spectral method_, where by representing the solution to the PDE as a sum of waves (i.e. a Fourier transform), the physics in each dimension only affects the frequency in that dimension @Orszag1969.  While the solutions to the ODEs would be in so-called "frequency space", applying the inverse Fourier transform on those solutions, achieves the desired solution to the original PDE.  Whether it be an ODE, a PDE, or a system of ODEs, when modeling physical phenomena, initial values need to be considered to make any concrete predictions about the future state of a specific object.  
+The nuances on each of these ideas are better left covered by your friendly neighborhood math department, but the detail that is indeed important to this work is that there are techniques that can transform a PDE to a collection of ODEs.  One such procedure is known as the _spectral method_, where by representing the solution to the PDE as a sum of waves (i.e. a Fourier transform), the physics in each dimension only affects the frequency in that dimension @Orszag1969.  While the solutions to the ODEs would be in so-called "frequency space", applying the inverse Fourier transform on those solutions, achieves the desired solution to the original PDE.  Whether it be an ODE, a PDE, or a system of ODEs, when modeling physical phenomena, initial values need to be considered to make any concrete predictions about the future state of a specific object.
 
 For our purposes, an IVP can be thought of as an object with several properties: the acceleration, the initial position and velocity, and the time interval on which you are modeling (which could be unbound e.g. $[0, infinity)$) as shown by the following equation:
 
 $ {
   underbrace(
-    diff_t^2 harpoon(r) = harpoon(F)(t, harpoon(r), harpoon(v)), 
+    diff_t^2 harpoon(r) = harpoon(F)(t, harpoon(r), harpoon(v)),
     "Acceleration"
-  ), #h(11pt)  
+  ), #h(11pt)
   underbrace(
-    harpoon(r)(0) = harpoon(r)_0 \, #h(5pt) 
-    harpoon(v)(0) = harpoon(v)_0, 
+    harpoon(r)(0) = harpoon(r)_0 \, #h(5pt)
+    harpoon(v)(0) = harpoon(v)_0,
     "Initial values"
-  ), #h(11pt) 
+  ), #h(11pt)
   underbrace(
-    [0, t_f], 
+    [0, t_f],
     "time span"
   )
 }. $
@@ -211,7 +221,7 @@ In some sense, anything that fits this structure, could be considered an IVP (mo
 
 When it comes to solving EOMs numerically, possibly the biggest factor that should influence the choice of integration method is the length of time on which the EOM is considered.  Almost all methods are not inappropriate to use on small scale problems, but some of these methods result in inaccurate or even unphysical behavior due to the accumulation of approximation-error.  For EOMs, one way to quantify this error is through the idea of *energy drift*.
 
-Outside of considering the energy of the whole universe, the total energy of a (well-defined) system does not change in time.  If a system is composed on multiple objects, then the total energy of each object individually can change, but the total energy of all the objects combined is constant.  This simple idea provides a reference with which to compare the simulated energy.  
+Outside of considering the energy of the whole universe, the total energy of a (well-defined) system does not change in time.  If a system is composed on multiple objects, then the total energy of each object individually can change, but the total energy of all the objects combined is constant.  This simple idea provides a reference with which to compare the simulated energy.
 
 The difference between the simulated energy at any point in time and the initial energy acts as a measurement of the inaccuracy of the simulation at that point in time i.e. the _local error_. A corollary to this is that the difference between the energy at the end of the simulation and the initial energy serves as a measure of the _global error_ as the local error compounds over time.  In other words, the energy of the system _drifts_ away from the true value as error is compounded.
 
@@ -262,7 +272,7 @@ $ P_1 = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_1^0,  dif
   caption: [Prepare the subproblems],
   pseudocode-list(
     numbered-title: smallcaps[Prepare the subproblems],
-    booktabs: true, 
+    booktabs: true,
     hooks: 0.5em
   )[
     - *INPUT:* Second order initial value problem `P`, Coarse solver `C`
@@ -301,14 +311,14 @@ The result of this process is shown in @diag:it_0.
 
 #figure(
   image(
-    "images/root_solution.png", 
+    "images/root_solution.png",
     width: 100%,
     alt: "Plot showing the height of the ball vs time so that each subproblem is a column with its initial position as a blue dot at the start of each subdomain, and its velocity as a blue arrow coming from the respective dot.  The true solution is also shown with the same form but in black."
   ),
   caption: "The motion of a ball flying through the air can be partitioned in time to form several initial value problems, each with its own initial position and velocity (upper, blue) determined by a fast integration method. Compared to the true solution (lower, black), this solution is very inaccurate."
 ) <diag:it_0>
 
-// 
+//
 === Solving the subproblems
 
 Discretizing the domain and propagating initial values as in the previous section constitutes the application of the _coarse propagator_ $cal(G)$ to the root problem.  Because each of the produced subproblems is independent of the others, each can be accurately solved in parallel using a _fine propagator_ $cal(F)$ to reduce the total runtime by a factor equal to the number of subproblems.  In other words, if applying $cal(F)$ to a single subproblem has a runtime $tau_cal(F)$, then applying $cal(F)$ to the root problem directly has a runtime $N * tau_cal(F)$ because there are $N$ subproblems, whereas applying $cal(F)$ in parallel only results in a runtime $tau_cal(F)$ because each application of $cal(F)$ executes at the same time.
@@ -319,7 +329,7 @@ $ cal(P)(I_cal(P), N_cal(P))(P) = {{(t, harpoon(r)_t)}_t, {(t, harpoon(v)_t)}_t}
 
 The application of the propagator to the subproblem is the core, or *kernel*, of the PA. While this description of the kernel is useful for understanding, it does not immediately lead to an algorithm that is well-suited for hardware-agnostic implementation (more details in #lower([@sec:scale_gpu]) on #ref(<sec:scale_gpu>, form: "page")). To that end, the implementation of the kernel presented here is composed of discretizing the subdomain and propagating the initial values separately.
 
-*Discretization:* To avoid performance losses from each kernel allocating memory, each discretization kernel references a specific, pre-allocated, one-dimensional array $delta D$ of length $N_cal(P)$.  In order for the kernel to generate the appropriate samplings of the domain, $delta D$ has its first and last elements pre-populated with the values of the lower and upper bounds of that thread's assigned subproblem such that 
+*Discretization:* To avoid performance losses from each kernel allocating memory, each discretization kernel references a specific, pre-allocated, one-dimensional array $delta D$ of length $N_cal(P)$.  In order for the kernel to generate the appropriate samplings of the domain, $delta D$ has its first and last elements pre-populated with the values of the lower and upper bounds of that thread's assigned subproblem such that
 
 $ delta D = {t_p, [N_cal(P) - 2 "arbitrary elements"], t_(p + 1)}. $
 
@@ -331,7 +341,7 @@ With each kernel accessing this data, it can simply calculate and write the doma
   caption: [Each discretized subdomain is calculated by uniformly stepping from the lower bound to the upper bound.  These results are written in-place.],
   pseudocode-list(
     numbered-title: smallcaps[Parallel Discretization Kernel],
-    booktabs: true, 
+    booktabs: true,
     hooks: 0.5em
   )[
     - *INPUT:* Discretized domain `ddom` of length `N`
@@ -356,7 +366,7 @@ Otherwise, the propagation kernel is no more than a traditional IVP solver as de
   caption: [Each subproblem is solved in parallel using traditional methods.],
   pseudocode-list(
     numbered-title: smallcaps[Parallel Propagation Kernel],
-    booktabs: true, 
+    booktabs: true,
     hooks: 0.5em
   )[
     - *INPUT:* A solver `solve`, \
@@ -379,10 +389,10 @@ Otherwise, the propagation kernel is no more than a traditional IVP solver as de
   caption: [Put it all together],
   pseudocode-list(
     numbered-title: smallcaps[The Parareal Kernel],
-    booktabs: true, 
+    booktabs: true,
     hooks: 0.5em
   )[
-    - *INPUT:* 
+    - *INPUT:*
       a fine propagator `fine`, discretized domain `ddom`, \
       position sequence `pos_seq`, velocity sequence `vel_seq`
     - *OUTPUT:* Nothing
@@ -410,7 +420,7 @@ Otherwise, the propagation kernel is no more than a traditional IVP solver as de
 //   caption: [Solutions are formed from the results of the discretization and propagation kernels.],
 //   pseudocode-list(
 //     numbered-title: smallcaps[Solution Constructor],
-//     booktabs: true, 
+//     booktabs: true,
 //     hooks: 0.5em
 //   )[
 //     - *INPUT:* Discretization `N`, Discretized domain `ddom`, \
@@ -467,7 +477,7 @@ One way to interpret the correction equation is "at face value" as
   _On the current iteration, use the coarse propagator to recommend #footnote[This terminology is inspired by Giordano & Nakanishi's interpretation of the Gauss-Seidel and Simultaneous Over Relaxation methods in their seminal text on computational physics @giordano2006.] what this value should be.  Then correct it by adding the difference between the fine and coarse predictions from the previous iteration.  Record this sum as the actual value._
 ]
 
-An alternative interpretation arises from, effectively, "moving the correction to the top of the loop" as 
+An alternative interpretation arises from, effectively, "moving the correction to the top of the loop" as
 
 #quote(block:true)[_
   Use the coarse propagator to traditionally evolve the root problem, but with an offset.  This offset is initially zero.
@@ -477,12 +487,12 @@ This interpretation changes "_use the propagator, then correct the value_" to "_
 
 Thus the overall behavior of @eq:correction could be defined through the explicit recurrence relation
 
-$ 
+$
 u_t^i &= cal(G)_t^i (u_(t-1)^i) \
 u_0^i &= u(0).
 $ <eq:parareal_recurrence>
 
-Here the coarse propagator is effectively parameterized and can vary throughout iterations and times such that 
+Here the coarse propagator is effectively parameterized and can vary throughout iterations and times such that
 $cal(G)_t^i (u_(t-1)^i) := cal(G)(u_(t-1)^i) + Delta_t^i$ and
 
 $
@@ -498,7 +508,7 @@ $ <eq:prop_corrector>
   caption: [New position and velocity solutions are generated by coarse propagating the previous solution in the current iteration and combining it with the difference between the fine and coarse solutions from the previous iteration.  The new solutions are pushed to a the end of the solution arrays.],
   pseudocode-list(
     numbered-title: smallcaps[New Solution Generator],
-    booktabs: true, 
+    booktabs: true,
     hooks: 0.5em
   )[
     - *INPUT:* Coarse solver `coarse`, \
@@ -535,7 +545,7 @@ for some threshold $epsilon$.  @eq:convergence determines convergence when every
   caption: [The Parareal Algorithm is composed of looping two steps: finding the fine solutions in parallel, then finding the root solution sequentially.  The loop stops when the root solution stops changing.],
   pseudocode-list(
     numbered-title: smallcaps[The Parareal Algorithm],
-    booktabs: true, 
+    booktabs: true,
     hooks: 0.5em
   )[
     - *INPUT:* Root problem `P`, Coarse propagator `G`, Fine propagator `F`, Convergence threshold `ep`
@@ -643,7 +653,7 @@ So, why is the PA well-suited to be implemented to use GPUs?  Because the data i
   caption: [The Parareal Algorithm is composed of looping two steps: finding the fine solutions in parallel, then finding the root solution sequentially.  The loop stops when the root solution stops changing.],
   pseudocode-list(
     numbered-title: smallcaps[The GPU-Based Parareal Algorithm],
-    booktabs: true, 
+    booktabs: true,
     hooks: 0.5em
   )[
     - *INPUT:* Root problem `P`, Coarse propagator `G`, Fine propagator `F`, Convergence threshold `ep`
@@ -689,7 +699,7 @@ While clusters can take many forms /* #cn */, this implementation considers buil
   caption: [The cluster can be created and prepared in 4 simple steps.],
   pseudocode-list(
     numbered-title: smallcaps[Prepare the Cluster],
-    booktabs: true, 
+    booktabs: true,
     hooks: 0.5em
   )[
     - *INPUT:* A collection of hosts not ready to compute
@@ -709,7 +719,7 @@ In order for this implementation to be flexible, the director does not assume an
   caption: [Manager processes are created to identify the number of devices on a host, and can manage the network communication between hosts.],
   pseudocode-list(
     numbered-title: smallcaps[Spawn Manager Processes],
-    booktabs: true, 
+    booktabs: true,
     hooks: 0.5em
   )[
     - *INPUT:* A list of hosts
@@ -727,7 +737,7 @@ Once the managers have been spawned, the director asks them how many devices are
   caption: [Worker processes are spawned by the director on each host\ based on the number of devices available to that host.],
   pseudocode-list(
     numbered-title: smallcaps[Spawn Worker Processes],
-    booktabs: true, 
+    booktabs: true,
     hooks: 0.5em
   )[
     - *INPUT:* A list of manager IDs
@@ -749,11 +759,11 @@ Once the workers are spawned on their respective hosts, each of them needs a dev
   caption: [Pairing workers and devices is trivial at a high level],
   pseudocode-list(
     numbered-title: smallcaps[Assign Devices - High Level],
-    booktabs: true, 
+    booktabs: true,
     hooks: 0.5em
   )[
-    - *INPUT:* 
-    - *OUTPUT:* 
+    - *INPUT:*
+    - *OUTPUT:*
     + The director tells each new worker to load the GPU library \/\/ _provides ability to assign devices_
     + For each host
       + For each worker on that host
@@ -765,7 +775,7 @@ For example
 - The director has process ID (pid) 1 and is on its own host.
 - Host X has pid 2, and host Y has pids 3, and 4.
 - Host X has 1 device with ID 0, and host Y has 2 devices with ID 0 and 1.
-- The desired result is 
+- The desired result is
   - Device 0 on host X is assigned to pid 2
   - Device 0 on host Y is assigned to pid 3
   - Device 1 on host Y is assigned to pid 4
@@ -778,7 +788,7 @@ One way to address this issue is to create "host objects" by collecting the host
   caption: [To aid in the pairing of devices and workers, host objects can be created to make sure devices are assigned to workers on the same host.],
   pseudocode-list(
     numbered-title: smallcaps[Create Host Objects],
-    booktabs: true, 
+    booktabs: true,
     hooks: 0.5em
   )[
     - *INPUT:* List of hostnames, list of managers, list of device counts
@@ -800,7 +810,7 @@ A host object packages together the worker IDs and number of devices on the same
   caption: [A more detailed algorithm of assigning devices to workers on the same host.],
   pseudocode-list(
     numbered-title: smallcaps[Assign Devices],
-    booktabs: true, 
+    booktabs: true,
     hooks: 0.5em
   )[
     - *INPUT:* List of host objects `hosts`
@@ -823,7 +833,7 @@ Once the devices are assigned, the cluster has been prepared.  The director then
   caption: [The Parareal Algorithm can distribute its subproblems amongs multiple machines\ in order to achieve higher performance.],
   pseudocode-list(
     numbered-title: smallcaps[The Parareal Algorithm at Scale],
-    booktabs: true, 
+    booktabs: true,
     hooks: 0.5em
   )[
     - *INPUT:* A root problem, coarse and fine propagators, and a convergence threshold
@@ -898,7 +908,7 @@ Starts high, and immediately converges
     width: 80%
   )
 )  <plt:stability>
- 
+
 == Data Transfer Latency <sec:analysis_algorithm>
 
 As noted in @sec:scale_hpc, any data that is computed in one memory space must be transferred to another memory space in order for that data to be used in that space.  Again, this applies for both GPUs and remote hosts (or more generally processes).  Because these transfers happen over either PCI-E or network channels, respectively, they serve as the single greatest bottlenecks for performance in this implementation. The following discussion will address to what extent this implementation is limited by these bottlenecks and some strategies on how to mitigate them.
@@ -1029,7 +1039,7 @@ On the software side, the Julia language was used to encode the calculations.  T
 
 // don't have time right now :(
 // = Particle Production in Analog Cosmologies
-// - Solve the partial differential equation 
+// - Solve the partial differential equation
 // - spectral decomposition
 // - system of equations $partial_t^2 tilde(theta) - (dot(a) / a) partial_t tilde(theta) - a c^2 k^2 tilde(theta) = 0$ for wavenumber $k <= k_c$
 
