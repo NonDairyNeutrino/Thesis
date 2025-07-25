@@ -15,7 +15,7 @@
 #set page(
   paper: "us-letter",
   margin: (top: auto, rest: 1in),
-  numbering: none /* "1/1" */,
+  numbering: "i" /* do not change; updated after  */,
   header: context {
     let sections = query(selector(heading.where(level: 1)).before(here()))
     // [#here().position()]
@@ -24,8 +24,8 @@
     }
   }
 )
-#set par(justify: true, leading: 1em, spacing: 2em) // "leading" == "line spacing"
-#set text(font: "New Computer Modern", size: 10pt)
+#set par(justify: true, leading: 0.75em, spacing: 1.5em) // "leading" == "line spacing"
+#set text(font: "New Computer Modern", size: 11pt)
 #set math.equation(numbering: "(1)", supplement: [Eq.])
 #set enum(numbering: "1.1)", full: true)
 #set heading(numbering: "1.",)
@@ -90,36 +90,50 @@ Parallel-in-Time Integration (PTI) allows the dynamics of the problem to be calc
 
 Even though PTI allows every dimension of problem to be calculated simultaneously, the speedup factor is still limited by how many calculations can happen simultaneously.
 A single central processing unit (CPU), at the time of writing, can execute about ten calculations at the same time.
-On the other hand, a single graphics processing unit (GPU) can execute about ten *thousand* calculations at the same time.
+On the other hand, a single graphics processing unit (GPU) can execute about ten thousand calculations at the same time.
 Likewise, multiple machines can be used to distribute calculations among them, which are similar executed simultaneously.
 The use of GPUs and distributed systems of machines together offers a foundation on which an arbitrarily large problem could be solved.
 
-// Supercomputers and HPC are now available so spatially saturated problems can gain more performance.
 It's not uncommon for available hardware to provide more power than what's needed for a problem to only be spatially parallelized.
 For example, a simulation of a wave could discretize space to a degree such that any higher resolution would not provide a significant increase in accuracy, and to satisfy the Courant-Friedrichs-Lewy condition (CFL), time must be discretized to a similar degree. Modern high-performance computing (HPC) systems can execute all calculations for all spatial intervals simultaneously while having compute capability left over.
 Thus, in order to fully utilize these HPC systems, PTI methods must be not only used, but implemented to take advantage of the resources provided such as GPUs and distributed systems.
 That's where this work comes in.
 
-This work focuses on implementing the Parareal algorithm from PTI to use HPC methods and resources in order to more efficiently simulate the dynamics of physical systems, in particular wave-like motion.
+This work focuses on implementing the Parareal algorithm (PA) from PTI to use HPC methods and resources in order to more efficiently simulate the dynamics of physical systems, in particular wave-like motion.
 While wave-like motion is the focus of the physics, this implementation and can be used to simulate other types of motion such as molecular dynamics, weather and climate forecasting, plasma dynamics in fusion reactors, or any system that is modeled by an equation of motion.
 With this work, computational modeling and simulation can scale not only with the needed accuracy of the problem but also with the performance and availability of hardware.
 Overall, HPC resources will be more efficiently utilized, results will be accurate as possible, and most importantly, time will be minimized.
 
 // ROADMAP OF OF CHAPTERS
-// The work presented here is partitioned into three key parts: @sec:background covers key concepts that are necessary to understand the main purpose of and the methods used to build the following tool, @sec: covers the details of the implementation of th tool, and @sec:analysis the analysis of different aspects of the tool.
+This work is composed of five parts: an overview of the field of PTI, a presentation of the PA itself, a presentation of how the PA can be implemented to use HPC methods, and analyses on the performance of the implementation.
+@sec:background details the landscape in which this project lies including other projects using high-performance implementations of PTI algorithms.
+@sec:parareal serves as a review of the PA from PTI in the context of numerically solving equations of motion while also presenting it in such a way that implementing it at scale is a natural extension.
+@sec:scale serves as the core of this work describing the details of implementing the PA using high-performance methods.
+@sec:analysis provides analysis the performance of the implementation providing benchmarks, identifying sources of and suggesting methods to mitigate latency associated with transferring data, and traditional numerical analysis of results.
 
-// The two most important concepts presented in @sec:background are: equations of motion, and high-performance computing.  Equations of motion (@sec:parareal_eom) covers the basics of the mathematical and computational methods that have been used to model physical phenomena, such as the motion of a ball flying through the air.  High-Performance Computing (@sec:scale_hpc) covers the fundamentals of using multiple threads to execute multiple calculations simultaneously, including a high-level description of the GPU/Single-Program-Multiple-Thread model of parallelism, as well as the fundamentals of using multiple processes to achieve further parallelization, including a similarly high-level description of how multiple computers (i.e. unshared memory) can be used.
+@sec:background gives an overview of the most notable methods and approaches used in PTI, how PTI has been used, and some examples of implementations of certain PTI algorithms.  
+These notable methods include those based on spectral deferred corrections, multigrid reductions, and multiple-shooting.
+PTI has been used for real science ranging from simulating the blood flow in fish to gravitational collapse.
+Select implementations include those based on small-scale multiprocessing as well as full-scale supercomputing.
 
-// @sec:scale comprises the core of this work and presents the Parareal algorithm and how it can be implemented to take advantage of massively-parallel frameworks.  @sec:parareal more specifically introduces the Parareal algorithm and presents it in such a way that using high-performance methods is a natural extension.  @sec:scale_hpc details how to construct and use a cluster of computers such that the Parareal algorithm can be executed on GPUs across multiple machines that are possibly not even in the same physical location.
+@sec:parareal first offers a review of concepts in computational physics that are fundamental to this work, and details how the PA can be used to simulate motion in parallel.  
+@sec:parareal_eom provides baseline knowledge of how initial-value problems model motion, how energy drift can be used to measure the error of a simulated physical system and how symplectic integrators can be used to mitigate this error, and two types of methods of which the PA can be considered an instance.  
+@sec:parareal_parareal goes through the PA itself, presenting each key step in a way that makes the extension to using HPC methods intuitive.
+While the PA is not a new contribution, the presentation of it in this way is not only new but also key to understanding the details of why it is so well-suited for HPC.
 
-// @sec:analysis covers analysis of this implementation. @sec:analysis_numerical details the numerical effects of discretization on error/energy drift, stability, and convergence.  @sec:analysis_algorithm considers how using high-performance methods directly affects the runtime and needed memory i.e. time and space complexity.  @sec:analysis_benchmarks addresses the core goal of this work, how this implementation affects the runtime needed to approximate motion.
+@sec:scale first presents a review of concepts in HPC that are fundamental to this work, and then how the PA can be implemented to take advantage of these HPC concepts.
+@sec:scale_hpc focuses on reviewing the concepts of multithreading and how it applies to using GPUs for general-purpose computing, as well as multiprocessing and how it can distribute calculations over multiple machines.
+@sec:scale_gpu first identifies how GPUs offer a meaningful increase in performance due to their incredible parallel-processing power and how to "simply move the expensive part to the GPU".  
+@sec:scale_distributed details how to construct and use a cluster of computers such that the PA can be executed on GPUs across multiple machines that are possibly not even in the same physical location.
+
+@sec:analysis covers analysis of this implementation. 
+@sec:analysis_numerical details the numerical effects of discretization on error/energy drift, stability, and convergence.  
+@sec:analysis_latency identifies that the most significant inhibitor to performance of this implementation is the need to transfer data between different memory spaces, and also identifies methods that could be used to mitigate or even circumvent these issues.  
+@sec:analysis_benchmarks addresses the core goal of this work: how this implementation affects the time needed to simulate motion.
 
 = Background <sec:background>
 
-// PROBLEMS TAKES A LONG
-- Problems have been easily parallelizable in space, but remained sequential in time, which takes a long time to run.
-- Here are some examples of problems that have been parallelized in space but not time
-
+// == Parallel-in-Time Integration
 // PARALLEL IN TIME INTEGRATION AIMS TO SOLVE THIS PROBLEM
 - So some really smart people developed methods to also parallelize computations in the time dimension for even further speedup.  These methods are real good so more people are doing them as shown in @img:pint_history.
 #figure(
@@ -135,14 +149,16 @@ Overall, HPC resources will be more efficiently utilized, results will be accura
   - waveform relaxation and domain decomposition
   - multigrid
   - direct time-parallel methods
-- I am focusing on the Parareal algorithm @parareal_og_2001 which is possibly the most studied of the the PinT methods
+- I am focusing on the PA @parareal_og_2001 which is possibly the most studied of the the PinT methods
 
 // ACTUAL SCIENCE HAS BEEN DONE WITH THEM
+// == How PTI has been used
 - These methods have also been used for concrete scientific problems
   - Long-time simulations of blood flow in fish @Blumers2021
   - TIME PARALLEL GRAVITATIONAL COLLAPSE SIMULATION @Kreienbuehl_2017
 
-// NON-HPC IMPLEMENTATIONS OF THE PARAREAL ALGORITHM AND OTHER PINT METHODS E.G. MGRIT
+// NON-HPC IMPLEMENTATIONS OF THE PA AND OTHER PINT METHODS E.G. MGRIT
+// == Non-HPC Implementations
 - There have been implementations in the past including XBraid, developed by Lawrence Livermore National Laboratory, uses multi-grid reduction in time (MGRIT) @xbraid-package
 - Previous work has already been done to implement a small-scale version of the PA in Julia @masthay2018pararealalgorithmimplementationsimulation
     - Aimed at first-order ivp
@@ -152,19 +168,19 @@ Overall, HPC resources will be more efficiently utilized, results will be accura
 
 While some have used multiprocessing, there doesn't seem to have been implementations using graphics processing units (GPU) to achieve massive parallelism locally or distributedly.  This is where I come in.  Because the actual computations are solely arithmetic, the reduced capability of GPUs is perfectly fine while the parallelism they offer is very good compared to central processing units (CPU).
 
-The goal of this work is to provide an implementation of the Parareal Algorithm that can scale as much as it needs to for whatever problem is given to it.  The only thing that limits its performance is the number of threads able to be running at once.
+The goal of this work is to provide an implementation of the PA that can scale as much as it needs to for whatever problem is given to it.  The only thing that limits its performance is the number of threads able to be running at once.
 
 = The Parareal Algorithm <sec:parareal>
 
-Simulating physical processes has traditionally been done sequentially; even during the modern age of hardware supporting parallel execution, using computers to calculate the evolution of physical phenomena has been sequential.  Why haven't scientists just started doing things in parallel? Because of that pesky thing call _causality_; _the ball must go up before it can come down_.  Because of this temporal dependence (spatial dependence has had its own workarounds such as the Barnes-Hut algorithm @Barnes1986 @Hamada2009), simulation of large-time-scale physics has thus taken a long time to execute.  The Parareal algorithm (PA), and other parallel-in-time integration algorithms, have been developed in the last few decades to specifically address this issue @parareal_og_2001.
+Simulating physical processes has traditionally been done sequentially; even during the modern age of hardware supporting parallel execution, using computers to calculate the evolution of physical phenomena has been sequential.  Why haven't scientists just started doing things in parallel? Because of that pesky thing call _causality_; _the ball must go up before it can come down_.  Because of this temporal dependence (spatial dependence has had its own workarounds such as the Barnes-Hut algorithm @Barnes1986 @Hamada2009), simulation of large-time-scale physics has thus taken a long time to execute.  The PA, and other parallel-in-time integration algorithms, have been developed in the last few decades to specifically address this issue @parareal_og_2001.
 // These paragraphs should be squished together, after the above gets trimmed down
-Many details and variations of the Parareal algorithm have been investigated to find and address issues such as stability /* #cn */, convergence rates /* #cn */, application to higher-order differential equations /* #cn */.  The main goal of this investigation is to contribute another variation: an implementation of the Parareal algorithm using methods from high-performance computing.
+Many details and variations of the PA have been investigated to find and address issues such as stability /* #cn */, convergence rates /* #cn */, application to higher-order differential equations /* #cn */.  The main goal of this investigation is to contribute another variation: an implementation of the PA using methods from high-performance computing.
 
-Before the PA can be implemented using these high-performance methods, the algorithm must be decomposed into its central components.  The Parareal algorithm begins by partitioning a single IVP into several IVPs on smaller domains via an initial, inaccurate, "root" solution.  Then each of the "subproblems" are solved using a sequential, accurate method on different threads at the same time.  The final data for each of the subsolutions is then combined with the respective data of the root solution to yield a more accurate (i.e. "corrected") root solution.  This new root solution is then used to repeat the process until convergence.
+Before the PA can be implemented using these high-performance methods, the algorithm must be decomposed into its central components.  The PA begins by partitioning a single IVP into several IVPs on smaller domains via an initial, inaccurate, "root" solution.  Then each of the "subproblems" are solved using a sequential, accurate method on different threads at the same time.  The final data for each of the subsolutions is then combined with the respective data of the root solution to yield a more accurate (i.e. "corrected") root solution.  This new root solution is then used to repeat the process until convergence.
 
 The interpretation of the PA in terms of these recursive subproblems makes the algorithm _almost_ embarrassingly parallel; the corrections to the root solution need to be done sequentially.  In addition to this structure, the algorithms being evaluated in parallel manifestly depend on simple arithmetic; because of this simplicity, the PA is well-suited to be evaluated on the GPU.  Likewise, distributed methods can be combined with GPU evaluation for further parallelization for either a single model (taking advantaged of the recursive nature of the PA) or a system of models.
 
-This chapter begins by casting the Parareal Algorithm in a form that is conducive to being scaled.  The main idea is to recast the "magical" mechanism of the PA to something that can be executed recursively.  In other words, the PA takes an IVP and produces a collection of IVPs, which can each be given to another instance of the PA. The latter half of of this chapter is devoted to presenting a model for which the scalable version of the PA can be implemented.  This model includes how the performance of the PA can increased by using a GPU on a single machine, as well as how to build and use a cluster of machines to further increase performance.
+This chapter begins by casting the PA in a form that is conducive to being scaled.  The main idea is to recast the "magical" mechanism of the PA to something that can be executed recursively.  In other words, the PA takes an IVP and produces a collection of IVPs, which can each be given to another instance of the PA. The latter half of of this chapter is devoted to presenting a model for which the scalable version of the PA can be implemented.  This model includes how the performance of the PA can increased by using a GPU on a single machine, as well as how to build and use a cluster of machines to further increase performance.
 
 #let tmax = 8
 #let threads = 8
@@ -235,11 +251,7 @@ An iterative method known as the Hartree-Fock algorithm (also known as the Self-
 
 == The Parareal Algorithm <sec:parareal_parareal>
 
-#v(2em)
-#align(right, [_The Parareal Algorithm aimed to solve the problem of physics taking too long to simulate; it didn't._])
-#v(2em)
-
-The main idea of the Parareal algorithm (PA) is to break up a single IVP into many smaller IVPs using some low-accuracy solution, solve those in parallel using high-accuracy methods, correct your initial solution using the sub-solutions, then make a new low-accuracy solution based on the corrected data, and repeat this process until the solution doesn't change.  The end result of this procedure is a solution identical to one produced by directly using the high-accuracy method while potentially taking a less time @gander2007.  Because the PA wraps traditional (sequential) solvers, it could be considered a "meta-" or "higher-order" method to solve IVPs.
+The main idea of the PA is to break up a single IVP into many smaller IVPs using some low-accuracy solution, solve those in parallel using high-accuracy methods, correct your initial solution using the sub-solutions, then make a new low-accuracy solution based on the corrected data, and repeat this process until the solution doesn't change.  The end result of this procedure is a solution identical to one produced by directly using the high-accuracy method while potentially taking a less time @gander2007.  Because the PA wraps traditional (sequential) solvers, it could be considered a "meta-" or "higher-order" method to solve IVPs.
 
 === Preparing the subproblems
 
@@ -542,7 +554,7 @@ for some threshold $epsilon$.  @eq:convergence determines convergence when every
 #figure(
   kind: "algorithm",
   supplement: [Algorithm],
-  caption: [The Parareal Algorithm is composed of looping two steps: finding the fine solutions in parallel, then finding the root solution sequentially.  The loop stops when the root solution stops changing.],
+  caption: [The PA is composed of looping two steps: finding the fine solutions in parallel, then finding the root solution sequentially.  The loop stops when the root solution stops changing.],
   pseudocode-list(
     numbered-title: smallcaps[The Parareal Algorithm],
     booktabs: true,
@@ -561,13 +573,9 @@ for some threshold $epsilon$.  @eq:convergence determines convergence when every
 ) <alg:parareal>
 
 \
-The magic of the Parareal algorithm lies in its divide-and-conquer approach to solving initial value problems.  The "root" problem is sequentially and inaccurately solved to divide it into smaller problems whose initial values are defined by the solution.  Those problems are simultaneously and accurately solved in parallel.  The root problem is then solved in the same way as before, but at each step, the data is modified by combining the previous accurate and inaccurate solutions.  Finally, the new root solution defines new problems, and the loop continues until the the solution has converged.
+The magic of the PA lies in its divide-and-conquer approach to solving initial value problems.  The "root" problem is sequentially and inaccurately solved to divide it into smaller problems whose initial values are defined by the solution.  Those problems are simultaneously and accurately solved in parallel.  The root problem is then solved in the same way as before, but at each step, the data is modified by combining the previous accurate and inaccurate solutions.  Finally, the new root solution defines new problems, and the loop continues until the the solution has converged.
 
 = The Parareal Algorithm at Scale <sec:scale>
-
-#v(2em)
-#align(right, [_Surely more threads is the answer!_])
-#v(2em)
 
 @sec:parareal_parareal highlights the PA's nature of being quasi-embarrassingly-parallel i.e. the performance of the algorithm scales with the number of threads, while still being bottlenecked by a periodic sequential process. That being said, the previous discussion ignores the details and nuances of implementing the PA including the actual form of the threads.  The primary goal of this work is to provide two new implementation models that both take advantage of increased parallelism and allow easy scaling: using the massively parallel architecture of graphics processing units (GPUs), and the scalability of distributed systems. Instances of these implementations are also provided @Chapman_PararealGPU_jl.
 
@@ -619,7 +627,7 @@ Once each thread knows its array index, all threads execute the kernel simultane
   )
 ) <img:cuda_stride>
 
-=== multiprocessing & Distributed Computing <sec:multiprocessing>
+=== Multiprocessing & Distributed Computing <sec:multiprocessing>
 
 The three most important ideas to understand in multiprocessing and distributed computing for this work are: different processes do not have access to the same data, one process can tell another to perform an action, and the time associated with communicating between processes.  To distinguish processes and threads, consider two homes A and B each with its own family.  Each home represents a process with its associated family members being that process's threads.
 
@@ -650,7 +658,7 @@ So, why is the PA well-suited to be implemented to use GPUs?  Because the data i
 #figure(
   kind: "algorithm",
   supplement: [Algorithm],
-  caption: [The Parareal Algorithm is composed of looping two steps: finding the fine solutions in parallel, then finding the root solution sequentially.  The loop stops when the root solution stops changing.],
+  caption: [The PA is composed of looping two steps: finding the fine solutions in parallel, then finding the root solution sequentially.  The loop stops when the root solution stops changing.],
   pseudocode-list(
     numbered-title: smallcaps[The GPU-Based Parareal Algorithm],
     booktabs: true,
@@ -830,7 +838,7 @@ Once the devices are assigned, the cluster has been prepared.  The director then
 #figure(
   kind: "algorithm",
   supplement: [Algorithm],
-  caption: [The Parareal Algorithm can distribute its subproblems amongs multiple machines\ in order to achieve higher performance.],
+  caption: [The PA can distribute its subproblems amongs multiple machines\ in order to achieve higher performance.],
   pseudocode-list(
     numbered-title: smallcaps[The Parareal Algorithm at Scale],
     booktabs: true,
@@ -909,7 +917,7 @@ Starts high, and immediately converges
   )
 )  <plt:stability>
 
-== Data Transfer Latency <sec:analysis_algorithm>
+== Data Transfer Latency <sec:analysis_latency>
 
 As noted in @sec:scale_hpc, any data that is computed in one memory space must be transferred to another memory space in order for that data to be used in that space.  Again, this applies for both GPUs and remote hosts (or more generally processes).  Because these transfers happen over either PCI-E or network channels, respectively, they serve as the single greatest bottlenecks for performance in this implementation. The following discussion will address to what extent this implementation is limited by these bottlenecks and some strategies on how to mitigate them.
 
