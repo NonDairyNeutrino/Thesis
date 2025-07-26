@@ -133,42 +133,53 @@ While the PA is not a new contribution, the presentation of it in this way is no
 
 = Background <sec:background>
 
-// == Parallel-in-Time Integration
-// PARALLEL IN TIME INTEGRATION AIMS TO SOLVE THIS PROBLEM
-- So some really smart people developed methods to also parallelize computations in the time dimension for even further speedup.  These methods are real good so more people are doing them as shown in @img:pint_history.
+// - PTI methods
+// - PTI usage
+// - PTI implementations
+The PA has been one of the most widely studied PTI algorithms @pintorg, but there are several other PTI methods that have garnered attention over the years (as seen in @img:pint_history).
+These aren't just pathological creations either as they have been used in practice for simulating the dynamics of systems from biology to gravitational collapse.  
+These methods and their uses have used several different implementations ranging from using small-scale, distributed systems to "true HPC" at Lawrence-Livermore National Lab (LLNL).
+This work aims to add to the field of PTI by building a foundation of using HPC methods for PTI in the scientific computing programming language Julia.
+
 #figure(
-  caption: [The number of papers published regarding parallel-in-time integration has significantly, and steadily, increased over the past few decades.  It is also worth noting that at the time of writing, the number of papers published this is year is on track to match last year's.   Image credit @pintorg],
+  caption: [The number of papers published (shown on the vertical axis) regarding parallel-in-time integration has significantly, and steadily, increased over the past few decades.  It is also worth noting that at the time of writing, the number of papers published this is year is on track to match last year's.   Image credit @pintorg],
   image(
     "images/pint_history.png",
     width: 80%,
     alt: ""
   )
 ) <img:pint_history>
-- There are four main categories of time-parallel integration @gander2015 @Ong2020Apps
-  - multiple shooting
-  - waveform relaxation and domain decomposition
-  - multigrid
-  - direct time-parallel methods
-- I am focusing on the PA @parareal_og_2001 which is possibly the most studied of the the PinT methods
 
-// ACTUAL SCIENCE HAS BEEN DONE WITH THEM
-// == How PTI has been used
-- These methods have also been used for concrete scientific problems
-  - Long-time simulations of blood flow in fish @Blumers2021
-  - TIME PARALLEL GRAVITATIONAL COLLAPSE SIMULATION @Kreienbuehl_2017
+// Parallel-in-Time Integration
+While this work focuses on the PA, there are several other notable algorithms that have been developed.
+There is of course the PA @parareal_og_2001, but the Parallel Implicit Time-Integrator (PITA) method has been developed as an implicit variation @FarhatEtAl2003.
+The Parallel Full Approximation Scheme in Space and Time (PFASST) @EmmettMinion2012 @RuprechtEtAl2013_SC and Revisionist Integral Deferred Correction (RIDC) @ChristliebEtAl2010 are based on the idea of deferred-corrections. 
+A sub-class of PTI algorithms is based diagonalizing the time discretization matrix and decoupling an "all-at-once" system into a series of sub-systems @MadayRonquist2008; this type of method is particularly notable because it is well suited for dissipative and hyperbolic problems @GanderEtAl2021.  
+On the other end, both the Space-time Multigrid (STMG), which treats the whole space-time domain simultaneously @HortonVandewalle1995, and Space-time concurrent multigrid waveform relaxation (WRMG), which relies on cyclic reduction to run in polylog parallel time with linear serial complexity @LubichOstermann1987 @VandewalleVandeVelde1994 @HortonEtAl1995 @VandewalleHorton1995, are well suited for parabolic partial differential equations.
+Finally, the Multigrid Reduction in Time (MGRIT) algorithm has been developed at Lawrence-Livermore National Lab to target hyperbolic problems, computational fluid dynamics, power grids, medical applications, etc. @FriedhoffEtAl2013.
 
-// NON-HPC IMPLEMENTATIONS OF THE PA AND OTHER PINT METHODS E.G. MGRIT
-// == Non-HPC Implementations
-- There have been implementations in the past including XBraid, developed by Lawrence Livermore National Laboratory, uses multi-grid reduction in time (MGRIT) @xbraid-package
-- Previous work has already been done to implement a small-scale version of the PA in Julia @masthay2018pararealalgorithmimplementationsimulation
-    - Aimed at first-order ivp
-    - used Euler's and RK methods
-    - Only used multiprocessing
-- Work has also been done to implement a distributed PA using MPI in Python @schreiber2016decentralizedparallelizationintimeapproachparareal
+// APPLICATIONS
+// PITA: fluid-structure simulations @FarhatEtAl2003, non-linear structural dynamics @CortialFarhat2009
+// PFASST: Massively space-time parallel N-body solver @SpeckEtAl2012
+// MGRIT: Compressible Navier-Stokes with XBraid at https://computing.llnl.gov/projects/parallel-time-integration-multigrid/compressible-navier-stokes
+// 
+// - Long-time simulations of blood flow in fish @Blumers2021
+// - TIME PARALLEL GRAVITATIONAL COLLAPSE SIMULATION @Kreienbuehl_2017
 
-While some have used multiprocessing, there doesn't seem to have been implementations using graphics processing units (GPU) to achieve massive parallelism locally or distributedly.  This is where I come in.  Because the actual computations are solely arithmetic, the reduced capability of GPUs is perfectly fine while the parallelism they offer is very good compared to central processing units (CPU).
+// IMPLEMENTATIONS
+// PFASST: https://github.com/Parallel-in-Time
+// MGRIT: XBraid at https://computing.llnl.gov/projects/parallel-time-integration-multigrid @xbraid-package
+// 
+// - There have been implementations in the past including XBraid, developed by Lawrence Livermore National Laboratory, uses multi-grid reduction in time (MGRIT) @xbraid-package
+// - Previous work has already been done to implement a small-scale version of the PA in Julia @masthay2018pararealalgorithmimplementationsimulation
+//     - Aimed at first-order ivp
+//     - used Euler's and RK methods
+//     - Only used multiprocessing
+// - Work has also been done to implement a distributed PA using MPI in Python @schreiber2016decentralizedparallelizationintimeapproachparareal
 
-The goal of this work is to provide an implementation of the PA that can scale as much as it needs to for whatever problem is given to it.  The only thing that limits its performance is the number of threads able to be running at once.
+// While some have used multiprocessing, there doesn't seem to have been implementations using graphics processing units (GPU) to achieve massive parallelism locally or distributedly.  This is where I come in.  Because the actual computations are solely arithmetic, the reduced capability of GPUs is perfectly fine while the parallelism they offer is very good compared to central processing units (CPU).
+
+// The goal of this work is to provide an implementation of the PA that can scale as much as it needs to for whatever problem is given to it.  The only thing that limits its performance is the number of threads able to be running at once.
 
 = The Parareal Algorithm <sec:parareal>
 
