@@ -163,12 +163,29 @@ MGRIT has been implemented in Python as PyMGRIT using MPI @HahneEtAl2020, as wel
 RIDC has been implemented in C++ as libridc @ChristliebEtAl2010 using OpenMP.
 
 // APPLICATIONS
-// PITA: fluid-structure simulations @FarhatEtAl2003, non-linear structural dynamics @CortialFarhat2009
-// PFASST: Massively space-time parallel N-body solver @SpeckEtAl2012
-// MGRIT: Compressible Navier-Stokes with XBraid at https://computing.llnl.gov/projects/parallel-time-integration-multigrid/compressible-navier-stokes
 // 
-// - Long-time simulations of blood flow in fish @Blumers2021
-// - TIME PARALLEL GRAVITATIONAL COLLAPSE SIMULATION @Kreienbuehl_2017
+// - 
+// - 
+In the past 6 months there have been 40 publications relating to PTI, some of which have applied these PTI methods to science and engineering problems.
+- The PA has been applied to stochastic models of electricity and magnetism @ZhangEtAl2025.
+- The PA has similarly been applied to continuous-time optimal control problems @SärkkäEtAl2025.
+- PTI methods have been employed in increasing the performance of the established DECA algorithm for simulations in additive manufacturing @StumpEtAl2025.
+- Quantum optimal control for quantum computing @PeterssonEtAl2025
+- Training neural networks @ParpasEtAl2025
+- Fusion-relevant magnetohydrodynamics simulations using a Fourier Neural operator @PamelaEtAl2025
+- Game theory @LjósheimEtAl2025
+- Kinetic plasma simulations @LaidinEtAl2025
+- Formations of animal patterns in mathematical biology @Jimenez-CigaEtAl2025
+- Dynamics of financial markets via Black-Scholes and physics-informed Fourier Neural Operator @IbrahimEtAl2025
+- Topology optimization of transient heat conduction in materials @AppelEtAl2025
+- Fluid-solid interactions in deformable porous media @AlesEtAl2025
+
+Honorable mention to 
+- long-time simulations of blood flow in fish @Blumers2021 
+- Time parallel gravitational collapse simulation @Kreienbuehl_2017
+- PITA: fluid-structure simulations @FarhatEtAl2003, non-linear structural dynamics @CortialFarhat2009
+- PFASST: Massively space-time parallel N-body solver @SpeckEtAl2012
+// - MGRIT: Compressible Navier-Stokes with XBraid at https://computing.llnl.gov/projects/parallel-time-integration-multigrid/compressible-navier-stokes
 
 = The Parareal Algorithm <sec:parareal>
 
