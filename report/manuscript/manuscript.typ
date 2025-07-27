@@ -86,9 +86,9 @@ This work focuses on the latter.
 While the speed of computers has increased significantly, the most recent advances have seen diminishing returns in reducing the time needed for a single calculation.
 Parallel computing allows multiple calculations to finish in the same amount of time as a single calculation, thus increasing the number of calculations that can occur per time.
 For scientific problems concerning both space and time, parallelism has reduced the time needed to the spatial part of the problem, leaving the temporal component to still be done sequentially.
-Parallel-in-Time Integration (PTI) allows the dynamics of the problem to be calculated in parallel along with the spatial behavior, thus further reducing the time needed.
+Parallel-in-Time Integration (PinT) allows the dynamics of the problem to be calculated in parallel along with the spatial behavior, thus further reducing the time needed.
 
-Even though PTI allows every dimension of problem to be calculated simultaneously, the speedup factor is still limited by how many calculations can happen simultaneously.
+Even though PinT allows every dimension of problem to be calculated simultaneously, the speedup factor is still limited by how many calculations can happen simultaneously.
 A single central processing unit (CPU), at the time of writing, can execute about ten calculations at the same time.
 On the other hand, a single graphics processing unit (GPU) can execute about ten thousand calculations at the same time.
 Likewise, multiple machines can be used to distribute calculations among them, which are similar executed simultaneously.
@@ -96,24 +96,24 @@ The use of GPUs and distributed systems of machines together offers a foundation
 
 It's not uncommon for available hardware to provide more power than what's needed for a problem to only be spatially parallelized.
 For example, a simulation of a wave could discretize space to a degree such that any higher resolution would not provide a significant increase in accuracy, and to satisfy the Courant-Friedrichs-Lewy condition (CFL), time must be discretized to a similar degree. Modern high-performance computing (HPC) systems can execute all calculations for all spatial intervals simultaneously while having compute capability left over.
-Thus, in order to fully utilize these HPC systems, PTI methods must be not only used, but implemented to take advantage of the resources provided such as GPUs and distributed systems.
+Thus, in order to fully utilize these HPC systems, PinT methods must be not only used, but implemented to take advantage of the resources provided such as GPUs and distributed systems.
 That's where this work comes in.
 
-This work focuses on implementing the Parareal algorithm (PA) from PTI to use HPC methods and resources in order to more efficiently simulate the dynamics of physical systems, in particular wave-like motion.
+This work focuses on implementing the Parareal algorithm (PA) from PinT to use HPC methods and resources in order to more efficiently simulate the dynamics of physical systems, in particular wave-like motion.
 While wave-like motion is the focus of the physics, this implementation and can be used to simulate other types of motion such as molecular dynamics, weather and climate forecasting, plasma dynamics in fusion reactors, or any system that is modeled by an equation of motion.
 With this work, computational modeling and simulation can scale not only with the needed accuracy of the problem but also with the performance and availability of hardware.
 Overall, HPC resources will be more efficiently utilized, results will be accurate as possible, and most importantly, time will be minimized.
 
 // ROADMAP OF OF CHAPTERS
-This work is composed of five parts: an overview of the field of PTI, a presentation of the PA itself, a presentation of how the PA can be implemented to use HPC methods, and analyses on the performance of the implementation.
-@sec:background details the landscape in which this project lies including other projects using high-performance implementations of PTI algorithms.
-@sec:parareal serves as a review of the PA from PTI in the context of numerically solving equations of motion while also presenting it in such a way that implementing it at scale is a natural extension.
+This work is composed of five parts: an overview of the field of PinT, a presentation of the PA itself, a presentation of how the PA can be implemented to use HPC methods, and analyses on the performance of the implementation.
+@sec:background details the landscape in which this project lies including other projects using high-performance implementations of PinT algorithms.
+@sec:parareal serves as a review of the PA from PinT in the context of numerically solving equations of motion while also presenting it in such a way that implementing it at scale is a natural extension.
 @sec:scale serves as the core of this work describing the details of implementing the PA using high-performance methods.
 @sec:analysis provides analysis the performance of the implementation providing benchmarks, identifying sources of and suggesting methods to mitigate latency associated with transferring data, and traditional numerical analysis of results.
 
-@sec:background gives an overview of the most notable methods and approaches used in PTI, how PTI has been used, and some examples of implementations of certain PTI algorithms.  
+@sec:background gives an overview of the most notable methods and approaches used in PinT, how PinT has been used, and some examples of implementations of certain PinT algorithms.  
 These notable methods include those based on spectral deferred corrections, multigrid reductions, and multiple-shooting.
-PTI has been used for real science ranging from simulating the blood flow in fish to gravitational collapse.
+PinT has been used for real science ranging from simulating the blood flow in fish to gravitational collapse.
 Select implementations include those based on small-scale multiprocessing as well as full-scale supercomputing.
 
 @sec:parareal first offers a review of concepts in computational physics that are fundamental to this work, and details how the PA can be used to simulate motion in parallel.  
@@ -133,10 +133,10 @@ While the PA is not a new contribution, the presentation of it in this way is no
 
 = Background <sec:background>
 
-The PA has been one of the most widely studied PTI algorithms @pintorg, but there are several other PTI methods that have garnered attention over the years (as seen in @img:pint_history).
-These aren't just pathological creations either as they have been used in practice for simulating the dynamics of systems from biology to gravitational collapse.  
+The PA has been one of the most widely studied PinT algorithms @pintorg, but there are several other PinT methods that have garnered attention over the years (as seen in @img:pint_history).
 These methods and their uses have used several different implementations ranging from using small-scale, distributed systems to "true HPC" at Lawrence-Livermore National Lab (LLNL).
-This work aims to add to the field of PTI by building a foundation of using HPC methods for PTI in the scientific computing programming language Julia.
+These methods have also been used in practice for simulating the dynamics of systems from biology to gravitational collapse.
+This work aims to add to the field of PinT by building a foundation of using HPC methods for PinT in the scientific computing programming language Julia.
 
 #figure(
   caption: [The number of papers published (shown on the vertical axis) regarding parallel-in-time integration has significantly, and steadily, increased over the past few decades.  It is also worth noting that at the time of writing, the number of papers published this is year is on track to match last year's.   Image credit @pintorg],
@@ -151,7 +151,7 @@ This work aims to add to the field of PTI by building a foundation of using HPC 
 While this work focuses on the PA, there are several other notable algorithms that have been developed.
 There is of course the PA @parareal_og_2001, but the Parallel Implicit Time-Integrator (PITA) method has been developed as an implicit variation @FarhatEtAl2003.
 The Parallel Full Approximation Scheme in Space and Time (PFASST) @EmmettMinion2012 @RuprechtEtAl2013_SC and Revisionist Integral Deferred Correction (RIDC) @ChristliebEtAl2010 are based on the idea of deferred-corrections. 
-A sub-class of PTI algorithms is based diagonalizing the time discretization matrix and decoupling an "all-at-once" system into a series of sub-systems @MadayRonquist2008; this type of method is particularly notable because it is well suited for dissipative and hyperbolic problems @GanderEtAl2021.  
+A sub-class of PinT algorithms is based diagonalizing the time discretization matrix and decoupling an "all-at-once" system into a series of sub-systems @MadayRonquist2008; this type of method is particularly notable because it is well suited for dissipative and hyperbolic problems @GanderEtAl2021.  
 On the other end, both the Space-time Multigrid (STMG), which treats the whole space-time domain simultaneously @HortonVandewalle1995, and Space-time concurrent multigrid waveform relaxation (WRMG), which relies on cyclic reduction to run in polylog parallel time with linear serial complexity @LubichOstermann1987 @VandewalleVandeVelde1994 @HortonEtAl1995 @VandewalleHorton1995, are well suited for parabolic partial differential equations.
 Finally, the Multigrid Reduction in Time (MGRIT) algorithm has been developed at Lawrence-Livermore National Lab to target hyperbolic problems, computational fluid dynamics, power grids, medical applications, etc. @FriedhoffEtAl2013.
 
@@ -163,29 +163,32 @@ MGRIT has been implemented in Python as PyMGRIT using MPI @HahneEtAl2020, as wel
 RIDC has been implemented in C++ as libridc @ChristliebEtAl2010 using OpenMP.
 
 // APPLICATIONS
-// 
-// - 
-// - 
-In the past 6 months there have been 40 publications relating to PTI, some of which have applied these PTI methods to science and engineering problems.
-- The PA has been applied to stochastic models of electricity and magnetism @ZhangEtAl2025.
-- The PA has similarly been applied to continuous-time optimal control problems @SärkkäEtAl2025.
-- PTI methods have been employed in increasing the performance of the established DECA algorithm for simulations in additive manufacturing @StumpEtAl2025.
-- Quantum optimal control for quantum computing @PeterssonEtAl2025
+In the past 6 months there have been 40 publications relating to PinT.
+Some of these investigations have applied these PinT methods to science and engineering problems such as:
+- Stochastic models of electricity and magnetism @ZhangEtAl2025.
+- Continuous-time optimal control problems @SärkkäEtAl2025.
+- Additive manufacturing @StumpEtAl2025.
+- Optimal control for quantum computing @PeterssonEtAl2025
 - Training neural networks @ParpasEtAl2025
-- Fusion-relevant magnetohydrodynamics simulations using a Fourier Neural operator @PamelaEtAl2025
+- Magnetohydrodynamics for plasma simulations in clean energy @PamelaEtAl2025
 - Game theory @LjósheimEtAl2025
 - Kinetic plasma simulations @LaidinEtAl2025
 - Formations of animal patterns in mathematical biology @Jimenez-CigaEtAl2025
-- Dynamics of financial markets via Black-Scholes and physics-informed Fourier Neural Operator @IbrahimEtAl2025
+- Dynamics of financial markets with physics-informed neural networks @IbrahimEtAl2025
 - Topology optimization of transient heat conduction in materials @AppelEtAl2025
 - Fluid-solid interactions in deformable porous media @AlesEtAl2025
 
-Honorable mention to 
-- long-time simulations of blood flow in fish @Blumers2021 
+While not published this year, honorable mentions go to:
+- Long-time simulations of blood flow in fish @Blumers2021 
 - Time parallel gravitational collapse simulation @Kreienbuehl_2017
-- PITA: fluid-structure simulations @FarhatEtAl2003, non-linear structural dynamics @CortialFarhat2009
-- PFASST: Massively space-time parallel N-body solver @SpeckEtAl2012
-// - MGRIT: Compressible Navier-Stokes with XBraid at https://computing.llnl.gov/projects/parallel-time-integration-multigrid/compressible-navier-stokes
+- Fluid-structure simulations @FarhatEtAl2003, non-linear structural dynamics @CortialFarhat2009
+- Massively space-time parallel N-body solver @SpeckEtAl2012
+
+There needs to be support in Julia to allow for easier development of these methods.
+
+Needless to say, PinT methods have shown significant performance gains for a wide ranging collection of sciences.  
+Because of this, it is paramount that PinT methods see continued support and implementation using high-performance methods and in scientist-focused programming languages.  
+That's why this work provides an implementation of the PA using both massive multithreading on GPUs and scalable multiprocessing in the modern scientific computing language Julia.
 
 = The Parareal Algorithm <sec:parareal>
 
