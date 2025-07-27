@@ -465,7 +465,7 @@ url={https://doi.org/10.1007/s11227-020-03216-y}
  note    = "File: \ttfamily{StarNetwork.svg}",
 }
 
-@misc{masthay2018pararealalgorithmimplementationsimulation,
+@misc{masthay2018,
       title={Parareal Algorithm Implementation and Simulation in Julia}, 
       author={Tyler M. Masthay and Saverio Perugini},
       year={2018},
@@ -475,7 +475,7 @@ url={https://doi.org/10.1007/s11227-020-03216-y}
       url={https://arxiv.org/abs/1706.08569}, 
 }
 
-@misc{schreiber2016decentralizedparallelizationintimeapproachparareal,
+@misc{schreiber2016,
       title={A Decentralized Parallelization-in-Time Approach with Parareal}, 
       author={Martin Schreiber and Adam Peddle and Terry Haut and Beth Wingate},
       year={2016},
@@ -722,4 +722,55 @@ urldate = {2025-07-16}
   title = {{A Multigrid-in-Time Algorithm for Solving Evolution Equations in Parallel}},
   url = {http://www.osti.gov/scitech/servlets/purl/1073108},
   year = {2013}
+}
+
+@inbook{Ruprecht2017_lncs,
+  author = {Ruprecht, Daniel},
+  booktitle = {Euro-Par 2017: Parallel Processing: 23rd International Conference on Parallel and Distributed Computing, Santiago de Compostela, Spain, August 28 -- September 1, 2017, Proceedings},
+  doi = {10.1007/978-3-319-64203-1_48},
+  editor = {Rivera, Francisco F. and Pena, Tom{\'a}s F. and Cabaleiro, Jos{\'e} C.},
+  pages = {669--681},
+  publisher = {Springer International Publishing},
+  title = {Shared Memory Pipelined Parareal},
+  url = {https://doi.org/10.1007/978-3-319-64203-1_48},
+  year = {2017}
+}
+
+@unpublished{HahneEtAl2020,
+  author = {Hahne, Jens and Friedhoff, Stephanie and Bolten, Matthias},
+  howpublished = {arXiv:2008.05172v1 [cs.MS]},
+  title = {PyMGRIT: A Python Package for the parallel-in-time method MGRIT},
+  url = {http://arxiv.org/abs/2008.05172v1},
+  year = {2020}
+}
+
+@software{Speck_Parallel-in-Time_pySDC_2025,
+author = {Speck, Robert and Lunet, Thibaut and Baumann, Thomas and Wimmer, Lisa and Akramov, Ikrom and Rosilho de Souza, Giacomo and Fritz, Jakob and Shipton, Jemma},
+doi = {10.5281/zenodo.594191},
+license = {BSD-2-Clause},
+month = apr,
+title = {{Parallel-in-Time/pySDC}},
+url = {https://github.com/Parallel-in-Time/pySDC},
+version = {5.6},
+year = {2025}
+}
+
+@article{speck2019,
+author = {Speck, Robert},
+title = {Algorithm 997: pySDC—Prototyping Spectral Deferred Corrections},
+year = {2019},
+issue_date = {September 2019},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {45},
+number = {3},
+issn = {0098-3500},
+url = {https://doi.org/10.1145/3310410},
+doi = {10.1145/3310410},
+abstract = {In this article, we present the Python framework pySDC for solving collocation problems with spectral deferred correction (SDC) methods and their time-parallel variant PFASST, the parallel full approximation scheme in space and time. pySDC features many implementations of SDC and PFASST, from simple implicit timestepping to high-order implicit-explicit or multi-implicit splitting and multilevel SDCs. The software package comes with many different, preimplemented examples and has seven tutorials to help new users with their first steps. Time parallelism is implemented either in an emulated way for debugging and prototyping or using MPI for benchmarking. The code is fully documented and tested using continuous integration, including most results of previous publications. Here, we describe the structure of the code by taking two different perspectives: those of the user and those of the developer. The first sheds light on the front-end, the examples, and the tutorials, and the second is used to describe the underlying implementation and the data structures. We show three different examples to highlight various aspects of the implementation, the capabilities, and the usage of pySDC. In addition, couplings to the FEniCS framework and PETSc, the latter including spatial parallelism with MPI, are described.},
+journal = {ACM Trans. Math. Softw.},
+month = aug,
+articleno = {35},
+numpages = {23},
+keywords = {PFASST, Spectral deferred corrections, multigrid, parallel-in-time integration}
 }
