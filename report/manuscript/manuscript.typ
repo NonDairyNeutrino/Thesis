@@ -181,10 +181,13 @@ Some of these investigations have applied these PinT methods to science and engi
 While not published this year, honorable mentions go to:
 - Long-time simulations of blood flow in fish @Blumers2021 
 - Time parallel gravitational collapse simulation @Kreienbuehl_2017
-- Fluid-structure simulations @FarhatEtAl2003, non-linear structural dynamics @CortialFarhat2009
+- Fluid-structure simulations @FarhatEtAl2003, and non-linear structural dynamics @CortialFarhat2009
 - Massively space-time parallel N-body solver @SpeckEtAl2012
 
-There needs to be support in Julia to allow for easier development of these methods.
+Additionally, the aforementioned implementations have focused on using the traditional "workhorse" languages of HPC: C, C++, and Fortran.  
+While these languages offer top-tier performance, scientists without expertise in them are unable to use their associated PinT implementations without first spending too much time learning the language.  
+The Julia language was created to solve this "two language" problem with "the speed of C with the ease of Python" by using LLVM for just-in-time compilation and by being built from the ground up with high-performance scientific computing in mind.  
+Julia seems to be the future of scientific computing, so there should be support for these PinT algorithms in it.
 
 Needless to say, PinT methods have shown significant performance gains for a wide ranging collection of sciences.  
 Because of this, it is paramount that PinT methods see continued support and implementation using high-performance methods and in scientist-focused programming languages.  
