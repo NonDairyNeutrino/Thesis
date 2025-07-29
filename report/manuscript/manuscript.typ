@@ -895,7 +895,7 @@ Benchmarks
 
 == Numerical Analysis <sec:analysis_numerical>
 
-In order to understand the error of a numerical approximation, it must be compared to a known value.  For this analysis, that reference is the simple pendulum.  The energy of the simple pendulum, neglecting friction and other dissipative forces, is constant.  While the energy of the pendulum itself is directly proportional to its mass, the length by which it hangs, and the acceleration due to gravity, the following error and stability analyses consider the error relative to the true so that these parameters do not affect the result.  Additionally, the considered pendulum begins at its low point with unit velocity.
+
 
 Because the PA acts as a "meta-algorithm", the underlying integration methods must also be chosen.  For these results, the integration schemes for the coarse and fine propagators are the symplectic-Euler and velocity-Verlet methods, respectively.  The symplectic-Euler method is chosen for the coarse propagation because it computationally "cheap" while still being symplectic.  The velocity-Verlet method is chosen for the fine propagation due to its higher accuracy, while still being computationally inexpensive.  While these methods are simliar in their computational cost and accuracy for a single propagation, the multiple resolutions of the time domain provide the ability for the fine propagator to have a higher discretization and thus a much smaller time-step compared to the coarse propagator.
 
@@ -917,9 +917,11 @@ The error associated with a simulation depends on many factors, but one of the m
 The time step used by the coarse propagation only depends on the coarse discretization as $Delta t_cal(G) = T \/ N_cal(G)$ while the time step used in the fine propagation depends on both the coarse and fine discretizations as $Delta t_cal(F) = Delta t_cal(G) \/ N_cal(F) = T \/ N_cal(G) N_cal(F)$.
 This section analyzes how the accuracy of the simulation depends on the size of each of these time steps.
 
-Recall from @sec:parareal_eom that energy drift can be used as a proxy for the error of a simulation because the total amount of energy in a closed system is constant, and therefore any change in that total energy can be ascribed to approximation error.  Here the energy of a 
-
-@plt:energy_coarse shows how the energy drift of the simulation is affected by the coarse discretization for a particular choice of the fine discretization.  There are two key features that should be noted here: the error changes the most between a coarse discretization of 2^2 and 2^3, the difference in the difference of error is non-monotonic for different fine discretizations.  In other words, the difference in the change in error for difference coarse discretizations first increases, then decreases for increasing fine discretization.  For a fine discretization fo 2^2, the difference in the error for a coarse discretization of 2^2 and 2^3 is big, and it increases with fine discretization until it begins decreasing resulting in the 2^11 (purple) and 2^15 (gold) lines.  While it makes sense that this difference should get smaller with a higher fine discretization, the non-monotonicity is interesting and might stem from the $1 / (x y)$ structure of the time step.
+Additionally, in order to understand the error of a numerical approximation, it must be compared to a known value.
+For this analysis, that reference is the constant energy $E_"true"$ of a simple pendulum under no dissipative nor driving forces.
+The error is defined by the deviation of the simulated energy $E_"sim"$ from the true energy after the pendulum has undergone ten oscillations.
+In order to enusre measurements are scale independent, the difference in energy is scaled by the true energy to yield the relative energy drift $E_r = (E_"sim" - E_"true") \/ E_"true"$.
+In this case the has unit mass $m = 1 "kg"$ pendulum begins at its low point $theta_0 = 0 "rads"$ a distance $ell = 1 "m"$ below its pivot with unit velocity $omega_0 = 1 "rads"\/s$ yielding $E_"true" = m ell^2 omega_0^2 \/ 2 = 0.5 "J"$.
 
 #figure(
   caption: [The order of magnitude of the normalized percent error of the final state of the pendulum for different coarse and fine discretizations.],
@@ -929,9 +931,12 @@ Recall from @sec:parareal_eom that energy drift can be used as a proxy for the e
   )
 ) <plt:energy_coarse>
 
-Starts high, and immediately converges
+@plt:energy_coarse shows how the energy drift of the simulation is affected by the coarse discretization for a particular choice of the fine discretization.
+There are two key features that should be noted here: the error changes the most between a coarse discretization of $2^2$ and $2^3$, and the difference in the difference of error (i.e. $Delta^2 E \/ Delta N_cal(F) Delta N_cal(G)$) is non-monotonic for different fine discretizations.
+For a fine discretization of $2^2$, the difference in the error for a coarse discretization of $2^2$ and $2^3$ is big, and it increases with fine discretization until it begins decreasing resulting in the $2^11$ (purple) and $2^15$ (gold) lines.
+While it makes sense that this difference should get smaller with a higher fine discretization, the almost-quadratic behavior is interesting and might stem from the $1 \/ Delta N_cal(F) Delta N_cal(G)$ dependence of the time step.
 
-- fine discretization
+This paragraph is going to be about the plot below highlighting key features and things of note that the audience should take.
 
 #figure(
   caption: [],
@@ -941,13 +946,15 @@ Starts high, and immediately converges
   )
 )  <plt:energy_fine>
 
+This paragraph is going to wrap up and summarize the things we found along the way (including friends) when investigating discretization error and energy drift.
+
 === Stability
 
 #figure(
   caption: [],
   image(
     "images/analysis/stability_cd64_fd8_tf20.png",
-    width: 80%
+    width: 86%
   )
 )  <plt:stability>
 
