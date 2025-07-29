@@ -288,7 +288,7 @@ With the discretization decided, partition the time domain $D$ into subdomains $
 
 $ D_p = [t_0 + p / N Delta t, t_0 + (p + 1) / N Delta t] = [t_p, t_(p+1)]. $
 
-Use an fast integration method $cal(G)_0$ (such as the Euler method) to compute initial root solutions ${u_p^0}_p$, ${v_p^0}_p$ defined such that
+Use a fast integration method $cal(G)_0$ (such as the Euler method) to compute initial root solutions ${u_p^0}_p$, ${v_p^0}_p$ defined such that
 
 $ {u_p^0}_p = {u_0^0, u_1^0, u_2^0, dots, u_(N-1)^0} $
 $ {v_p^0}_p = {v_0^0, v_1^0, v_2^0, dots, v_(N-1)^0} $
@@ -566,7 +566,7 @@ $ <eq:prop_corrector>
 + Use the new solution generator algorithm with these arrays and the coarse propagator.
 + The arrays for the position and velocity of the root solution at the current iteration are now populated.
 
-=== Converging the root solution
+=== Converging the root solution <sec:parareal_parareal_converging>
 
 Finally, as own in @alg:parareal, launch the parareal kernel (@alg:parareal_kernel) to gather the fine solutions for each point in time, and construct the new root solution (@alg:correction) until the root solution stops changing between iterations.  While there are many choices that can serve as valid convergence criteria @gander2007, one of the simplest is:
 
@@ -895,18 +895,29 @@ Benchmarks
 
 == Numerical Analysis <sec:analysis_numerical>
 
-In order to understand the error of a numerical approximation, it must be compared to a known value.  For this analysis, that reference is the simple pendulum.  The energy of the simple pendulum, neglecting friction and other dissipative forces, is constant.  While the energy of the pendulum itself is directly proportional to its mass, the length by which it hangs, and the acceleration due to gravity, the following error and stability analyses consider the error relative to the the true so that these parameters do not affect the result.  Additionally, the considered pendulum begins at its low point with unit velocity.
+In order to understand the error of a numerical approximation, it must be compared to a known value.  For this analysis, that reference is the simple pendulum.  The energy of the simple pendulum, neglecting friction and other dissipative forces, is constant.  While the energy of the pendulum itself is directly proportional to its mass, the length by which it hangs, and the acceleration due to gravity, the following error and stability analyses consider the error relative to the true so that these parameters do not affect the result.  Additionally, the considered pendulum begins at its low point with unit velocity.
 
 Because the PA acts as a "meta-algorithm", the underlying integration methods must also be chosen.  For these results, the integration schemes for the coarse and fine propagators are the symplectic-Euler and velocity-Verlet methods, respectively.  The symplectic-Euler method is chosen for the coarse propagation because it computationally "cheap" while still being symplectic.  The velocity-Verlet method is chosen for the fine propagation due to its higher accuracy, while still being computationally inexpensive.  While these methods are simliar in their computational cost and accuracy for a single propagation, the multiple resolutions of the time domain provide the ability for the fine propagator to have a higher discretization and thus a much smaller time-step compared to the coarse propagator.
 
-An important item to note is that because this implementation uses the GPU, the precision of the data is restricted to 32-bit floating-point representations i.e. 32-bit floats.  On consumer-grade GPUs, significant performance increases are seen between using 32 and 64 (or larger) represenations.  Though, when the combination of the coarse discretization and integration method yield low-accuracy data, their error accumulates rapidly.  This usally ends with the data at later times becoming too large to be represented by only 32 bits ($approx 10^38$).  In any instance, the result could either overflow to their negative maximum, return a "32-bit infinity", or a Not-a-Number (NaN), which is only determined by implementation and hardware specifics.
+An important item to note is that data here is represented using only 32 bits instead of the de-facto standard of 64.
+This restriction is because GPU performance is significantly better when using 32-bit floating point representations ("32-bit floats") compared to using 64.
+Though, when both the coarse discretization and the integration method are innacurate (e.g. $N_cal(G) = 4$ with the Euler method), the solution diverges to yield data that is too large to be represented with only 32-bits (the maximum being $approx 10^38$).
+Additionally, using only 32 bits increases round-off error and thus accelerates the solution's divergence.
+Regardless of the source, these overflows result in a $plus.minus infinity$.
 
-Another note pertaining to the restrictions imposed by 32-bit floats is that of the so-called _machine epsilon_.  For a 32-bit float, the smallest difference between numbers that can be detected is $approx 10^-7$.
+// Iterative algorithms need to test for convergence.
+// One method to test if the algorithm has converged is to measure how much the solution changes between iterations, as seen in @eq:convergence in @sec:parareal_parareal_converging.
+// When using only 32-bit floats, if the change between solutions is less than the 32-bit machine epsilon $epsilon_M approx 10^(-7)$, taking the difference results in zero.
+// It should be noted this behavior is unrelated to the user-given convergence threshold
 
 #pagebreak()
-=== Error & Energy Drift
+=== Discretization Error & Energy Drift
 
-The error in a simulation depends on how close the taken approximation is to the analytic description.  For this work, the approximation is completely determined by the time-step; though, the time-step is not determined directly but rather by the discretization of the given time domain.  As the PA uses multiple discretizations, there are multiple time steps.  The time step used by the coarse propagation only depends on the coarse discretization while the time step used in the fine propagation, because it is simply a fraction of the coarse time step, depends on both the coarse and fine discretizations.
+The error associated with a simulation depends on many factors, but one of the most controllable is that associated with the time-step: the smaller the time-step the closer the simulation is to reality.
+The time step used by the coarse propagation only depends on the coarse discretization as $Delta t_cal(G) = T \/ N_cal(G)$ while the time step used in the fine propagation depends on both the coarse and fine discretizations as $Delta t_cal(F) = Delta t_cal(G) \/ N_cal(F) = T \/ N_cal(G) N_cal(F)$.
+This section analyzes how the accuracy of the simulation depends on the size of each of these time steps.
+
+Recall from @sec:parareal_eom that energy drift can be used as a proxy for the error of a simulation because the total amount of energy in a closed system is constant, and therefore any change in that total energy can be ascribed to approximation error.  Here the energy of a 
 
 @plt:energy_coarse shows how the energy drift of the simulation is affected by the coarse discretization for a particular choice of the fine discretization.  There are two key features that should be noted here: the error changes the most between a coarse discretization of 2^2 and 2^3, the difference in the difference of error is non-monotonic for different fine discretizations.  In other words, the difference in the change in error for difference coarse discretizations first increases, then decreases for increasing fine discretization.  For a fine discretization fo 2^2, the difference in the error for a coarse discretization of 2^2 and 2^3 is big, and it increases with fine discretization until it begins decreasing resulting in the 2^11 (purple) and 2^15 (gold) lines.  While it makes sense that this difference should get smaller with a higher fine discretization, the non-monotonicity is interesting and might stem from the $1 / (x y)$ structure of the time step.
 
@@ -940,7 +951,25 @@ Starts high, and immediately converges
   )
 )  <plt:stability>
 
-== Data Transfer Latency <sec:analysis_latency>
+=== Iterations
+
+#figure(
+  caption: [],
+  image(
+    "images/analysis/convergence_fd8.png",
+    width: 80%
+  )
+) <plt:convergence_coarse>
+
+#figure(
+  caption: [],
+  image(
+    "images/analysis/convergence_cd64.png",
+    width: 80%
+  )
+) <plt:convergence_fine>
+
+== Data Transfers & Latency <sec:analysis_latency>
 
 As noted in @sec:scale_hpc, any data that is computed in one memory space must be transferred to another memory space in order for that data to be used in that space.  Again, this applies for both GPUs and remote hosts (or more generally processes).  Because these transfers happen over either PCI-E or network channels, respectively, they serve as the single greatest bottlenecks for performance in this implementation. The following discussion will address to what extent this implementation is limited by these bottlenecks and some strategies on how to mitigate them.
 
@@ -1047,26 +1076,6 @@ On the software side, the Julia language was used to encode the calculations.  T
     [CUDA.jl], [5.7.3]
   )
 ) <tab:soft_spec>
-
-=== Iterations <sec:bench_iterations>
-
-#figure(
-  caption: [],
-  image(
-    "images/analysis/convergence_fd8.png",
-    width: 80%
-  )
-) <plt:convergence_coarse>
-
-#figure(
-  caption: [],
-  image(
-    "images/analysis/convergence_cd64.png",
-    width: 80%
-  )
-) <plt:convergence_fine>
-
-=== Wall Time <sec:bench_wall>
 
 // don't have time right now :(
 // = Particle Production in Analog Cosmologies
