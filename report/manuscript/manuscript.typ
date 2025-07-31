@@ -923,30 +923,36 @@ The error is defined by the deviation of the simulated energy $E_"sim"$ from the
 In order to enusre measurements are scale independent, the difference in energy is scaled by the true energy to yield the relative energy drift $E_r = (E_"sim" - E_"true") \/ E_"true"$.
 In this case the has unit mass $m = 1 "kg"$ pendulum begins at its low point $theta_0 = 0 "rads"$ a distance $ell = 1 "m"$ below its pivot with unit velocity $omega_0 = 1 "rads"\/s$ yielding $E_"true" = m ell^2 omega_0^2 \/ 2 = 0.5 "J"$.
 
+@plt:energy_coarse shows how the error depends on the coarse discretization for several choices of fine discretization.
+Notably, for every presented fine discretization, the error seemingly depends not just nonlinearly, but non-monotonically.
+Yielding almost quadratic behavior, the error initially decreases for an increase of coarse discretization, reaching a minimum at a coarse discretization of $2^10$ for every fine discretization, then rising again.
+This unintuitive behavior warrants futher investigation as the error is expected to exponentially decay converging to zero for larger coarse discretizations.
+
+#figure(
+  caption: [The order of magnitude of the normalized percent error of the final state of the pendulum for different coarse and fine discretizations.],
+  image(
+    "images/analysis/energy_fine_2_9_10_11_14_coarse_2_14.png",
+    width: 77%
+  )
+)  <plt:energy_coarse>
+
 #figure(
   caption: [The order of magnitude of the normalized percent error of the final state of the pendulum for different coarse and fine discretizations.],
   image(
     "images/analysis/energy_coarse_2_9_10_11_15_fine_2_14.png",
-    width: 86%
+    width: 77%
   )
-) <plt:energy_coarse>
+) <plt:energy_fine>
 
-@plt:energy_coarse shows how the energy drift of the simulation is affected by the coarse discretization for a particular choice of the fine discretization.
-There are two key features that should be noted here: the error changes the most between a coarse discretization of $2^2$ and $2^3$, and the difference in the difference of error (i.e. $Delta^2 E \/ Delta N_cal(F) Delta N_cal(G)$) is non-monotonic for different fine discretizations.
-For a fine discretization of $2^2$, the difference in the error for a coarse discretization of $2^2$ and $2^3$ is big, and it increases with fine discretization until it begins decreasing resulting in the $2^11$ (purple) and $2^15$ (gold) lines.
-While it makes sense that this difference should get smaller with a higher fine discretization, the almost-quadratic behavior is interesting and might stem from the $1 \/ Delta N_cal(F) Delta N_cal(G)$ dependence of the time step.
+@plt:energy_fine shows how the energy drift of the simulation is affected by the fine discretization for a particular choice of the coarse discretization.
+There are two key features that should be noted here: the error decreases significantly even for a small change in the fine discretization but then plateaus only to increase at large values of the fine discretization, and the difference in the difference of error (i.e. $Delta^2 E_r \/ Delta N_cal(F) Delta N_cal(G)$) is non-monotonic for different fine discretizations.
+The former signifies that the quality of the results produced from this implementation does not significantly depend on the fine discretiation, until it becomes large.
+The latter suggests there is a complex topography of the error-discretization space that warrants futher investigation; a possible starting point would be to explore the fact that $E_r prop Delta t prop 1 \/ Delta N_cal(G) Delta N_cal(F)$.
 
-This paragraph is going to be about the plot below highlighting key features and things of note that the audience should take.
-
-#figure(
-  caption: [],
-  image(
-    "images/analysis/energy_fine_2_9_10_11_14_coarse_2_14.png",
-    width: 86%
-  )
-)  <plt:energy_fine>
-
-This paragraph is going to wrap up and summarize the things we found along the way (including friends) when investigating discretization error and energy drift.
+The results shown in figures @plt:energy_coarse[] and @plt:energy_fine[] show that the error of using this implementation does depend on the size of the coarse and fine discretizations.
+More specifically, the error seems to be concave in each of the discretizations, first decreasing with larger discretization before reaching a minimum and then increasing.
+Futhermore, there also seems to be concavity in the mixed change of the error $Delta^2 E_r \/ Delta N_cal(G) Delta N_cal(F)$.
+These conclusions warrant further investigation of the topography of the error-discretization space of this implementation and of the PA itself.
 
 === Stability
 
