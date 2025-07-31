@@ -895,7 +895,7 @@ Benchmarks
 
 == Numerical Analysis <sec:analysis_numerical>
 
-
+TALK ABOUT WHY ERROR, STABILITY, AND CONVERGENCE ANALYSIS IS IMPORTANT.
 
 Because the PA acts as a "meta-algorithm", the underlying integration methods must also be chosen.  For these results, the integration schemes for the coarse and fine propagators are the symplectic-Euler and velocity-Verlet methods, respectively.  The symplectic-Euler method is chosen for the coarse propagation because it computationally "cheap" while still being symplectic.  The velocity-Verlet method is chosen for the fine propagation due to its higher accuracy, while still being computationally inexpensive.  While these methods are simliar in their computational cost and accuracy for a single propagation, the multiple resolutions of the time domain provide the ability for the fine propagator to have a higher discretization and thus a much smaller time-step compared to the coarse propagator.
 
@@ -963,6 +963,13 @@ These conclusions warrant further investigation of the topography of the error-d
     width: 86%
   )
 )  <plt:stability>
+
+The notion of stability in the context numerically solving differential equations can refer to the tendency of an integration algorithm to "blow up" due to the accumulation of error.
+As each iteration of the algorithm introduces error, the stability of a simulation depends on the number of iterations it undergoes.
+For integrating equations of motion, a simulation can iterate more times $N$ for two variations of $t_f - t_i = N Delta t$: the final time $t_f$ of the simulation becomes larger while the time step $Delta t$ stays the same, or the time step $Delta t$ becomes smaller while the time domain $t_f - t_i$ does not change.
+While the consequenes of the former are realtively simple to understand as the error increases linearly with the number of iterations, those of the latter require closer inspection because it depends on both the local and global truncation errors.
+
+The local error is dictated by the size of the time step, and the global error is determined by the number of iterations.
 
 === Iterations
 
