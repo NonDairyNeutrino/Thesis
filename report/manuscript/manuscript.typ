@@ -126,9 +126,9 @@ While the PA is not a new contribution, the presentation of it in this way is no
 @sec:scale_gpu first identifies how GPUs offer a meaningful increase in performance due to their incredible parallel-processing power and how to "simply move the expensive part to the GPU".  
 @sec:scale_distributed details how to construct and use a cluster of computers such that the PA can be executed on GPUs across multiple machines that are possibly not even in the same physical location.
 
-@sec:analysis covers analysis of this implementation. 
-@sec:analysis_numerical details the numerical effects of discretization on error/energy drift, stability, and convergence.  
-@sec:analysis_latency identifies that the most significant inhibitor to performance of this implementation is the need to transfer data between different memory spaces, and also identifies methods that could be used to mitigate or even circumvent these issues.  
+@sec:analysis covers analysis of this implementation.
+@sec:analysis_numerical details the numerical effects of discretization on error/energy drift, stability, and convergence.
+@sec:analysis_latency describes the influence, issues, and mitigation methods of transferring data between memory spaces.
 @sec:analysis_benchmarks addresses the core goal of this work: how this implementation affects the time needed to simulate motion.
 
 = Background <sec:background>
