@@ -957,7 +957,7 @@ These conclusions warrant further investigation of the topography of the error-d
 === Stability
 
 #figure(
-  caption: [],
+  caption: [The global error of the simulation quadratically increases as the length of the simulation/the number of iterations increases.  This is consistent with the analytically determined global error of the velocity-verlet algorithm being $O(Delta t^2)$.],
   image(
     "images/analysis/stability_cd64_fd8_tf20.png",
     width: 86%
@@ -967,9 +967,11 @@ These conclusions warrant further investigation of the topography of the error-d
 The notion of stability in the context numerically solving differential equations can refer to the tendency of an integration algorithm to "blow up" due to the accumulation of error.
 As each iteration of the algorithm introduces error, the stability of a simulation depends on the number of iterations it undergoes.
 For integrating equations of motion, a simulation can iterate more times $N$ for two variations of $t_f - t_i = N Delta t$: the final time $t_f$ of the simulation becomes larger while the time step $Delta t$ stays the same, or the time step $Delta t$ becomes smaller while the time domain $t_f - t_i$ does not change.
-While the consequenes of the former are realtively simple to understand as the error increases linearly with the number of iterations, those of the latter require closer inspection because it depends on both the local and global truncation errors.
+While the consequences of the former are relatively simple as the error introduced with each iteration accumulates more and more to create the global error, the latter involves both the decrease in error associted with decrease in time-step and the increase in error associated with the increase of the number of iterations.
 
-The local error is dictated by the size of the time step, and the global error is determined by the number of iterations.
+@plt:stability shows the global error of the simulation as the time-step remains constant and the final time, and thus the number of iterations, increases.  
+The results of the PA are identical to those that would be produced by the using the fine propagator by itself, which in this case is the velocity-verlet method.  
+The global error shown is consistent with the known behavior of the global error of the velocity-verlet algorithm $O(Delta t^2)$, which is used here.
 
 === Iterations
 
