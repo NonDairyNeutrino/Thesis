@@ -960,7 +960,7 @@ These conclusions warrant further investigation of the topography of the error-d
   caption: [The global error of the simulation quadratically increases as the length of the simulation/the number of iterations increases.  This is consistent with the analytically determined global error of the velocity-verlet algorithm being $O(Delta t^2)$.],
   image(
     "images/analysis/stability_cd64_fd8_tf20.png",
-    width: 86%
+    width: 77%
   )
 )  <plt:stability>
 
@@ -973,21 +973,35 @@ While the consequences of the former are relatively simple as the error introduc
 The results of the PA are identical to those that would be produced by the using the fine propagator by itself, which in this case is the velocity-verlet method.  
 The global error shown is consistent with the known behavior of the global error of the velocity-verlet algorithm $O(Delta t^2)$, which is used here.
 
-=== Iterations
+#pagebreak()
+=== Convergence
+
+How quickly a sequence of approximate solutions approaches the true solution (usually asymptotically) is known as its rate of convergence, and applies to both iterative and discretizing algorithms.
+For iterative algorithms, such Newton's Method and Gauss-Seidel Relaxation, the rate of convergence is determined by how many iterations the algorithm needs to undergo for successive solutions to change within some threshold.
+For discretizing algorithms, such as the Finite-Difference and Finite-Element Methods, the rate of convergence is determined by how much the solution changes for increasingly accurate approximations of the domain.
+Because the PA is both iterative and discretizing, these rates depend on each-other and thus the number of iterations needed to converge depends on the discretizations of the domain.
+
+@plt:convergence_coarse shows how the number of iterations the simulation needs to converge depends on the coarse discretization.
+For a coarse discretization less than $2^6 = 64$, the rate of convergence is nearly linear, but for a coarse discretization of $2^7 = 128$ the rate of convergence is much less than the coarse discretization e.g. a coarse discretization of $2^16 = 65,536$ converges in approximately 400 iterations; the latter behavior is known as superlinear convergence @nocedal2000numerical.
+Both the linear convergence for small coarse discretizations, and the superlinear convergence for greater discretizations are consistent with literature @gander2007 @gander2007Superlinear.
 
 #figure(
-  caption: [],
+  caption: [The number of iterations the simulations needs to converge to a solution versus the coarse discretization of the domain.  These results show linear and superlinera rates of convergence for small and large discretizations, respectively.],
   image(
     "images/analysis/convergence_fd8.png",
-    width: 80%
+    width: 77%
   )
 ) <plt:convergence_coarse>
+
+#pagebreak()
+@plt:convergence_fine shows how the rate of convergence depends on the fine discretization.
+The 
 
 #figure(
   caption: [],
   image(
     "images/analysis/convergence_cd64.png",
-    width: 80%
+    width: 77%
   )
 ) <plt:convergence_fine>
 
