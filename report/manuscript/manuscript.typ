@@ -707,7 +707,7 @@ So, why is the PA well-suited to be implemented to use GPUs?  Because the data i
 #figure(
   caption: [Sequential solutions (top in blue) are sent to the GPU to be finely-propagated (mid in red) in parallel; true solutions (bottom in black) are shown for comparison.],
   image(
-    width: 91%,
+    width: 81%,
     alt: "",
     "images/parallel_propagation_gpu.png"
   )
@@ -910,6 +910,8 @@ Regardless of the source, these overflows result in a $plus.minus infinity$.
 // When using only 32-bit floats, if the change between solutions is less than the 32-bit machine epsilon $epsilon_M approx 10^(-7)$, taking the difference results in zero.
 // It should be noted this behavior is unrelated to the user-given convergence threshold
 
+// all the plots below should be normalized to the lowest discretization to highlight how they compare to each other and not show the absolute measurements
+
 #pagebreak()
 === Discretization Error & Energy Drift
 
@@ -976,14 +978,15 @@ The global error shown is consistent with the known behavior of the global error
 #pagebreak()
 === Convergence
 
-How quickly a sequence of approximate solutions approaches the true solution (usually asymptotically) is known as its rate of convergence, and applies to both iterative and discretizing algorithms.
-For iterative algorithms, such Newton's Method and Gauss-Seidel Relaxation, the rate of convergence is determined by how many iterations the algorithm needs to undergo for successive solutions to change within some threshold.
-For discretizing algorithms, such as the Finite-Difference and Finite-Element Methods, the rate of convergence is determined by how much the solution changes for increasingly accurate approximations of the domain.
+How quickly a sequence of approximate solutions approaches the true solution (usually asymptotically) is known as its rate of convergence (RoA), and applies to both iterative and discretizing algorithms.
+For iterative algorithms, such Newton's Method and Gauss-Seidel Relaxation, the RoA is determined by how many iterations the algorithm needs to undergo for successive solutions to change within some threshold.
+For discretizing algorithms, such as the Finite-Difference and Finite-Element Methods, the RoA is determined by how much the solution changes for increasingly accurate approximations of the domain.
 Because the PA is both iterative and discretizing, these rates depend on each-other and thus the number of iterations needed to converge depends on the discretizations of the domain.
+It should also be noted that the PA converges in at most a number of iterations equal to the coarse discretization @gander2007.
 
 @plt:convergence_coarse shows how the number of iterations the simulation needs to converge depends on the coarse discretization.
-For a coarse discretization less than $2^6 = 64$, the rate of convergence is nearly linear, but for a coarse discretization of $2^7 = 128$ the rate of convergence is much less than the coarse discretization e.g. a coarse discretization of $2^16 = 65,536$ converges in approximately 400 iterations; the latter behavior is known as superlinear convergence @nocedal2000numerical.
-Both the linear convergence for small coarse discretizations, and the superlinear convergence for greater discretizations are consistent with literature @gander2007 @gander2007Superlinear.
+For a coarse discretization less than $2^6 = 64$, the RoA is nearly linear, but for a coarse discretization of $2^7 = 128$ the RoA is much less than the coarse discretization e.g. a coarse discretization of $2^16 = 65,536$ converges in approximately 400 iterations; the latter behavior is known as superlinear convergence @nocedal2000numerical.
+Both the linear convergence for small coarse discretizations, and the superlinear convergence for greater coarse discretizations are consistent with literature @gander2007 @gander2007Superlinear.
 
 #figure(
   caption: [The number of iterations the simulations needs to converge to a solution versus the coarse discretization of the domain.  These results show linear and superlinera rates of convergence for small and large discretizations, respectively.],
@@ -994,8 +997,10 @@ Both the linear convergence for small coarse discretizations, and the superlinea
 ) <plt:convergence_coarse>
 
 #pagebreak()
-@plt:convergence_fine shows how the rate of convergence depends on the fine discretization.
-The 
+@plt:convergence_fine shows how the RoA depends on the fine discretization.
+Compared to how the RoA depends on the coarse discretization, that for the fine discretization is rather simple as it is nearly the same for all fine discretizations.
+Though while simple, the results seem to be contrarty to the expectation that a larger fine discretization leads to more accuracy and thus fewer iterations.
+Unfortunately, the details of how the RoA depends on the fine discretization and solver are nuanced and out of the scope of this analysis @gander2007.
 
 #figure(
   caption: [],
@@ -1004,6 +1009,12 @@ The
     width: 77%
   )
 ) <plt:convergence_fine>
+
+The RoA of the PA has been well studied @gander2007 @gander2007Superlinear.
+@plt:convergence_coarse shows this implementation converges linearly for small coarse discretizations, and superlinearly for large discretizations matching literature.
+@plt:convergence_fine shows the RoA of this implementation only slightly depends on the fine discretization for a small coarse discretization.
+Further analysis could be done for both a large coarse and fine discretizations.
+The results shown in this section provide substantial confidence that the behavior of further results will be consistent with those found in literature.
 
 == Data Transfers & Latency <sec:analysis_latency>
 
