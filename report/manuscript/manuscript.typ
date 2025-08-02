@@ -1037,7 +1037,7 @@ If there are indeed multiple problems per device-thread, then zero-copy memory c
     width: 80%
   )
 ) <img:zero-copy>
-
+#pagebreak()
 Overall, transfers can be avoided nearly completely by executing the coarse propagation on the device and distributing the problems to remote machines via RDMA. If problems are distributed, then the transfers would need to use pinned memory to avoid waiting for the CPU.  In any case, the transfer-rate across PCI-E directly depends on the amount of data being transferred, so it's best to saturate not only all available threads on the device, but also the number of problems per thread.  Even with optimally efficient data transfers, the PA is still bottlenecked by its sequential coarse propagation.
 
 === Host-Host Data Transfers
@@ -1049,7 +1049,14 @@ As described in @sec:scale, every time this implementation finishes coarse-propa
 It has been shown that cluster topology (i.e. how workers are related to each other, not necessarily physically) can have a significant effect on the performance of inter-machine communication @Deng2020.  As such, there are two topologies to consider: the network associated with the physical path any data takes (e.g. all data has to go through the director), and the network of nodes each node can "see".  The former _physical topology_ consists of the tangible material through which electrical impulses are sent such as ethernet cabling.  The latter _logical topology_ encodes the worker that a particular worker can share data.
 
 // example for this cluster
-For example, the cluster shown in @diag:cluster_topology was designed to have the worker processes only communicate with the manager process on the same machine.  This is so only the manager would need to send a single batch of data between physical machines to the director.  While this logical topology seems sound, the actual path the data takes (according to the underlying physical topology) may be significantly detrimental to the overall performance of the cluster.  If the software that manages the message passing requires the director to act as an intermediary, then what looks like a straightfoward intra-machine communication in the logical topology between worker and manager actually results in data being transferred from the worker process to the director, then from the director to the manager, and then (after doing nothing at the manager) from the manager back to the director; this is effectively the a star topology as shown in @img:star_topo.
+For example, the cluster shown in @diag:cluster_topology was designed to have the worker processes only communicate with the manager process on the same machine.  
+This is so only the manager would need to send a single batch of data between physical machines to the director.  
+While this logical topology seems sound, the actual path the data takes (according to the underlying physical topology) may be significantly detrimental to the overall performance of the cluster.
+
+If the software that manages the message passing requires the director to act as an intermediary, then the physical topology of the cluster can have significant influence on its performance.  
+What looks like a straightfoward intra-machine communication in the logical topology, data moving between worker and manager, actually results in data being transferred from the worker process to the director.
+Then the data moves from the director to the manager to sit idle.
+Finally, the data moves from the manager back to the director, effectively creating a star topology as shown in @img:star_topo.
 
 #figure(
   caption: [While a cluster might have the logical form as shown in @diag:cluster_topology, the physical characteristics of the network connections and how the communication management controls the flow of data must still be considered.  It is possible for the physical topology to be a star.  Image sourced from @starNetwork.],
