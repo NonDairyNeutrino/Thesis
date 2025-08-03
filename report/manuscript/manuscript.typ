@@ -895,9 +895,18 @@ Benchmarks
 
 == Numerical Analysis <sec:analysis_numerical>
 
-TALK ABOUT WHY ERROR, STABILITY, AND CONVERGENCE ANALYSIS IS IMPORTANT.
+// _Numerical methods found in the wild should be observed from afar as numerical analsysis is sure to follow._
 
-Because the PA acts as a "meta-algorithm", the underlying integration methods must also be chosen.  For these results, the integration schemes for the coarse and fine propagators are the symplectic-Euler and velocity-Verlet methods, respectively.  The symplectic-Euler method is chosen for the coarse propagation because it computationally "cheap" while still being symplectic.  The velocity-Verlet method is chosen for the fine propagation due to its higher accuracy, while still being computationally inexpensive.  While these methods are simliar in their computational cost and accuracy for a single propagation, the multiple resolutions of the time domain provide the ability for the fine propagator to have a higher discretization and thus a much smaller time-step compared to the coarse propagator.
+The standard pillars of analysis for numerically solving differential equations are error, stability, and convergence, which also serve as the focus of this section.
+@sec:analysis_numerical_error investigates how the global error of the simulation, using energy as a proxy, depends on the coarse and fine discretizations.
+@sec:analysis_numerical_stability investigates how the global error of the simulation depends on the number of integration steps for a constant time-step.
+@sec:analysis_numerical_convergence investigates how the number of iterations needed for the PA to reach a solution depends on the coarse and fine discretizations.
+
+Because the PA acts as a "meta-algorithm", the underlying integration methods must also be chosen.  
+For these results, the integration schemes for the coarse and fine propagators are the symplectic-Euler and velocity-Verlet methods, respectively.  
+The symplectic-Euler method is chosen for the coarse propagation because it computationally "cheap" while still being symplectic.  
+The velocity-Verlet method is chosen for the fine propagation due to its higher accuracy, while still being computationally inexpensive.  
+While these methods are simliar in their computational cost and accuracy for a single propagation, the multiple resolutions of the time domain provide the ability for the fine propagator to have a higher discretization and thus a much smaller time-step compared to the coarse propagator.
 
 An important item to note is that data here is represented using only 32 bits instead of the de-facto standard of 64.
 This restriction is because GPU performance is significantly better when using 32-bit floating point representations ("32-bit floats") compared to using 64.
@@ -913,7 +922,7 @@ Regardless of the source, these overflows result in a $plus.minus infinity$.
 // all the plots below should be normalized to the lowest discretization to highlight how they compare to each other and not show the absolute measurements
 
 #pagebreak()
-=== Discretization Error & Energy Drift
+=== Discretization Error & Energy Drift <sec:analysis_numerical_error>
 
 The error associated with a simulation depends on many factors, but one of the most controllable is that associated with the time-step: the smaller the time-step the closer the simulation is to reality.
 The time step used by the coarse propagation only depends on the coarse discretization as $Delta t_cal(G) = T \/ N_cal(G)$ while the time step used in the fine propagation depends on both the coarse and fine discretizations as $Delta t_cal(F) = Delta t_cal(G) \/ N_cal(F) = T \/ N_cal(G) N_cal(F)$.
@@ -956,7 +965,7 @@ More specifically, the error seems to be concave in each of the discretizations,
 Futhermore, there also seems to be concavity in the mixed change of the error $Delta^2 E_r \/ Delta N_cal(G) Delta N_cal(F)$.
 These conclusions warrant further investigation of the topography of the error-discretization space of this implementation and of the PA itself.
 
-=== Stability
+=== Stability <sec:analysis_numerical_stability>
 
 #figure(
   caption: [The global error of the simulation quadratically increases as the length of the simulation/the number of iterations increases.  This is consistent with the analytically determined global error of the velocity-verlet algorithm being $O(Delta t^2)$.],
@@ -976,7 +985,7 @@ The results of the PA are identical to those that would be produced by the using
 The global error shown is consistent with the known behavior of the global error of the velocity-verlet algorithm $O(Delta t^2)$, which is used here.
 
 #pagebreak()
-=== Convergence
+=== Convergence <sec:analysis_numerical_convergence>
 
 How quickly a sequence of approximate solutions approaches the true solution (usually asymptotically) is known as its rate of convergence (RoA), and applies to both iterative and discretizing algorithms.
 For iterative algorithms, such Newton's Method and Gauss-Seidel Relaxation, the RoA is determined by how many iterations the algorithm needs to undergo for successive solutions to change within some threshold.
