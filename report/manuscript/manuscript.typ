@@ -73,7 +73,9 @@ _])
 // TABLE OF CONTENTS
 #outline(indent: auto)
 
-#set page(numbering: "1/1")
+#set page(numbering: (..n) => context {
+  numbering("1/1", n.at(0), ..counter(page).at(<content_end>))
+})
 #counter(page).update(1)
 
 = Introduction
@@ -1164,6 +1166,9 @@ On the software side, the Julia language was used to encode the calculations.  T
 - Use dynamic parallelism to even perform the coarse propagation
 - Look into effects of cluster topology
 
+#metadata("end of content") <content_end>
+#set page(numbering: "I")
+#counter(page).update(1)
 #set par(spacing: 1.15em)
 #bibliography(
   "bib.bib",
