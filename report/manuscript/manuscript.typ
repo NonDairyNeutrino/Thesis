@@ -1233,10 +1233,35 @@ Finally, the comparison of the methods over a range of coarse and fine discertiz
 // - system of equations $partial_t^2 tilde(theta) - (dot(a) / a) partial_t tilde(theta) - a c^2 k^2 tilde(theta) = 0$ for wavenumber $k <= k_c$
 
 = Conclusion <sec:conclusion>
-- Equations of motion can now ben~~efit from parallel solvers.
-- Certain problems are well-suited to a divide-and-conquer approach.
-- Problems with "doubly parallel" characteristics can leverage both local and distributed parallelism, achieving significant computational efficiency.
-- These advancements pave the way for modeling acoustics in expanding volumes.
+
+// - Equations of motion can now benefit from parallel solvers.
+// - Certain problems are well-suited to a divide-and-conquer approach.
+// - Problems with "doubly parallel" characteristics can leverage both local and distributed parallelism, achieving significant computational efficiency.
+// - These advancements pave the way for modeling acoustics in expanding volumes.
+
+The Parareal Algorithm and other methods in the field of paralell-in-time integration are growing increasingly important and popular.
+Their use in computational science has seen significant increases in the past few years in the fields of physics, manufacturing, logistics, biology, and quantitative finance.
+This increase in popularity means there will be increased pressure for these methods to provide significant performance increases when simulating time-dependent systems, such as solving equations of motion in physics and molecular dyanmics.
+While there are several implementations of the Parareal Algorithm, few have utilized techniques from high-performance computing, and those that do, rely on implementations developed with legacy methods.
+The aim of this work was to provide an implementation of the Parareal Algorithm to efficiently solve equations of motion for even the biggest problems while bringing computational science to the modern age.
+
+The Parareal Algorithm itself divides equations of motion into many smaller problems in order to conquer them simultaneously.
+After the smaller problems are solved, their solutions are combined to recreate the problems with increasingly accurate guesses for their initial values.
+This process iterates until the solution of the root problem is the same as what would be produced by directly using an accurate traditional method.
+Because this process results in many independent problems, its performance is theoretically only limited by the number of threads it has available.
+
+Because the Parareal Algorith wraps around traditional numerical solvers that only use arithmetic operations, it is well suited to take advantage of the massive parallelism offered by graphics processing units.
+Though, even more parallelism can be gained by connecting multiple machines together in order to harness their clustered computational power.
+These architectures together theoretically offer unlimited computational power so that the PA can scale to whatever science needs to be done.
+
+This work has shown a scalable version of the PA can produce results with numerical accuracy and behavior similar to those found in literature.
+While there is significant latency associated with transferring data between memory spaces, whether it be between hardware components local to a single machine or between physically seperated machines, methods to mitigate or even circumvent these latencies, such as pinned-memory and cluster-topology optimization, have been developed and can be employed in future investigations.
+Finally, benchmarks show that the current implementation of a distributed, GPU-based PA does not increase performance compared to using a local GPU or even a single threaded approach; this ranking could change for discretizations larger than those measured here.
+
+The idea is simple: calculations take time, and that is bad.
+This research does not stand on its own, but of course on the shoulders of giants.
+This research does not attempt to provide a solution, but rather to grow the foundation of knowledge by a relatively infinitesimal amount.
+This research does not end the story of using computers to do understand nature, but rather offers the opportunity for another to become a master of computational science.
 
 == Future work & Possible Optimizations <sec:conc_future>
 - Krylov enhanced subspaces
