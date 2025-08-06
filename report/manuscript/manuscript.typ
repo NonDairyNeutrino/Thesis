@@ -74,7 +74,7 @@ _])
 #outline(indent: auto)
 
 #set page(numbering: (..n) => context {
-  numbering("1/1", n.at(0), ..counter(page).at(<content_end>))
+  numbering("1/1", n.at(0), /* ..counter(page).at(<content_end>) */)
 })
 #counter(page).update(1)
 
@@ -1056,9 +1056,10 @@ If there are indeed multiple problems per device-thread, then zero-copy memory c
   caption: [When only using pinned memory, all data needs to be copied from the host to the device before any computation can begin (top). Using zero-copy memory (bottom) allows for data transfers to happen at the same time as computation.  Sourced from @cudaCppBestPractices.],
   image(
     "images/zero-copy.png",
-    width: 80%
+    width: 77%
   )
 ) <img:zero-copy>
+
 #pagebreak()
 Overall, transfers can be avoided nearly completely by executing the coarse propagation on the device and distributing the problems to remote machines via RDMA. If problems are distributed, then the transfers would need to use pinned memory to avoid waiting for the CPU.  In any case, the transfer-rate across PCI-E directly depends on the amount of data being transferred, so it's best to saturate not only all available threads on the device, but also the number of problems per thread.  Even with optimally efficient data transfers, the PA is still bottlenecked by its sequential coarse propagation.
 
@@ -1096,40 +1097,47 @@ While distributed functionality is key to achieving scalability, the inter-proce
 
 == Benchmarks <sec:analysis_benchmarks>
 
-Benchmarks and other performance evaluations are meaningless without the appropriate context into how the data was gathered.  Just as an engineer should include the relevant model of their equipment in their reported data, if the computational scientist wishes their work to be reproducible, such information must be included with the data.  As such, the hardware and software specifications that were used in these experiments is presented in @tab:cluster_spec.  Further specifications on the GPUs that were used is collected in @tab:gpu_spec.  Additionally, inter-node network traffic was routed through a TP-Link TL-SG108 1Gb/s network switch.
+Benchmarks and other performance evaluations are meaningless without the appropriate context into how the data was gathered.
+Just as an engineer should include the relevant model of their equipment in their reported data, if the computational scientist wishes their work to be reproducible, such information must be included with the data.
+As such, the hardware and software specifications that were used in these experiments is presented in @tab:cluster_spec.
+Further specifications on the GPUs that were used is collected in @tab:gpu_spec.
+Additionally, inter-node network traffic was routed through a TP-Link TL-SG108 1Gb/s network switch.
 
 #figure(
   caption: [Specifications for each host/node in the used cluster.],
   table(
-      columns: 3,
-      table.header[][*Director*][*Worker*],
-      [Operating System], [Arch Linux (64-bit)], [Arch Linux (64-bit)],
-      [Kernel], [6.14.10], [6.14.9],
-      [Motherboard], [ASRock B760M], [ASUS H170],
-      [CPU], [Intel i7-13700K \ 24 logical cores \@ 5.40 GHz], [Intel i5-6500 \ 4 logical cores \@ 3.60 GHz],
-      [GPU], [NVIDIA RTX 3060 Ti \ #linebreak()], [NVIDIA GTX 1660 Super\ NVIDIA GTX 960],
-      [Memory], [32 GB \@ 6500 MHz], [16 GB \@ 1600 MHz]
+      columns: 4,
+      table.header[][*Director*][*Worker D*][*Worker L*],
+      [Operating System], [Arch Linux (64-bit)], [Arch Linux (64-bit)], [Arch Linux (64-bit)],
+      [Kernel], [6.14.10], [6.14.9], [6.15.9],
+      [Motherboard], [ASRock B760M], [ASUS H170], [ThinkPad X1 Extreme Gen 3],
+      [CPU], [Intel i7-13700K \ 24 logical cores\ \@ 5.40 GHz], [Intel i5-6500 \ 4 logical cores \ \@ 3.60 GHz], [Intel i9-10885H \ 16 logical cores\ \@ 5.30 GHz],
+      [GPU], [NVIDIA RTX 3060 Ti \ #linebreak()], [NVIDIA GTX 1660 Su.\ NVIDIA GTX 960], [NVIDIA GTX 1650\ Ti Mobile],
+      [Memory], [32 GB DDR5\ \@ 6500 MHz], [16 GB DDR4 \@ 1600 MHz], [16 GB DDR4\ \@ 2667 MHz]
     )
 ) <tab:cluster_spec>
 
 #figure(
   caption: [Hardware specifications for the GPUs used in this cluster.  /* Data gathered from techpowerup.com/gpu-specs/. */],
   table(
-    columns: 4,
-    table.header[][*3060*][*1660*][*960*],
-    [Cores],                     [4864], [1408], [1024],
-    [Streaming Multiprocessors], [38],   [22],   [8],
-    [Base Clock (MHz)],          [1410], [1530], [1176],
-    [Boost Clock (MHz)],         [1665], [1785], [1201],
-    [Memory Clock (Gb/s)],       [14],   [14],   [7],
-    [Memory Size (GB)],          [8],    [6],    [4],
-    [Memory Bandwidth (GB/s)],   [448],  [336],  [112],
-    [FP16, 32, 64 Performance (TFLOPS)],  [16.2, 16.2, 0.253], [10.0, 5.03, 0.157], [N/A, 2.46, 0.077],
-    [Compatible CUDA up to],     [8.6], [7.5], [5.2]
+    columns: 5,
+    table.header[][*3060*][*1660*][*960*][*1650*],
+    [Cores],                     [4864], [1408], [1024], [],
+    [Streaming Multiprocessors], [38],   [22],   [8], [],
+    [Base Clock (MHz)],          [1410], [1530], [1176], [],
+    [Boost Clock (MHz)],         [1665], [1785], [1201], [],
+    [Memory Clock (Gb/s)],       [14],   [14],   [7], [],
+    [Memory Size (GB)],          [8],    [6],    [4], [],
+    [Memory Bandwidth (GB/s)],   [448],  [336],  [112], [],
+    [FP16, 32, 64 Performance (TFLOPS)],  [16.2, 16.2, 0.253], [10.0, 5.03, 0.157], [N/A, 2.46, 0.077], [],
+    [Compatible CUDA up to],     [8.6], [7.5], [5.2], []
   )
 ) <tab:gpu_spec>
 
-On the software side, the Julia language was used to encode the calculations.  The Julia standard library's Distributed.jl package was used to perform any and all distributed functionality.  Additionally, the CUDA.jl package was used to facilitate the implementation of GPU-based calculations.  The versions of these packages are detailed in @tab:soft_spec.
+On the software side, the Julia language was used to encode the calculations.
+The Julia standard library's Distributed.jl package was used to perform any and all distributed functionality.
+Additionally, the CUDA.jl package was used to facilitate the implementation of GPU-based calculations.
+The versions of these packages are detailed in @tab:soft_spec.
 
 #figure(
   caption: [The software versions used in the calculations presented in this work.],
@@ -1142,6 +1150,59 @@ On the software side, the Julia language was used to encode the calculations.  T
   )
 ) <tab:soft_spec>
 
+@plt:bench_single shows how the runtime of the simulation depends on the coarse and fine discretizations when using a purley sequential algorithm; these results are using the velocity-Verlet method.  
+The symmetry these plots is consistent with the fact that in a sequential algorithm, the total discretization is effectively the product of the coarse and fine discretizations.  
+Otherwise, both plots show that doublings of the discretization yield linear increases in the runtime.
+
+#figure(
+  caption: [The runtime of a sequentual integration algorithm depends effectively on the product of the coarse (left) and fine (right) discretizations.],
+  image(
+    "images/benchmarks/bench_single.png",
+    width:77%
+  )
+) <plt:bench_single>
+
+@plt:bench_gpu shows how the runtime depends on the coarse and fine discretizations when using multithreading on the GPU.
+The dependence of the runtime's order of magnitude on the coarse discretization (left) is shown to be linear for all fine discretizations.
+Additionally, nearly all fine discretizations yield similar results.
+The dependence of the runtime's order of magnitude on the fine discretization (right) is such that for small discretizations, there is little change while larger discretizations yield accelerating runtime magnitudes. 
+Additionally, the length of the runtime accelerates with increases in coarse discretization.
+
+#figure(
+  caption: [The runtime of the PA depends heavily on the coarse (left) and fine (right) discretizations.],
+  image(
+    "images/benchmarks/bench_gpu.png",
+    width: 77%
+  )
+) <plt:bench_gpu>
+
+@plt:bench_distributed shows how the runtime depends on the coarse and fine discretizations when using the distributed implementaion presented in this work.
+The overall behavior of these distributed results matches those of only using a single, local GPU.
+One notable difference between these and the single-GPU results is that for both large coarse and fine discretizations, the runtime for the distributed method is approximately an order of magnitude larger than that of the single-GPU implementation. 
+
+@plt:method_comp compares the runtimes between the different multithreading methods for both a range of coarse and fine discretizations.
+Dissapointingly, this implementation does not offer increases in performance compared to executing the simulating with local-GPU nor even sequentially.
+For increases in coarse discretization (left), all methods are approximatey the same.
+For increases in fine discretization, the concavity matches of that in 
+
+#figure(
+  caption: [The runtime of the distributed implementation closely matches that of a single, local GPU.],
+  image(
+    "images/benchmarks/bench_distributed.png",
+    width: 77%
+  )
+) <plt:bench_distributed>
+
+#figure(
+  caption: [],
+  image(
+    "images/benchmarks/method_comp.png",
+    width: 77%
+  )
+) <plt:method_comp>
+
+// #image("images/benchmarks/bench.gif")
+
 // don't have time right now :(
 // = Particle Production in Analog Cosmologies
 // - Solve the partial differential equation
@@ -1149,7 +1210,7 @@ On the software side, the Julia language was used to encode the calculations.  T
 // - system of equations $partial_t^2 tilde(theta) - (dot(a) / a) partial_t tilde(theta) - a c^2 k^2 tilde(theta) = 0$ for wavenumber $k <= k_c$
 
 = Conclusion <sec:conclusion>
-- Equations of motion can now benefit from parallel solvers.
+- Equations of motion can now ben~~efit from parallel solvers.
 - Certain problems are well-suited to a divide-and-conquer approach.
 - Problems with "doubly parallel" characteristics can leverage both local and distributed parallelism, achieving significant computational efficiency.
 - These advancements pave the way for modeling acoustics in expanding volumes.
