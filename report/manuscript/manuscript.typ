@@ -80,7 +80,7 @@ _])
 
 = Introduction
 
-The idea is simple: calculations take time, and that is bad.
+The issue is simple: calculations take time, and we only have so much of it.
 Heuristically, the total time needed for all calculations to finish depends on both the number of calculations needed to be done, and the number of calculations that can finish in some time.
 To minimize the total time, either the number of calculations needs to be minimized, the number of calculations per time needs to be maximized, or both.
 This work focuses on the latter.
@@ -1226,18 +1226,7 @@ The runtime of using multiple GPU threads increases linearly in coarse discretiz
 The runtime of using multiple GPUs in a distributed system of machines increases linearly in coarse discretization, and quasi-parabolic in fine discretization.
 Finally, the comparison of the methods over a range of coarse and fine discertizations shows this distributed implementation does not provide reduced runtime, but instead increases the runtime for all discretizations measured.
 
-// don't have time right now :(
-// = Particle Production in Analog Cosmologies
-// - Solve the partial differential equation
-// - spectral decomposition
-// - system of equations $partial_t^2 tilde(theta) - (dot(a) / a) partial_t tilde(theta) - a c^2 k^2 tilde(theta) = 0$ for wavenumber $k <= k_c$
-
 = Conclusion <sec:conclusion>
-
-// - Equations of motion can now benefit from parallel solvers.
-// - Certain problems are well-suited to a divide-and-conquer approach.
-// - Problems with "doubly parallel" characteristics can leverage both local and distributed parallelism, achieving significant computational efficiency.
-// - These advancements pave the way for modeling acoustics in expanding volumes.
 
 The Parareal Algorithm and other methods in the field of paralell-in-time integration are growing increasingly important and popular.
 Their use in computational science has seen significant increases in the past few years in the fields of physics, manufacturing, logistics, biology, and quantitative finance.
@@ -1258,22 +1247,28 @@ This work has shown a scalable version of the PA can produce results with numeri
 While there is significant latency associated with transferring data between memory spaces, whether it be between hardware components local to a single machine or between physically seperated machines, methods to mitigate or even circumvent these latencies, such as pinned-memory and cluster-topology optimization, have been developed and can be employed in future investigations.
 Finally, benchmarks show that the current implementation of a distributed, GPU-based PA does not increase performance compared to using a local GPU or even a single threaded approach; this ranking could change for discretizations larger than those measured here.
 
-The idea is simple: calculations take time, and that is bad.
+The issue is simple: calculations take time, and we only have so much of it.
 This research does not stand on its own, but of course on the shoulders of giants.
 This research does not attempt to provide a solution, but rather to grow the foundation of knowledge by a relatively infinitesimal amount.
 This research does not end the story of using computers to do understand nature, but rather offers the opportunity for another to become a master of computational science.
 
-== Future work & Possible Optimizations <sec:conc_future>
-- Krylov enhanced subspaces
-- CUDA dynamic parallelism
-- Implement with C, Fortran, CUDA, NVSHMEM, MPI
-- Make gpu-backend-agnostic with KernelAbstractions.jl
-- this physics could be better done with PFASST
-- non-dimensionalize everything following @langtangen2016scaling
-- use a variable size time discretization algorithm, then base integration of those differences
-- Use dynamic parallelism to avoid the cpu having to launch the kernels
-- Use dynamic parallelism to even perform the coarse propagation
-- Look into effects of cluster topology
+== Future work & Possible Optimizations <sec:conclusion_future>
+
+This work focused on implementing the PA in the Julia programming language targeting CUDA-based GPUs with the Distributed.jl standard-library's support for multiprocessing and distributed computing; each of these specifications has alternatives.
+While one of the goals of this research was to implement the PA in the Julia language, the same functionality could be implemented using other lanuages and libraries.
+Additionally, because CUDA only works with NVIDIA GPUs, devices from other manufacturers are incompatible with this implemenation and thus its availability is limited.
+For distributed functionality, there are several tried-and-true/de-facto standards that could be used as well.
+
+A traditional HPC language such as C, C++, or Fortran could be used in conjunction with low-, and high-level accelerating libraries to theoretically increase the "raw" performance of the implementation.
+In reality, any potential performance gains would only arise if the manually-optimized, low-level source-code was more performant than the automatically-optimized, high-level source code i.e. #quote([C is faster than Python, but is _your_ C faster than Python?], block: false).
+For example, OpenMP could be used for high-level CPU-based multithreading, OpenACC could be used for high-level GPU-based multithreading, and MPI could be used for high-level distributed functionality.
+For further GPU optimization, directly using a lower-level GPGPU interface could be used based on the vendor of the targeted device: CUDA for NVIDIA GPUs, ROCm for AMD GPUs, Metal for Apple GPUs, oneAPI for Intel GPUs, and OpenCL or SYCL for platform agnostic implementations; while there are other interfaces that would allow for arbitrary computations to be done on the device, such as Vulkan and OpenGL, these are aimed more toward graphics processing.
+That being said, there has been and there continues to be much work on the KernelAbstractions.jl Julia package that provides functionality for source code to be not just vendor agnostic, but also heterogenous allowing the same source code to target both CPUs and GPUs.
+
+In general, memory allocations should be minimized as they significantly reduce performance in both time and memory usage.
+This implementation creates a new subproblem each time, so modifying the method to adjust the subproblem in-place would drastically reduce the number of memory allocations.
+Additionally, custom types were used to facilite source-code readabliity, but lighter data structures (e.g. arrays) could be used throughout to both minimize memory allocations, as well as allow for further automatic optimization from the compiler.
+These are merely a few observations of how this implemenation could be optimized; there are certainly more that will be identified and addressed in the near future.
 
 #metadata("end of content") <content_end>
 #set page(numbering: "I")
