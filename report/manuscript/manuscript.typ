@@ -887,13 +887,26 @@ Once the devices are assigned, the cluster has been prepared.  The director then
 
 = Performance Analysis <sec:analysis>
 
-While there are many significant aspects of this work that could be analyzed, there are only three that will be considered here.  The effects of transferring data betwene the host and the device repeatedly arises only in the implementation and the theoretical nature of this bottleneck is investigated.  Similary, the significance of transferring data between hosts is analyzed.  And finally, empirical benchmarks are given to highlight the efficacy of the implementation.
+While there are many significant aspects of this work that could be analyzed, only three that will be considered here.  
+The first is on the quality of the results produced by this implementation via standard numerical analyses.  
+The effects of transferring data betwene the host and the device repeatedly arises only in the implementation and the theoretical nature of this bottleneck is investigated.  
+Similary, the significance of transferring data between hosts is analyzed.  
+And finally, empirical benchmarks are given to highlight the efficacy of the implementation.
 
-Numerical analysis focsuses on measuring the effects of numerical approximation.  Some of the most notable effects to conisder are error, stability, and convergence. Instead of considering raw error, in this work energy-drift will be used as a proxy (as outlined in @sec:energy_drift).  In this case, stability refers to how the error of the result changes with respect the length of the time domain of the root problem.  Convergence measures how many iterations the implementation takes to converge against the coarse and fine discretizations.
+@sec:analysis_numerical focsuses on measuring the effects of numerical approximation.  
+Some of the most notable effects to conisder are error, stability, and convergence. 
+Instead of considering raw error, in this work energy-drift will be used as a proxy (as outlined in @sec:energy_drift).  
+In this case, stability refers to how the error of the result changes with respect the length of the time domain of the root problem.  
+Convergence measures how many iterations the implementation takes to converge against the coarse and fine discretizations.
 
-Algorithm analysis focuses on two main aspects: how the runtime of the program is affected by changes in size of the input, and how the needed amount of memory is affected by changes in the size of the input.  For this work, the "input" will be the coarse and fine discretizations.
+@sec:analysis_latency focuses on identifying sources of latency due to data transfers.
+More specifcally, those transfers that occur between the host memory and the memory on the GPU.
+Strategies to mititgate or completely circumvent these latencies are suggested.
 
-Benchmarks
+@sec:analysis_benchmarks focuses on comparing the performance of different forms of parallelism.
+To provide a baseline measurement, the performance of a single threaded integration is provided across ranges of coarse and fine discretization.
+Similarly, the performances of a local GPU and the distributed implementation provided by this work are measured for varying discretizations.
+Finally, the performances of each of these methods are compared to highlight which method has the best and worst runtime.
 
 == Numerical Analysis <sec:analysis_numerical>
 
@@ -923,7 +936,7 @@ Regardless of the source, these overflows result in a $plus.minus infinity$.
 
 // all the plots below should be normalized to the lowest discretization to highlight how they compare to each other and not show the absolute measurements
 
-#pagebreak()
+// #pagebreak()
 === Discretization Error & Energy Drift <sec:analysis_numerical_error>
 
 The error associated with a simulation depends on many factors, but one of the most controllable is that associated with the time-step: the smaller the time-step the closer the simulation is to reality.
