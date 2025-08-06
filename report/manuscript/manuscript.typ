@@ -53,7 +53,10 @@
 #align(center)[
   #set par(justify: false)
   *Abstract*\
-  Physical simulations always need to balance accuracy and run-time.  This work implements the Parareal Algorithm using graphics processing units across a distributed system to accurately simulate time-dependent physics while minimizing runtime.  Several methods are identified that could further improve performance by minimizing latency associated with transferring data between host and device as well as between hosts in the system.  Preliminary benchmarks are provided.
+  Physical simulations always need to balance accuracy and run-time.  
+  This work implements the Parareal Algorithm using graphics processing units across a distributed system to accurately simulate time-dependent physics while attempting to minimize runtime.
+  Data-transfer latency is identified as the primary bottleneck, for which mitigation methods are provided.
+  Benchmarks comparing single-threaded, single-GPU, and distributed implementations on a logarithmic spectrum of coarse and fine discretizations are provided.
 ]
 #v(1fr)
 #pagebreak()
