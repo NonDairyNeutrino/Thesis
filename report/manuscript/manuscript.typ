@@ -1112,8 +1112,8 @@ Additionally, inter-node network traffic was routed through a TP-Link TL-SG108 1
       [Kernel], [6.14.10], [6.14.9], [6.15.9],
       [Motherboard], [ASRock B760M], [ASUS H170], [ThinkPad X1 Extreme Gen 3],
       [CPU], [Intel i7-13700K \ 24 logical cores\ \@ 5.40 GHz], [Intel i5-6500 \ 4 logical cores \ \@ 3.60 GHz], [Intel i9-10885H \ 16 logical cores\ \@ 5.30 GHz],
-      [GPU], [NVIDIA RTX 3060 Ti \ #linebreak()], [NVIDIA GTX 1660 Su.\ NVIDIA GTX 960], [NVIDIA GTX 1650\ Ti Mobile],
-      [Memory], [32 GB DDR5\ \@ 6500 MHz], [16 GB DDR4 \@ 1600 MHz], [16 GB DDR4\ \@ 2667 MHz]
+      [GPU], [NVIDIA RTX 3060 Ti \ #linebreak()], [NVIDIA GTX 1660 Sup\ NVIDIA GTX 960], [NVIDIA GTX 1650\ Ti Mobile],
+      [Memory], [32 GB DDR5\ \@ 6500 MHz], [16 GB DDR4\ \@ 1600 MHz], [16 GB DDR4\ \@ 2667 MHz]
     )
 ) <tab:cluster_spec>
 
@@ -1122,18 +1122,19 @@ Additionally, inter-node network traffic was routed through a TP-Link TL-SG108 1
   table(
     columns: 5,
     table.header[][*3060*][*1660*][*960*][*1650*],
-    [Cores],                     [4864], [1408], [1024], [],
-    [Streaming Multiprocessors], [38],   [22],   [8], [],
-    [Base Clock (MHz)],          [1410], [1530], [1176], [],
-    [Boost Clock (MHz)],         [1665], [1785], [1201], [],
-    [Memory Clock (Gb/s)],       [14],   [14],   [7], [],
-    [Memory Size (GB)],          [8],    [6],    [4], [],
-    [Memory Bandwidth (GB/s)],   [448],  [336],  [112], [],
-    [FP16, 32, 64 Performance (TFLOPS)],  [16.2, 16.2, 0.253], [10.0, 5.03, 0.157], [N/A, 2.46, 0.077], [],
-    [Compatible CUDA up to],     [8.6], [7.5], [5.2], []
+    [Cores],                     [4864], [1408], [1024], [1024],
+    [Streaming Multiprocessors], [38],   [22],   [8], [16],
+    [Base Clock (MHz)],          [1410], [1530], [1176], [1350],
+    [Boost Clock (MHz)],         [1665], [1785], [1201], [1485],
+    [Memory Clock (Gb/s)],       [14],   [14],   [7], [12],
+    [Memory Size (GB)],          [8],    [6],    [4], [4],
+    [Memory Bandwidth (GB/s)],   [448],  [336],  [112], [192],
+    [FP16, 32, 64 Performance (TFLOPS)],  [16.2, 16.2, 0.253], [10.0, 5.03, 0.157], [N/A, 2.46, 0.077], [6.08, 3.04, 0.950],
+    [Compatible CUDA up to],     [8.6], [7.5], [5.2], [7.5]
   )
 ) <tab:gpu_spec>
 
+#pagebreak()
 On the software side, the Julia language was used to encode the calculations.
 The Julia standard library's Distributed.jl package was used to perform any and all distributed functionality.
 Additionally, the CUDA.jl package was used to facilitate the implementation of GPU-based calculations.
@@ -1163,10 +1164,14 @@ Otherwise, both plots show that doublings of the discretization yield linear inc
 ) <plt:bench_single>
 
 @plt:bench_gpu shows how the runtime depends on the coarse and fine discretizations when using multithreading on the GPU.
-The dependence of the runtime's order of magnitude on the coarse discretization (left) is shown to be linear for all fine discretizations.
-Additionally, nearly all fine discretizations yield similar results.
-The dependence of the runtime's order of magnitude on the fine discretization (right) is such that for small discretizations, there is little change while larger discretizations yield accelerating runtime magnitudes. 
-Additionally, the length of the runtime accelerates with increases in coarse discretization.
+The dependence of the runtime's order of magnitude on the coarse discretization (left) is shown to be linear for all fine discretizations. 
+More specifically, an increase of coarse discretization by a factor of eight leads to the runtime increasing by a factor of ten, approximately.
+Additionally, nearly all fine discretizations yield similar results meaning that the runtime is mostly insensitive to the fine discretization.
+
+#pagebreak()
+Continuing with @plt:bench_gpu, the dependence of the runtime's order of magnitude on the fine discretization (right) is such that for small discretizations there is little change, while larger discretizations yield accelerating runtime magnitudes. 
+Additionally, the curvature of each coarse-discretization-contour with respect to the fine discretization increases with the coarse discretization.
+In other words, $Delta^2 tau \/ Delta N_cal(F) Delta N_cal(G) > 0$.
 
 #figure(
   caption: [The runtime of the PA depends heavily on the coarse (left) and fine (right) discretizations.],
@@ -1180,11 +1185,6 @@ Additionally, the length of the runtime accelerates with increases in coarse dis
 The overall behavior of these distributed results matches those of only using a single, local GPU.
 One notable difference between these and the single-GPU results is that for both large coarse and fine discretizations, the runtime for the distributed method is approximately an order of magnitude larger than that of the single-GPU implementation. 
 
-@plt:method_comp compares the runtimes between the different multithreading methods for both a range of coarse and fine discretizations.
-Dissapointingly, this implementation does not offer increases in performance compared to executing the simulating with local-GPU nor even sequentially.
-For increases in coarse discretization (left), all methods are approximatey the same.
-For increases in fine discretization, the concavity matches of that in 
-
 #figure(
   caption: [The runtime of the distributed implementation closely matches that of a single, local GPU.],
   image(
@@ -1193,15 +1193,25 @@ For increases in fine discretization, the concavity matches of that in
   )
 ) <plt:bench_distributed>
 
+@plt:method_comp compares the runtimes between the different multithreading methods for both a range of coarse and fine discretizations.
+Dissapointingly, this implementation does not offer increases in performance compared to executing the simulating with local-GPU nor even sequentially; this is the core takeaway from this work.
+For coarse discretization (left), all methods are approximatey the same with that of the single, local GPU taking the least time to run for most coarse discretizations, and the distributed implementation taking the most time to run for most coarse discretiztions.
+For fine discretization (right), the single threaded method takes the least time to run while the distributed implementation takes the most time to run across all fine discretizations.
+Additionally, the large runtime for the GPU and distributed methods is large even for small discretizations due to the large inherent time needed to transfer data (see @sec:analysis_latency).
+
 #figure(
-  caption: [],
+  caption: [The runtime of the simulation depends on the method employed.  The comparison of these runtimes is shown across the range of coarse (left) and fine (right) discretizations for the a both a fine and coarse discretization of $2^14$, respectively, chosen to highlight the differences between the methods.],
   image(
     "images/benchmarks/method_comp.png",
     width: 77%
   )
 ) <plt:method_comp>
 
-// #image("images/benchmarks/bench.gif")
+The results shown the figures above mostly match expectations.
+The runtime of using a single CPU thread increases linearly in both coarse and fine discretization.
+The runtime of using multiple GPU threads increases linearly in coarse discretization, and quasi-parabolic in fine discretization.
+The runtime of using multiple GPUs in a distributed system of machines increases linearly in coarse discretization, and quasi-parabolic in fine discretization.
+Finally, the comparison of the methods over a range of coarse and fine discertizations shows this distributed implementation does not provide reduced runtime, but instead increases the runtime for all discretizations measured.
 
 // don't have time right now :(
 // = Particle Production in Analog Cosmologies
