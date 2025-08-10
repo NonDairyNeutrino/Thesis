@@ -24,41 +24,104 @@
 
 = Introduction
 
-== The Main Issue
+== It's About Time
 
-#tblock()[Calculations take time...]
+#tblock(title: "The main issue")[Calculations take time...and we only have so much.]
 
-== The Main Issue
+== Minimizing Time
 
-#tblock()[Calculations take time...and we only have so much.]
-
-== The Future is Parallel
-
+#columns(2, [
 - Total runtime = $"time" / "calculation" * "number of calculations"$
 
-- Total runtime #sym.arrow.b $<==> "time" / "calculation"$ #sym.arrow.b or $"calculation" / "time" arrow.t$
+- Minimize runtime by
+  - Minimizing time / calculation #sym.space #sym.arrow.l.r.double.long Speeding up sequential evaluation
+  - Maximizing calculations / time #sym.arrow.l.r.double.long Adding more parallelization
 
-== The Future is Parallel
+#colbreak()
 
-- Total runtime = $"time" / "calculation" * "number of calculations"$
+#figure(
+  caption: [],
+  rect(width: 100%)
+  // image(
+  //   alt: "",
 
-- Total runtime #sym.arrow.b $<==> underbrace("time" / "calculation", "Sequential")$ #sym.arrow.b or $underbrace("calculation" / "time", "Parallel") arrow.t$
+  // )
+)
+])
+== Parallelizing Time
 
-// maybe add a image comparing a narrow fast river (single threaded CPU), a slightly wider fast river, and a wide river that's only made of coffee (multithreaded GPU)
+#columns(2, [
+- Physics depends on time and space
 
-== The Future is Parallel
+- Space has been parallelized
 
-- Total runtime = $"time" / "calculation" * "number of calculations"$
+- Time has remained sequential
 
-- Total runtime #sym.arrow.b $<==> underbrace("time" / "calculation", "Sequential")$ #sym.arrow.b or $underbrace("calculations" / "time", "Parallel") arrow.t$
+- Parallel-in-Time integration offers a new avenue to speedup
 
-- Hardware improvements $=> "time" / "calculation" arrow.b$, but it's decelerating
+#colbreak()
 
-- More hardware $=> "calculation" / "time" arrow.t$, and it's accelerating
+#figure(
+  caption: [],
+  rect(width: 100%)
+  // image(
+  //   alt: "",
 
-== The Future is Parallel
+  // )
+)
+])
 
-#tblock()[#align(center, [Parallel algorithms need to be the focus])]
+== Maximizing Resource Utilization
+
+#columns(2, [
+  - Space discretized as much as it can e.g. constrained by CFL
+
+  - Spatial parallelization saturated
+
+  - Remaining cores sit idle
+
+  #colbreak()
+
+#figure(
+  caption: [],
+  rect(width: 100%)
+  // image(
+  //   alt: "",
+
+  // )
+)
+])
+
+== More Threads is Always the Answer
+
+#columns(2, [
+  - PinT scales with threads
+
+  - CPUs have \~10 threads
+
+  - GPUs have \~10,000 threads
+
+  - Distributed has $infinity$ threads
+
+  #colbreak()
+
+#figure(
+  caption: [],
+  rect(width: 100%)
+  // image(
+  //   alt: "",
+
+  // )
+)
+])
+
+== This work
+
+- Implement the Parareal Algorithm
+
+- Use GPUs and distributed systems
+
+- Simulate motion
 
 = Background
 
