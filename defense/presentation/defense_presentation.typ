@@ -31,11 +31,13 @@
 == Minimizing Time
 
 #columns(2, [
-- Total runtime = $"time" / "calculation" * "number of calculations"$
+- Total runtime =\ $"time" / "calculation" * "number of calculations"$
 
-- Minimize runtime by
-  - Minimizing time / calculation #sym.space #sym.arrow.l.r.double.long Speeding up sequential evaluation
-  - Maximizing calculations / time #sym.arrow.l.r.double.long Adding more parallelization
+- Wan to minimize runtime
+
+- Minimizing time / calculation #sym.space #sym.arrow.l.r.double.long Speeding up sequential evaluation
+
+- Maximizing calculations / time #sym.arrow.l.r.double.long Adding more parallelization
 
 #colbreak()
 
@@ -125,7 +127,130 @@
 
 = Background
 
-== Background
+== Growth of Parallel-in-Time Integration
+
+#columns(2, [
+- PinT is growing
+
+- Not a new idea
+
+- More cores #sym.arrow.double more interest
+
+- On track for more growth
+
+#colbreak()
+
+#figure(
+  caption: [The number of papers published using parallel-in-time integration has been growing and even accelerating over the years.],
+  image(
+    alt: "Histogram showing the accelerating growth of papers in the field of parallel-in-time integration over the past few decade",
+    "images/pint_history.png"
+  )
+  )
+])
+
+== Applications of Parallel-in-Time Integration
+
+#columns(2, [
+#v(1fr)
+- Applications in many sciences
+
+- *Physics*: E&M, Plasmas, Fluids,\ Materials, Astrophysics
+
+- *Engineering*: Manufacturing
+
+- *Operations*: Optimal control
+
+#v(1fr)
+#colbreak()
+#v(1fr)
+
+- *Economics*: Game theory,\ Market dynamics
+
+- *Biology*: Animal patterns,\ Blood flow in fish
+
+- *Machine Learning*: Training\ neural networks
+
+#v(1fr)
+])
+
+== Methods of Parallel-in-Time Integration
+
+#columns(2, [
+- Specialized methods
+
+- *General*: Parareal, PITA,\ PFASST, RIDC
+
+- *Hyperbolic*: ParaDiag, MGRIT
+
+- *Parabolic*: STMG, WRMG
+
+#colbreak()
+
+#figure(
+  caption: [Several parallel-in-time methods have been developed.  Each method aims to address limitations of others as well as providing new approaches in general.],
+  image(
+    alt: "",
+    "images/pint_methods.png"
+  )
+  )
+])
+
+== Implementations of Parallel-in-Time Integration
+
+#columns(2, [
+- Different languages with different means of parallelism
+
+- *Languages*: Fortran, C, C++, Python
+
+- *Parallelism*: OpenMP, MPI
+
+- *HPC*: Very few
+
+#colbreak()
+
+#figure(
+  caption: [Several parallel-in-time methods have been implemented.  Implementations have been developed in a variety of languages with a variety of approaches to parallelism.],
+  image(
+    alt: "",
+    "images/pint_codes.png"
+  )
+  )
+])
+
+== Language of Parallel-in-Time Integration
+
+#columns(2, [
+- Traditional HPC languages have been used e.g. C/C++, Fortran
+
+- Python has been used
+
+- Julia has the speed of C with the ease of Python
+
+- Julia natively supports parallel, GPU, and distributed
+
+- PinT should be implemented in Julia
+
+#colbreak()
+
+#figure(
+  caption: [Several parallel-in-time methods have been implemented.  Implementations have been developed in a variety of languages with a variety of approaches to parallelism.],
+  image(
+    alt: "",
+    "images/benchmarks.svg"
+  )
+  )
+])
+
+== This Contribution to Parallel-in-Time Integration
+
+- *Application*: Physics of motion
+
+- *Method*: Parareal
+
+- *Parallelism*: Distributed GPUs
+
+- *Language*: Julia
 
 = The Parareal Algorithm
 
