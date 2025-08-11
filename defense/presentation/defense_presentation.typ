@@ -143,7 +143,8 @@
 #colbreak()
 
 #figure(
-  caption: [The number of papers published using parallel-in-time integration has been growing and even accelerating over the years.],
+  supplement: none,
+  caption: [/* The number of papers published using parallel-in-time integration has been growing and even accelerating over the years. */  Image credit: parallel-in-time.org],
   image(
     alt: "Histogram showing the accelerating growth of papers in the field of parallel-in-time integration over the past few decade",
     "images/pint_history.png"
@@ -190,10 +191,12 @@
 #colbreak()
 
 #figure(
-  caption: [Several parallel-in-time methods have been developed.  Each method aims to address limitations of others as well as providing new approaches in general.],
+  supplement: none,
+  caption: [/* Several parallel-in-time methods have been developed.  Each method aims to address limitations of others as well as providing new approaches in general. */  Image credit: parallel-in-time.org],
   image(
     alt: "",
-    "images/pint_methods.png"
+    "images/pint_methods.png",
+    width: 100%
   )
   )
 ])
@@ -212,7 +215,8 @@
 #colbreak()
 
 #figure(
-  caption: [Several parallel-in-time methods have been implemented.  Implementations have been developed in a variety of languages with a variety of approaches to parallelism.],
+  supplement: none,
+  caption: [/* Several parallel-in-time methods have been implemented.  Implementations have been developed in a variety of languages with a variety of approaches to parallelism. \  */Image credit: parallel-in-time.org],
   image(
     alt: "",
     "images/pint_codes.png"
@@ -236,7 +240,8 @@
 #colbreak()
 
 #figure(
-  caption: [Several parallel-in-time methods have been implemented.  Implementations have been developed in a variety of languages with a variety of approaches to parallelism.],
+  supplement: none,
+  caption: [/* Micro-benchmarks have shown Julia runtimes on par with traditional high-performance languages such as C, Fortran, and Rust.  */Image credit: julialang.org],
   image(
     alt: "",
     "images/benchmarks.svg"
@@ -314,7 +319,7 @@ $
 
 == The Parareal Algorithm - Prepare the Subproblems
 
-- Use cheap, inaccurate "coarse" solver to approximate solution
+- Use fast, inaccurate, sequential "coarse" solver to approximate solution
 
 #figure(
   // caption: [],
@@ -327,7 +332,7 @@ $
 
 == The Parareal Algorithm - Solve the Subproblems
 
-- Use expensive, accurate "fine" solver on each coarse value
+- Use slow, accurate, sequential "fine" solver on each coarse value simultaneously
 
 #figure(
   // caption: [],
@@ -373,6 +378,8 @@ $
 
 - Max iterations = coarse discretization
 
+- Converges to "direct" fine solution
+
 #v(1fr)
 #colbreak()
 #v(1fr)
@@ -394,22 +401,209 @@ $ max_(1 <= t <= N-1) |u_t^i - u_t^(i-1)| < epsilon $
 
 = The Parareal Algorithm at Scale
 
-== Review of High-Performance Computing
+== GPU Computing
+
+#columns(2, [
+#v(1fr)
+
+- Execute the same "kernel" program simultaneously on different data
+  - "Add 1 to every element of an array" executes in parallel
+
+- Data copies between GPU and host system
+  - Takes a lot of time
+
+#v(1fr)
+#colbreak()
+#v(1fr)
+
+#figure(
+  supplement: none,
+  caption: [Image Credit: Wikipedia _CUDA_],
+  image(
+    alt: "",
+    "images/CUDA_processing_flow.png",
+    width: 100%
+  )
+)
+
+#v(1fr)
+])
 
 == Parareal on the GPU
 
-== Parareal on Distributed GPUs
+#columns(2, [
+
+- Almost identical to running on CPU
+
+- Fine solve #sym.arrow Copy, fine solve, copy
+
+- *Pro:* Can be orders-of-magnitude more accurate in same amount of time!
+
+- *Con:* Copying data takes significant time each iteration!
+  - *Fix:* Copy enough and do enough to make it worth it!
+
+#colbreak()
+
+#figure(
+  supplement: none,
+  caption: [],
+  image(
+    alt: "",
+    "images/parallel_propagation_gpu.png",
+    width: 100%
+  )
+)
+])
+
+== Distributed Computing
+
+#columns(2, [ 
+#v(1fr)
+
+- Shared memory to unshared memory
+
+- Need to explicitly copy data between processes
+
+- Remote Procedure Calls
+  - Heuristic: "Evaluate source code over there"
+  - Watch out for references!
+
+- Communicating over network is\ really slow!
+
+#v(1fr)
+#colbreak()
+#v(1fr)
+
+#figure(
+  supplement: none,
+  caption: [Image Credit: Wikipedia _Distributed Computing_],
+  image(
+    alt: "",
+    "images/Distributed-parallel.svg",
+    width: 60%
+  )
+)
+#v(1fr)
+])
+
+
+== Parareal on the Cluster
+
+#columns(2, [ 
+#v(1fr)
+
+- Almost identical to running on GPU
+
+  + Director executes coarse solver
+
+  + Director distributes subproblems to workers
+
+  + Director tells workers to execute fine solver on their GPUs
+
+  + Director requests results
+
+  + Director corrects and loops
+
+- Cluster topology has significant influence!
+
+#v(1fr)
+#colbreak()
+#v(1fr)
+
+#figure(
+  supplement: none,
+  caption: [Image Credit: Wikipedia _Star Network_],
+  image(
+    alt: "",
+    "images/StarNetwork.png",
+    width: 60%
+  )
+)
+#v(1fr)
+])
 
 = Performance Analysis
 
-== Numerical Analysis
+== Numerical Analysis - Error & Energy Drift
 
-== Latency & Data Transfers
+- 
 
-== Benchmarks
+== Numerical Analysis - Stability
+
+- 
+
+== Numerical Analysis - Convergence
+
+- 
+
+== Latency & Data Transfers - Host-Device Transfers
+
+- 
+
+== Latency & Data Transfers - Host-Host Transfers
+
+- 
+
+== Benchmarks - Hardware
+
+- 
+
+== Benchmarks - Single Threaded
+
+- 
+
+== Benchmarks - GPU
+
+- 
+
+== Benchmarks - Distributed
+
+- 
+
+== Benchmarks - Comparison
+
+- 
 
 = Conclusion
 
+== Conclusion
+
+- 
+
+== Future Work
+
+- 
+
+== Acknowledgements
+
+- Dr. Andy Piacsek
+
+- The CWU CS Department
+
+- The CWU Physics Department
+
+== Thank You
+
+#columns(2, [
+#v(1fr)
+
+- Thank you for your attention
+
+- This work and its code `PararealGPU.jl` are available on GitHub (#sym.arrow.long) and at\ #link("pararealgpu.computationalphysics.net")
+
+#v(1fr)
+#colbreak()
+#v(1fr)
+
+#figure(
+  // caption: [],
+  image(
+    alt: "",
+    "images/github_qr.png"
+  )
+)
+#v(1fr)
+])
 // = Blocks
 // == Blocks
 // A *text block* is an elegant structure for presenting structured data. You can choose to display it using bullets or numbered lists.
@@ -479,7 +673,3 @@ $ max_(1 <= t <= N-1) |u_t^i - u_t^(i-1)| < epsilon $
 //   ) <tab:gateways>
 // ]
 
-
-#ending-slide(title: [Thanks for Listening.])[
-  \
-]
