@@ -663,7 +663,13 @@ $ max_(1 <= t <= N-1) |u_t^i - u_t^(i-1)| < epsilon $
 #columns(2, [
   #v(1fr)
 
-- 
+- Data is transferred between the host and the device every iteration.
+
+- Pinned and Zero-copy memory are methods that could mitigate this latency
+
+- Pinned memory prevents data from being moved out of RAM
+
+- Zero-copy memory allows both CPU and GPU to refer to the same data
 
 #v(1fr)
 #colbreak()
@@ -687,7 +693,13 @@ $ max_(1 <= t <= N-1) |u_t^i - u_t^(i-1)| < epsilon $
 #columns(2, [
   #v(1fr)
 
-- 
+- Cluster topology can have a significant impact on performance
+
+- Distinction between the logical topology and the physical topology
+
+- Data actually routes through the physical topology regardless of how workers are connected logically
+
+- Longer physical paths #implies more time transferring
 
 #v(1fr)
 #colbreak()
@@ -729,77 +741,77 @@ $ max_(1 <= t <= N-1) |u_t^i - u_t^(i-1)| < epsilon $
 // #v(1fr)
 // ])
 
-== Benchmarks - Single Threaded
+// == Benchmarks - Single Threaded
 
 
-#columns(2, [
-  #v(1fr)
+// #columns(2, [
+//   #v(1fr)
 
-- 
+// - 
 
-#v(1fr)
-#colbreak()
-#v(1fr)
+// #v(1fr)
+// #colbreak()
+// #v(1fr)
 
-#figure(
-  // caption: [],
-  image(
-    alt: "",
-    "images/benchmarks/bench_single.png",
-    width: 100%
-  )
-)
+// #figure(
+//   // caption: [],
+//   image(
+//     alt: "",
+//     "images/benchmarks/bench_single.png",
+//     width: 100%
+//   )
+// )
 
-#v(1fr)
-])
+// #v(1fr)
+// ])
 
-== Benchmarks - GPU
-
-
-#columns(2, [
-  #v(1fr)
-
-- 
-
-#v(1fr)
-#colbreak()
-#v(1fr)
-
-#figure(
-  // caption: [],
-  image(
-    alt: "",
-    "images/benchmarks/bench_gpu.png",
-    width: 100%
-  )
-)
-
-#v(1fr)
-])
-
-== Benchmarks - Distributed
+// == Benchmarks - GPU
 
 
-#columns(2, [
-  #v(1fr)
+// #columns(2, [
+//   #v(1fr)
 
-- 
+// - 
 
-#v(1fr)
-#colbreak()
-#v(1fr)
+// #v(1fr)
+// #colbreak()
+// #v(1fr)
 
-#figure(
-  // caption: [],
-  image(
-    alt: "",
-    "images/benchmarks/bench_distributed.png",
-    width: 100%
-  )
-)
+// #figure(
+//   // caption: [],
+//   image(
+//     alt: "",
+//     "images/benchmarks/bench_gpu.png",
+//     width: 100%
+//   )
+// )
 
-#v(1fr)
-])
+// #v(1fr)
+// ])
+
+// == Benchmarks - Distributed
+
+
+// #columns(2, [
+//   #v(1fr)
+
+// - 
+
+// #v(1fr)
+// #colbreak()
+// #v(1fr)
+
+// #figure(
+//   // caption: [],
+//   image(
+//     alt: "",
+//     "images/benchmarks/bench_distributed.png",
+//     width: 100%
+//   )
+// )
+
+// #v(1fr)
+// ])
 
 == Benchmarks - Comparison
 
@@ -807,7 +819,13 @@ $ max_(1 <= t <= N-1) |u_t^i - u_t^(i-1)| < epsilon $
 #columns(2, [
   #v(1fr)
 
-- 
+- Comparing the different approaches to parallelism
+
+- Surprisingly single threaded has the least runtime
+
+- Significant overhead in using these parallelization methods
+
+- Slow convergence due to round-off error at high discretizations does not help. 
 
 #v(1fr)
 #colbreak()
@@ -830,11 +848,17 @@ $ max_(1 <= t <= N-1) |u_t^i - u_t^(i-1)| < epsilon $
 
 == Conclusion
 
-- 
+- The field of PinT is growing
+
+- PinT methods have found their use in many fields of science
+
+- Bigger problems need time parallelization to maximize resource utilization
 
 == Future Work
 
-- 
+- Use traditional languages such as C, C++. Fortran to increase raw performance
+
+- Use vendor agnostic GPU implementations
 
 == Acknowledgements
 
