@@ -2,6 +2,8 @@
 #import "@preview/unify:0.6.0": num
 #import "@preview/academic-conf-pre:0.1.0" as theme-aus
 
+#let implies = sym.arrow.long.double
+
 #let s = theme-aus.register(aspect-ratio: "16-9") //4-3, 16-9
 #let s = (s.methods.info)(
   self: s,
@@ -254,9 +256,141 @@
 
 = The Parareal Algorithm
 
-== Review of Equations of Motion
+== Equations of Motion
+
+#columns(2, [
+#v(1fr)
+
+- What is an equation of motion?
+
+- *Physics*: A constraint on the dynamics of an object interacting with its environment
+
+- *Math*: A second-order, hyperbolic, differential equation
+
+- Solution is completely determined by initial values (for classical physics)
+
+#v(1fr)
+#colbreak()
+#v(1fr)
+
+#align(center, 
+  [
+    *Ex.* The wave equation $ (partial^2) / (partial t^2) phi.alt - 1 / c^2 nabla^2 phi.alt = 0 $
+    \
+    *Ex.* Newton's Second Law $ sum harpoon(F) = m harpoon(a) $
+  ]
+)
+
+#v(1fr)
+])
+
+== Traditional Numerical Integration
+
+- Future space only depends on previous space
+
+- Space can be parallelized because we know its previous value
+
+- Time has to be sequential because we don't
+
+#tblock(title: [#align(center, [The discretized 1D wave equation])])[
+$
+  (phi.alt_(x_j)^(t_(i+1)) - 2 phi.alt_(x_j)^(t_(i)) + phi.alt_(x_j)^(t_(i-1))) / (Delta t^2) 
+  = 1/c^2 (phi.alt_(x_(j + 1))^(t_i) - 2 phi.alt_(x_j)^(t_i) + phi.alt_(x_(j - 1))^(t_i)) / (Delta x^2) \
+  arrow.double.long phi.alt_j^(i+1) = 
+  2 phi.alt_j^(i) - phi.alt_j^(i-1) 
+  + ((Delta t) / (c Delta x))^2 (phi.alt_(j + 1)^(i) - 2 phi.alt_(j)^(i) + phi.alt_(j - 1)^(i))
+$
+]
 
 == The Parareal Algorithm
+
+- What about approximating the future?
+
+- The Parareal Algorithm
+  + Make inaccurate prediction sequentially
+  + Make accurate predictions in parallel based on those values
+  + Correct inaccurate prediction with accurate ones
+  + Loop until converged
+
+== The Parareal Algorithm - Prepare the Subproblems
+
+- Use cheap, inaccurate "coarse" solver to approximate solution
+
+#figure(
+  // caption: [],
+  image(
+    alt: "",
+    "images/root_solution.png",
+    height: 91%
+  )
+)
+
+== The Parareal Algorithm - Solve the Subproblems
+
+- Use expensive, accurate "fine" solver on each coarse value
+
+#figure(
+  // caption: [],
+  image(
+    alt: "",
+    "images/parallel_propagation_intermediate.png",
+    height: 91%
+  )
+)
+
+== The Parareal Algorithm - Correct the Coarse Solution
+
+#columns(2, [
+#v(1fr)
+
+- Use cheap, inaccurate "coarse" solver but correct each propagation
+
+- Correction term = difference\ between previous iteration's fine and coarse values
+
+- "Fine deviation decreases each\ iteration"
+
+#v(1fr)
+#colbreak()
+#v(1fr)
+
+$ 
+"Literature" \
+u_t^i := underbrace(cal(G)(u_(t-1)^i), "predictor") + underbrace(cal(F)(u_(t-1)^(i-1)) - cal(G)(u_(t-1)^(i-1)), "corrector") \
+\
+u_t^i := underbrace(cal(F)(u_(t-1)^(i-1)), "fine solution") + underbrace(cal(G)(u_(t-1)^i) - cal(G)(u_(t-1)^(i-1)), "deviation")
+\ "Alternatively"
+$
+
+#v(1fr)
+])
+
+== The Parareal Algorithm - Converge the Coarse Solution
+
+#columns(2, [
+#v(1fr)
+
+- Keep iterating until coarse solution doesn't change much
+
+- Max iterations = coarse discretization
+
+#v(1fr)
+#colbreak()
+#v(1fr)
+
+#align(center, [Convergence condition])
+$ max_(1 <= t <= N-1) |u_t^i - u_t^(i-1)| < epsilon $
+
+#v(1fr)
+])
+
+// #figure(
+//   caption: [],
+//   image(
+//     alt: "",
+//     "images/Parareal_Animation.gif",
+//     height: 98%
+//   )
+// )
 
 = The Parareal Algorithm at Scale
 
