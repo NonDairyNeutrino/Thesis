@@ -524,35 +524,39 @@ $ max_(1 <= t <= N-1) |u_t^i - u_t^(i-1)| < epsilon $
 
 = Performance Analysis
 
-== Numerical Analysis - Error & Energy Drift
+// == Numerical Analysis - Error & Energy Drift
 
-#columns(2, [
-  #v(1fr)
+// #columns(2, [
+// #v(1fr)
 
-- 
+// #v(1fr)
+// #colbreak()
+// #v(1fr)
 
-#v(1fr)
-#colbreak()
-#v(1fr)
+// #figure(
+//   // caption: [],
+//   image(
+//     alt: "",
+//     "images/analysis/energy_fine_2_9_10_11_14_coarse_2_14.png",
+//     width: 100%
+//   )
+// )
 
-#figure(
-  // caption: [],
-  image(
-    alt: "",
-    "images/analysis/energy_fine_2_9_10_11_14_coarse_2_14.png",
-    width: 100%
-  )
-)
-
-#v(1fr)
-])
+// #v(1fr)
+// ])
 
 == Numerical Analysis - Error & Energy Drift
 
 #columns(2, [
   #v(1fr)
 
-- 
+- Simple pendulum over 10 oscillations
+
+- Energy is conserved #implies deviations are from numerical error
+
+- Error decreases by several orders-of-magnitude even for small fine discretizations for almost all coarse discretizations
+
+- Decreases decrease as coarse discretization increases
 
 #v(1fr)
 #colbreak()
@@ -570,35 +574,18 @@ $ max_(1 <= t <= N-1) |u_t^i - u_t^(i-1)| < epsilon $
 #v(1fr)
 ])
 
-== Numerical Analysis - Stability
-
-#columns(2, [
-  #v(1fr)
-
-- 
-
-#v(1fr)
-#colbreak()
-#v(1fr)
-
-#figure(
-  // caption: [],
-  image(
-    alt: "",
-    "images/analysis/stability_cd64_fd8_tf20.png",
-    width: 100%
-  )
-)
-
-#v(1fr)
-]) 
-
 == Numerical Analysis - Convergence
 
 #columns(2, [
   #v(1fr)
 
-- 
+- Linear convergence for small coarse discretizations\ i.e. iterations #sym.approx discretization
+
+- Superlinear convergence\ (i.e. iterations $<<$ discretization) for larger coarse discretization
+
+- Results consistent with literature
+
+- Iterations blows up for high coarse discretization due to rounding error from using 32-bit floats
 
 #v(1fr)
 #colbreak()
@@ -616,12 +603,43 @@ $ max_(1 <= t <= N-1) |u_t^i - u_t^(i-1)| < epsilon $
 #v(1fr)
 ])
 
-== Numerical Analysis - Convergence
+// == Numerical Analysis - Convergence
+
+// #columns(2, [
+//   #v(1fr)
+
+// - Rate of convergence is nearly independent of fine discretization
+
+// - 
+
+// #v(1fr)
+// #colbreak()
+// #v(1fr)
+
+// #figure(
+//   // caption: [],
+//   image(
+//     alt: "",
+//     "images/analysis/convergence_cd64.png",
+//     width: 100%
+//   )
+// )
+
+// #v(1fr)
+// ])
+
+== Numerical Analysis - Stability
 
 #columns(2, [
   #v(1fr)
 
-- 
+- Constant time step, but final time increases
+
+- No change in local error
+
+- Significant change in global error i.e. error at the final time
+
+- Relative error increases exponentially with final time
 
 #v(1fr)
 #colbreak()
@@ -631,13 +649,13 @@ $ max_(1 <= t <= N-1) |u_t^i - u_t^(i-1)| < epsilon $
   // caption: [],
   image(
     alt: "",
-    "images/analysis/convergence_cd64.png",
+    "images/analysis/stability_cd64_fd8_tf20.png",
     width: 100%
   )
 )
 
 #v(1fr)
-])
+]) 
 
 == Latency & Data Transfers - Host-Device Transfers
 
