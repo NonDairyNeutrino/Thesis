@@ -494,17 +494,17 @@ $ max_(1 <= t <= N-1) |u_t^i - u_t^(i-1)| < epsilon $
 
 - Almost identical to running on GPU
 
-  + Director executes coarse solver
++ Director executes coarse solver
 
-  + Director distributes subproblems to workers
++ Director distributes subproblems to workers
 
-  + Director tells workers to execute fine solver on their GPUs
++ Director tells workers to execute fine solver on their GPUs
 
-  + Director requests results
++ Director requests results
 
-  + Director corrects and loops
++ Director corrects and loops
 
-- Cluster topology has significant influence!
+// - Cluster topology has significant influence!
 
 #v(1fr)
 #colbreak()
@@ -526,43 +526,287 @@ $ max_(1 <= t <= N-1) |u_t^i - u_t^(i-1)| < epsilon $
 
 == Numerical Analysis - Error & Energy Drift
 
+#columns(2, [
+  #v(1fr)
+
 - 
+
+#v(1fr)
+#colbreak()
+#v(1fr)
+
+#figure(
+  // caption: [],
+  image(
+    alt: "",
+    "images/analysis/energy_fine_2_9_10_11_14_coarse_2_14.png",
+    width: 100%
+  )
+)
+
+#v(1fr)
+])
+
+== Numerical Analysis - Error & Energy Drift
+
+#columns(2, [
+  #v(1fr)
+
+- 
+
+#v(1fr)
+#colbreak()
+#v(1fr)
+
+#figure(
+  // caption: [],
+  image(
+    alt: "",
+    "images/analysis/energy_coarse_2_9_10_11_15_fine_2_14.png",
+    width: 100%
+  )
+)
+
+#v(1fr)
+])
 
 == Numerical Analysis - Stability
 
+#columns(2, [
+  #v(1fr)
+
 - 
+
+#v(1fr)
+#colbreak()
+#v(1fr)
+
+#figure(
+  // caption: [],
+  image(
+    alt: "",
+    "images/analysis/stability_cd64_fd8_tf20.png",
+    width: 100%
+  )
+)
+
+#v(1fr)
+]) 
 
 == Numerical Analysis - Convergence
 
+#columns(2, [
+  #v(1fr)
+
 - 
+
+#v(1fr)
+#colbreak()
+#v(1fr)
+
+#figure(
+  // caption: [],
+  image(
+    alt: "",
+    "images/analysis/convergence_fd8.png",
+    width: 100%
+  )
+)
+
+#v(1fr)
+])
+
+== Numerical Analysis - Convergence
+
+#columns(2, [
+  #v(1fr)
+
+- 
+
+#v(1fr)
+#colbreak()
+#v(1fr)
+
+#figure(
+  // caption: [],
+  image(
+    alt: "",
+    "images/analysis/convergence_cd64.png",
+    width: 100%
+  )
+)
+
+#v(1fr)
+])
 
 == Latency & Data Transfers - Host-Device Transfers
 
+
+#columns(2, [
+  #v(1fr)
+
 - 
+
+#v(1fr)
+#colbreak()
+#v(1fr)
+
+#figure(
+  caption: [Image Credit: CUDA Documentation],
+  image(
+    alt: "",
+    "images/zero-copy.png",
+    width: 100%
+  )
+)
+
+#v(1fr)
+])
 
 == Latency & Data Transfers - Host-Host Transfers
 
+
+#columns(2, [
+  #v(1fr)
+
 - 
 
-== Benchmarks - Hardware
+#v(1fr)
+#colbreak()
+#v(1fr)
 
-- 
+#figure(
+  // caption: [],
+  image(
+    alt: "",
+    "images/StarNetwork.png",
+    width: 60%
+  )
+)
+
+#v(1fr)
+])
+
+// == Benchmarks - Hardware
+
+
+// #columns(2, [
+//   #v(1fr)
+
+// - 
+
+// #v(1fr)
+// #colbreak()
+// #v(1fr)
+
+// #figure(
+//   // caption: [],
+//   image(
+//     alt: "",
+//     "images/analysis/energy_fine_2_9_10_11_14_coarse_2_14.png",
+//     width: 100%
+//   )
+// )
+
+// #v(1fr)
+// ])
 
 == Benchmarks - Single Threaded
 
+
+#columns(2, [
+  #v(1fr)
+
 - 
+
+#v(1fr)
+#colbreak()
+#v(1fr)
+
+#figure(
+  // caption: [],
+  image(
+    alt: "",
+    "images/benchmarks/bench_single.png",
+    width: 100%
+  )
+)
+
+#v(1fr)
+])
 
 == Benchmarks - GPU
 
+
+#columns(2, [
+  #v(1fr)
+
 - 
+
+#v(1fr)
+#colbreak()
+#v(1fr)
+
+#figure(
+  // caption: [],
+  image(
+    alt: "",
+    "images/benchmarks/bench_gpu.png",
+    width: 100%
+  )
+)
+
+#v(1fr)
+])
 
 == Benchmarks - Distributed
 
+
+#columns(2, [
+  #v(1fr)
+
 - 
+
+#v(1fr)
+#colbreak()
+#v(1fr)
+
+#figure(
+  // caption: [],
+  image(
+    alt: "",
+    "images/benchmarks/bench_distributed.png",
+    width: 100%
+  )
+)
+
+#v(1fr)
+])
 
 == Benchmarks - Comparison
 
+
+#columns(2, [
+  #v(1fr)
+
 - 
+
+#v(1fr)
+#colbreak()
+#v(1fr)
+
+#figure(
+  // caption: [],
+  image(
+    alt: "",
+    "images/benchmarks/method_comp.png",
+    // "images/benchmarks/method_comp.png"
+    width: 100%
+  )
+)
+
+#v(1fr)
+])
 
 = Conclusion
 
@@ -587,7 +831,7 @@ $ max_(1 <= t <= N-1) |u_t^i - u_t^(i-1)| < epsilon $
 #columns(2, [
 #v(1fr)
 
-- Thank you for your attention
+- Thank you for your time
 
 - This work and its code `PararealGPU.jl` are available on GitHub (#sym.arrow.long) and at\ #link("pararealgpu.computationalphysics.net")
 
