@@ -44,8 +44,8 @@
 #align(center)[
   #text(size: 15pt)[*#title1*]
   #v(1em)
-  Nathan Chapman#super[1]\
-  #super[1]Department of Computer Science, Central Washington University\
+  Nathan Chapman\
+  Department of Computer Science, Central Washington University\
   #datetime.today().display("[month repr:long] [day], [year]")
 ]
 
@@ -56,7 +56,7 @@
   Physical simulations always need to balance accuracy and run-time.  
   This work implements the Parareal Algorithm using graphics processing units across a distributed system to accurately simulate time-dependent physics while attempting to minimize runtime.
   Data-transfer latency is identified as the primary bottleneck, for which mitigation methods are provided.
-  Benchmarks comparing single-threaded, single-GPU, and distributed implementations on a logarithmic spectrum of coarse and fine discretizations are provided.
+  Benchmarks comparing single-threaded, single-GPU, and distributed implementations on a spectrum of coarse and fine discretizations are provided.
 ]
 #v(1fr)
 #pagebreak()
@@ -83,21 +83,17 @@ _])
 
 = Introduction
 
-The issue is simple: calculations take time, and we only have so much of it.
-Heuristically, the total time needed for all calculations to finish depends on both the number of calculations needed to be done, and the number of calculations that can finish in some time.
-To minimize the total time, either the number of calculations needs to be minimized, the number of calculations per time needs to be maximized, or both.
-This work focuses on the latter.
-
-While the speed of computers has increased significantly, the most recent advances have seen diminishing returns in reducing the time needed for a single calculation.
-Parallel computing allows multiple calculations to finish in the same amount of time as a single calculation, thus increasing the number of calculations that can occur per time.
-For scientific problems concerning both space and time, parallelism has reduced the time needed to the spatial part of the problem, leaving the temporal component to still be done sequentially.
-Parallel-in-Time Integration (PinT) allows the dynamics of the problem to be calculated in parallel along with the spatial behavior, thus further reducing the time needed.
+Whether it is due to the amount of data that needs to be processed, or the accuracy needed in a simulation, the problems addressed in computational science can take significant time to solve via numerical methods i.e. the runtime.
+While this time has been reduced by improvements to the time needed to execute a single calculation, these improvements are decreasing.
+Another method to reduce the runtime is to increase the number of calculations that are done at the same time i.e. calculating in parallel.
+Though many problems in computational science simulate processes which evolve over time, which has traditionally been unable to be parallelized.
+The field of Parallel-in-Time Integration (PinT) allows the dynamics of a problem to be calculated in parallel, thus reducing the amount of time needed to solve the problem.
 
 Even though PinT allows every dimension of problem to be calculated simultaneously, the speedup factor is still limited by how many calculations can happen simultaneously.
 A single central processing unit (CPU), at the time of writing, can execute about ten calculations at the same time.
 On the other hand, a single graphics processing unit (GPU) can execute about ten thousand calculations at the same time.
-Likewise, multiple machines can be used to distribute calculations among them, which are similar executed simultaneously.
-The use of GPUs and distributed systems of machines together offers a foundation on which an arbitrarily large problem could be solved.
+For even further parallelization, calculations can be distributed over a cluster of machines, resulting in parallelism that is only limited by the size of the cluster.
+The use of GPUs and distributed systems of machines together offers a foundation on which an arbitrarily large problem could be solved in minimal time.
 
 It's not uncommon for available hardware to provide more power than what's needed for a problem to only be spatially parallelized.
 For example, a simulation of a wave could discretize space to a degree such that any higher resolution would not provide a significant increase in accuracy, and to satisfy the Courant-Friedrichs-Lewy condition (CFL), time must be discretized to a similar degree. Modern high-performance computing (HPC) systems can execute all calculations for all spatial intervals simultaneously while having compute capability left over.
@@ -168,26 +164,27 @@ MGRIT has been implemented in Python as PyMGRIT using MPI @HahneEtAl2020, as wel
 RIDC has been implemented in C++ as libridc @ChristliebEtAl2010 using OpenMP.
 
 // APPLICATIONS
-In the past 6 months there have been 40 publications relating to PinT.
-Some of these investigations have applied these PinT methods to science and engineering problems such as:
-- Stochastic models of electricity and magnetism @ZhangEtAl2025.
-- Continuous-time optimal control problems @SärkkäEtAl2025.
-- Additive manufacturing @StumpEtAl2025.
-- Optimal control for quantum computing @PeterssonEtAl2025
-- Training neural networks @ParpasEtAl2025
-- Magnetohydrodynamics for plasma simulations in clean energy @PamelaEtAl2025
-- Game theory @LjósheimEtAl2025
-- Kinetic plasma simulations @LaidinEtAl2025
-- Formations of animal patterns in mathematical biology @Jimenez-CigaEtAl2025
-- Dynamics of financial markets with physics-informed neural networks @IbrahimEtAl2025
-- Topology optimization of transient heat conduction in materials @AppelEtAl2025
-- Fluid-solid interactions in deformable porous media @AlesEtAl2025
+Between January and August of 2025 there have been 40 publications relating to PinT.
+Some of these investigations have applied these PinT methods to science and engineering problems such as: continuous-time optimal control problems @SärkkäEtAl2025, magnetohydrodynamics for plasma simulations in clean energy @PamelaEtAl2025, formations of animal patterns in mathematical biology @Jimenez-CigaEtAl2025, and dynamics of financial markets with physics-informed neural networks @IbrahimEtAl2025.
 
-While not published this year, honorable mentions go to:
-- Long-time simulations of blood flow in fish @Blumers2021 
-- Time parallel gravitational collapse simulation @Kreienbuehl_2017
-- Fluid-structure simulations @FarhatEtAl2003, and non-linear structural dynamics @CortialFarhat2009
-- Massively space-time parallel N-body solver @SpeckEtAl2012
+// - Stochastic models of electricity and magnetism @ZhangEtAl2025.
+// - 
+// - Additive manufacturing @StumpEtAl2025.
+// - Optimal control for quantum computing @PeterssonEtAl2025
+// - Training neural networks @ParpasEtAl2025
+// - 
+// - Game theory @LjósheimEtAl2025
+// - Kinetic plasma simulations @LaidinEtAl2025
+// - Formations of animal patterns in mathematical biology @Jimenez-CigaEtAl2025
+// - Dynamics of financial markets with physics-informed neural networks @IbrahimEtAl2025
+// - Topology optimization of transient heat conduction in materials @AppelEtAl2025
+// - Fluid-solid interactions in deformable porous media @AlesEtAl2025
+
+// While not published this year, honorable mentions go to:
+// - Long-time simulations of blood flow in fish @Blumers2021 
+// - Time parallel gravitational collapse simulation @Kreienbuehl_2017
+// - Fluid-structure simulations @FarhatEtAl2003, and non-linear structural dynamics @CortialFarhat2009
+// - Massively space-time parallel N-body solver @SpeckEtAl2012
 
 Additionally, the aforementioned implementations have focused on using the traditional "workhorse" languages of HPC: C, C++, and Fortran.  
 While these languages offer top-tier performance, scientists without expertise in them are unable to use their associated PinT implementations without first spending too much time learning the language.  
@@ -210,6 +207,7 @@ The interpretation of the PA in terms of these recursive subproblems makes the a
 
 This chapter begins by casting the PA in a form that is conducive to being scaled.  The main idea is to recast the "magical" mechanism of the PA to something that can be executed recursively.  In other words, the PA takes an IVP and produces a collection of IVPs, which can each be given to another instance of the PA. The latter half of of this chapter is devoted to presenting a model for which the scalable version of the PA can be implemented.  This model includes how the performance of the PA can increased by using a GPU on a single machine, as well as how to build and use a cluster of machines to further increase performance.
 
+#pagebreak()
 #let tmax = 8
 #let threads = 8
 #ex To help understand and clarify the mechanisms of the scalable PA, including the important details that are not explicitly covered in the algorithm itself, an example problem is used.  Consider the motion of a thrown ball just after it leaves the hand over the course of #tmax seconds (ignoring air resistance).  This motion is modeled by: $P = {
@@ -237,9 +235,9 @@ According to classical mechanics, the motion for any and every object in the uni
 
 === Initial Value Problems
 
-Take, for example, the motion of a simple pendulum.  While the overall motion of bob is determined from length on which it hangs, and the gravity affecting it, the angle at which the bob finds only depends on time.  Now, the position of a point on a guitar string does not only change in time, but is also affected by the motion of the points around it.  Both of these systems can be modeled by an EOM, but the pendulum can be modeled an *ordinary differential equation* (ODE), and the guitar string can be modeled by a *partial differential equation* (PDE).
+Take, for example, the motion of a simple pendulum.  While the overall motion of a bob is determined from length on which it hangs, and the gravity affecting it, the angle at which the bob hangs only depends on time.  Now, the position of a point on a guitar string does not only change in time, but is also affected by the motion of the points around it.  Both of these systems can be modeled by an EOM, but the pendulum can be modeled an *ordinary differential equation* (ODE), and the guitar string can be modeled by a *partial differential equation* (PDE).
 
-The nuances on each of these ideas are better left covered by your friendly neighborhood math department, but the detail that is indeed important to this work is that there are techniques that can transform a PDE to a collection of ODEs.  One such procedure is known as the _spectral method_, where by representing the solution to the PDE as a sum of waves (i.e. a Fourier transform), the physics in each dimension only affects the frequency in that dimension @Orszag1969.  While the solutions to the ODEs would be in so-called "frequency space", applying the inverse Fourier transform on those solutions, achieves the desired solution to the original PDE.  Whether it be an ODE, a PDE, or a system of ODEs, when modeling physical phenomena, initial values need to be considered to make any concrete predictions about the future state of a specific object.
+The nuances on each of these concepts are out of the scope of this work, but the detail that is indeed important here is that there are techniques that can transform a PDE to a collection of ODEs.  One such procedure is known as the _spectral method_, where by representing the solution to the PDE as a sum of waves (i.e. a Fourier transform), the physics in each dimension only affects the frequency in that dimension @Orszag1969.  While the solutions to the ODEs would be in so-called "frequency space", applying the inverse Fourier transform on those solutions, achieves the desired solution to the original PDE.  Whether it be an ODE, a PDE, or a system of ODEs, when modeling physical phenomena, initial values need to be considered to make any concrete predictions about the future state of a specific object.
 
 For our purposes, an IVP can be thought of as an object with several properties: the acceleration, the initial position and velocity, and the time interval on which you are modeling (which could be unbound e.g. $[0, infinity)$) as shown by the following equation:
 
@@ -287,7 +285,7 @@ Let the second-order initial value problem $P$ be defined such that
 
 $ P = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_0,  diff_t u(0) = v_0, #h(11pt) [t_0, t_0 + Delta t]}, $ <eq:ivp>
 
-and $D = [t_0, t_0 + Delta t]$ is the closed time interval from $t_0$ to $t_0 + Delta t$. The discretization $N$ of $P$ should be determined by the number of available threads $N_t$ such that $N = m N_t$, for some positive integer $m$.  The discretization should be chosen in this manner for maximum performance and efficiency; if $N = m N_t + r$, and $0 < r < N_t$, each thread will solve a subproblem $m$ times until on the $m+1$ iteration where only $r$ threads would be active while $N_t - r$ threads idle (assuming all threads are synchronized).  This type of optimization is sometimes referred to as "_flooding the threadpool_" to mitigate _thread starvation_ /* #cn */.
+where $cal(L)(t, u, diff_t u, diff_t^2 u) = f(t)$ defines a second-order differential equation, $u(0) = u_0$, and $diff_t u(0) = v_0$ are the initial conditions on the position and velocity, respectively, and $D = [t_0, t_0 + Delta t]$ is the closed time interval from $t_0$ to $t_0 + Delta t$. The discretization $N$ of $P$ should be determined by the number of available threads $N_t$ such that $N = m N_t$, for some positive integer $m$.  The discretization should be chosen in this manner for maximum performance and efficiency; if $N = m N_t + r$, and $0 < r < N_t$, each thread will solve a subproblem $m$ times until on the $m+1$ iteration where only $r$ threads would be active while $N_t - r$ threads idle (assuming all threads are synchronized).  This type of optimization is sometimes referred to as "_flooding the threadpool_" to mitigate _thread starvation_ /* #cn */.
 
 With the discretization decided, partition the time domain $D$ into subdomains $D_p$ such that
 
@@ -509,7 +507,7 @@ The correction phase, as defined in literature @parareal_og_2001, takes the dece
 
 $ u_t^i := underbrace(cal(G)(u_(t-1)^i), "predictor") + underbrace(cal(F)(u_(t-1)^(i-1)) - cal(G)(u_(t-1)^(i-1)), "corrector"), $ <eq:correction>
 
-where $u = harpoon(r), harpoon(v)$ represents either position or velocity of the root problem.  If the coarse propagation terms are collected as $Delta_i cal(G)_t^i := cal(G)_t^i - cal(G)_t^(i-1)$, @eq:correction can be interpreted as _shooting method in time_ @gander2007.  It should also be noted that because the values returned by the coarse propagator are identical in successive iterations i.e. $i -> i+1 arrow.double.long cal(G)(u_(t-1)^(i)) = cal(G)(u_(t-1)^(i-1))$, they can be memoized and not calculated again (see @alg:correction), leading to performance increases at the cost of storage space @cormen2022introduction.
+where $u = harpoon(r), harpoon(v)$ represents either position or velocity of the root problem.  If the coarse propagation terms are collected as $Delta_i cal(G)_t^i := cal(G)_t^i - cal(G)_t^(i-1)$, @eq:correction can be interpreted as _shooting method in time_ @gander2007.  It should also be noted that because the values returned by the coarse propagator are identical in successive iterations i.e. $i -> i+1 arrow.double.long cal(G)(u_(t-1)^(i)) = cal(G)(u_(t-1)^(i-1))$, they can be memo-ized and not calculated again (see @alg:correction), leading to performance increases at the cost of storage space @cormen2022introduction.
 
 One way to interpret the correction equation is "at face value" as
 
@@ -573,7 +571,7 @@ $ <eq:prop_corrector>
 
 === Converging the root solution <sec:parareal_parareal_converging>
 
-Finally, as own in @alg:parareal, launch the Parareal kernel (@alg:parareal_kernel) to gather the fine solutions for each point in time, and construct the new root solution (@alg:correction) until the root solution stops changing between iterations.  While there are many choices that can serve as valid convergence criteria @gander2007, one of the simplest is:
+Finally, as shown in @alg:parareal, launch the Parareal kernel (@alg:parareal_kernel) to gather the fine solutions for each point in time, and construct the new root solution (@alg:correction) until the root solution changes less than a ceratin amount, by some metric, at which point it has converged.  While there are many choices that can serve as valid convergence criteria @gander2007, one of the simplest is:
 
 $ max_(1 <= t <= N-1) |u_t^i - u_t^(i-1)| < epsilon, $ <eq:convergence>
 
@@ -727,7 +725,7 @@ While the PA can be further parallelized using GPUs, the fact still stands that 
   caption: [The assumed topology of the cluster presented in this work.]
 ) <diag:cluster_topology>
 
-While clusters can take many forms /* #cn */, this implementation considers building a cluster from the ground up in a modular and ad-hoc manner.  This way the cluster can theoretically scale without limit.  The general structure, or _topology_, of the cluster is rather simple: A _head node_ runs the _director_ process, which tells _worker_ processes on other _compute nodes_ what to do; this structure is shown in @diag:cluster_topology.  In other words, the director only decides and does not do, while the workers do not decide and only do.  While the workers can solve their problems and communicate with every other worker (and the director), only the director can spawn new processes.  Once the director has finished spawning and configuring the workers as in @alg:cluster_prep, the director moves on to begin the PA.
+While clusters can take many forms, this implementation considers building a cluster from the ground up in a modular and ad-hoc manner.  This way the cluster can theoretically scale without limit.  The general structure, or _topology_, of the cluster is rather simple: A _head node_ runs the _director_ process, which tells _worker_ processes on other _compute nodes_ what to do; this structure is shown in @diag:cluster_topology.  In other words, the director only decides and does not do, while the workers do not decide and only do.  While the workers can solve their problems and communicate with every other worker (and the director), only the director can spawn new processes.  Once the director has finished spawning and configuring the workers as in @alg:cluster_prep, the director moves on to begin the PA.
 
 #figure(
   kind: "algorithm",
@@ -738,7 +736,7 @@ While clusters can take many forms /* #cn */, this implementation considers buil
     booktabs: true,
     hooks: 0.5em
   )[
-    - *INPUT:* A collection of hosts not ready to compute
+    - *INPUT:* A collection of hosts available in the cluster
     - *OUTPUT:* A collection of hosts ready to compute
     + Director process spawns manager processes on each host
     + Each manager sends the number of devices on its host back to the director
@@ -807,7 +805,7 @@ Once the workers are spawned on their respective hosts, each of them needs a dev
   ]
 ) <alg:assign_devices_high>
 
-For example
+Using a cluster management system to keep track of process IDs, thus without loss of generality, consider the following:
 - The director has process ID (PID) 1 and is on its own host.
 - Host X has PID 2, and host Y has PIDS 3, and 4.
 - Host X has 1 device with ID 0, and host Y has 2 devices with ID 0 and 1.
@@ -879,7 +877,7 @@ Once the devices are assigned, the cluster has been prepared.  The director then
     + While the root solution has not converged
       + The director creates problems
       + For each problem
-        + The director sends the problem to a worker
+        + The director sends the problem to a worker \/\/ only repeating once all workers have been assigned at least one problem
         + The director tells the worker to solve the problem using the Parareal algorithm on its GPU
         + The director requests the solution from the worker
       + The director waits to get all solutions
@@ -891,7 +889,7 @@ Once the devices are assigned, the cluster has been prepared.  The director then
 = Performance Analysis <sec:analysis>
 
 While there are many significant aspects of this work that could be analyzed, only three that will be considered here.  
-The first is on the quality of the results produced by this implementation via standard numerical analyses.  
+The first is on the quality of the results produced by this implementation via standard numerical analysis.  
 The effects of transferring data between the host and the device repeatedly arises only in the implementation and the theoretical nature of this bottleneck is investigated.  
 Similarly, the significance of transferring data between hosts is analyzed.  
 And finally, empirical benchmarks are given to highlight the efficacy of the implementation.
@@ -915,10 +913,10 @@ Finally, the performances of each of these methods are compared to highlight whi
 
 // _Numerical methods found in the wild should be observed from afar as numerical analsysis is sure to follow._
 
-The standard pillars of analysis for numerically solving differential equations are error, stability, and convergence, which also serve as the focus of this section.
-@sec:analysis_numerical_error investigates how the global error of the simulation, using energy as a proxy, depends on the coarse and fine discretizations.
-@sec:analysis_numerical_stability investigates how the global error of the simulation depends on the number of integration steps for a constant time-step.
-@sec:analysis_numerical_convergence investigates how the number of iterations needed for the PA to reach a solution depends on the coarse and fine discretizations.
+// The standard pillars of analysis for numerically solving differential equations are error, stability, and convergence, which also serve as the focus of this section.
+// @sec:analysis_numerical_error investigates how the global error of the simulation, using energy as a proxy, depends on the coarse and fine discretizations.
+// @sec:analysis_numerical_stability investigates how the global error of the simulation depends on the number of integration steps for a constant time-step.
+// @sec:analysis_numerical_convergence investigates how the number of iterations needed for the PA to reach a solution depends on the coarse and fine discretizations.
 
 Because the PA acts as a "meta-algorithm", the underlying integration methods must also be chosen.  
 For these results, the integration schemes for the coarse and fine propagators are the symplectic-Euler and velocity-Verlet methods, respectively.  
@@ -973,6 +971,7 @@ This nonintuitive behavior warrants further investigation as the error is expect
   )
 ) <plt:energy_fine>
 
+#pagebreak()
 @plt:energy_fine shows how the energy drift of the simulation is affected by the fine discretization for a particular choice of the coarse discretization.
 There are two key features that should be noted here: the error decreases significantly even for a small change in the fine discretization but then plateaus only to increase at large values of the fine discretization, and the difference in the difference of error (i.e. $Delta^2 E_r \/ Delta N_cal(F) Delta N_cal(G)$) is non-monotonic for different fine discretizations.
 The former signifies that the quality of the results produced from this implementation does not significantly depend on the fine discretization, until it becomes large.
@@ -993,6 +992,7 @@ These conclusions warrant further investigation of the topography of the error-d
   )
 )  <plt:stability>
 
+#pagebreak()
 The notion of stability in the context numerically solving differential equations can refer to the tendency of an integration algorithm to "blow up" due to the accumulation of error.
 As each iteration of the algorithm introduces error, the stability of a simulation depends on the number of iterations it undergoes.
 For integrating equations of motion, a simulation can iterate more times $N$ for two variations of $t_f - t_i = N Delta t$: the final time $t_f$ of the simulation becomes larger while the time step $Delta t$ stays the same, or the time step $Delta t$ becomes smaller while the time domain $t_f - t_i$ does not change.
@@ -1057,9 +1057,9 @@ These transfer bottlenecks fall into two classifications: host-device, and host-
 A fundamental bottleneck, as it's part of the algorithm, is the need for all parallel computation to stop and the serial execution of the coarse propagation to complete.  While the serial execution is itself a bottleneck in terms of performance, the coarse propagation requires the fine-propagation data on the device, and thus it must first be transferred to the host; similarly, the new data must be transferred to the device after it's been created.  These transfers happen over PCI-E, which is really slow compared to the speeds of on-device memory transfers.  In fact, the bandwidth of global memory on a device can be at least an order of magnitude greater than the PCI-E bandwidth @cook2012cuda.
 
 // dynamic parallelism
-These slow transfers could be completely circumvented by moving the coarse propagation to a single thread on the device, then using dynamic parallelism to launch the Parareal kernel also on the device @Adinets2014.  While a single device-thread is likely to take more time than a single host-thread when performing the same task, the increase in time from this trade is likely to be less than the decrease in time from not needing to transfer data.  Thus the net time difference from this change would be beneficial.  Though, this makes sense only when computing everything locally as any distribution to other nodes would requires the use of the host system or NVIDIA's remote direct memory access (GPUDirect RDMA).
+These slow transfers could be completely circumvented by moving the coarse propagation to a single thread on the device, then using dynamic parallelism (where GPU kernels can be launched from within a GPU kernel so no CPU communication is required) to launch the Parareal kernel also on the device @Adinets2014.  While a single device-thread is likely to take more time than a single host-thread when performing the same task, the increase in time from this trade is likely to be less than the decrease in time from not needing to transfer data.  Thus the net time difference from this change would be beneficial.  Though, this makes sense only when computing everything locally as any distribution to other nodes would requires the use of the host system or NVIDIA's remote direct memory access (GPUDirect RDMA).
 
-#pagebreak() // - Pinned/Page-locked memory
+// - Pinned/Page-locked memory
 If the number of transfers is unchanged, the implementation could make use of pinned/page-locked memory.  Pinned memory being memory on the host which the device can access directly without first requesting the host CPU to retrieve it and send it.  Additionally, pinned memory is guaranteed to never /*needs citation*/ be swapped out to disk and thus the device does not need to wait for it to first be transferred to pinned memory @cook2012cuda.  Using this technique could greatly improve performance; the implementation provided in this work does not use it but could be included via library calls @besard2018juliagpu @besard2019prototyping.
 
 // transfer speed depends on size of the transfer
@@ -1137,7 +1137,7 @@ Additionally, inter-node network traffic was routed through a TP-Link TL-SG108 1
   caption: [Hardware specifications for the GPUs used in this cluster.  /* Data gathered from techpowerup.com/gpu-specs/. */],
   table(
     columns: 5,
-    table.header[][*3060*][*1660*][*960*][*1650*],
+    table.header[][*Director*][*Worker D*][*Worker D*][*Worker L*],
     [Cores],                     [4864], [1408], [1024], [1024],
     [Streaming Multiprocessors], [38],   [22],   [8], [16],
     [Base Clock (MHz)],          [1410], [1530], [1176], [1350],
@@ -1185,49 +1185,62 @@ More specifically, an increase of coarse discretization by a factor of eight lea
 Additionally, nearly all fine discretizations yield similar results meaning that the runtime is mostly insensitive to the fine discretization.
 
 #pagebreak()
-Continuing with @plt:bench_gpu, the dependence of the runtime's order of magnitude on the fine discretization (right) is such that for small discretizations there is little change, while larger discretizations yield accelerating runtime magnitudes. 
-Additionally, the curvature of each coarse-discretization-contour with respect to the fine discretization increases with the coarse discretization.
-In other words, $Delta^2 tau \/ Delta N_cal(F) Delta N_cal(G) > 0$.
+Continuing with @plt:bench_gpu, the efficiency of the simulation when done using GPUs is investigated.  
+The metric for this efficiency is considered to tbe the ratio between the products of error $epsilon$ (as calculated in @sec:analysis_numerical) and the runtime $tau$ as $|epsilon tau \/ epsilon_1 tau_1|$, where $epsilon_1, tau_1$ are the error and runtime of the sequential implementation for each coarse discretization i.e. the ratio is between error and runtime for the same coarse discretization.
+As the goal is to minimize both error and runtime, the goal is thus to minimize this metric.
+In other words, lower is better.
+
+As can be seen in both the figures for the coarse (left) and fine (right) discretiation in @plt:bench_gpu, the simulation becomes drastically inefficient.
+For a spectrum of coarse discretizations, most simulations behave similarly, but those with the largest fine discretizations diverge; the rate of this divergence is proportional to the fine discretization.
+This is consistent with the fact that GPUs will take the same amount of time to run any number of threads less than what it's capable of.
+In other words, small discretizations don't saturate the GPU and thus will all run in the same amount of time while the error decreases as the coarse discretization increases.
+For a spectrum of fine discretizations, the efficiency of the simulation is nearly independent of them.
 
 #figure(
-  caption: [The runtime of the PA depends heavily on the coarse (left) and fine (right) discretizations.],
+  caption: [The efficiency of the simulation when run on a single GPU, characterized by the product of its error and runtime.  This efficiency depends both on the coarse (left) and fine (right) discretizations.],
   image(
-    "images/benchmarks/bench_gpu.png",
+    "images/benchmarks/efficiency_gpu.png",
     width: 77%
   )
 ) <plt:bench_gpu>
 
+#pagebreak()
 @plt:bench_distributed shows how the runtime depends on the coarse and fine discretizations when using the distributed implementaion presented in this work.
 The overall behavior of these distributed results matches those of only using a single, local GPU.
 One notable difference between these and the single-GPU results is that for both large coarse and fine discretizations, the runtime for the distributed method is approximately an order of magnitude larger than that of the single-GPU implementation. 
 
 #figure(
-  caption: [The runtime of the distributed implementation closely matches that of a single, local GPU.],
+  caption: [The efficiency of distributed simulations and how they depend on their coarse (left) and fine (right) discretizations.],
   image(
-    "images/benchmarks/bench_distributed.png",
+    "images/benchmarks/efficiency_dist.png",
     width: 77%
   )
 ) <plt:bench_distributed>
 
-@plt:method_comp compares the runtimes between the different multithreading methods for both a range of coarse and fine discretizations.
-Disappointingly, this implementation does not offer increases in performance compared to executing the simulating with local-GPU nor even sequentially; this is the core takeaway from this work.
-For coarse discretization (left), all methods are approximately the same with that of the single, local GPU taking the least time to run for most coarse discretizations, and the distributed implementation taking the most time to run for most coarse discretizations.
-For fine discretization (right), the single threaded method takes the least time to run while the distributed implementation takes the most time to run across all fine discretizations.
-Additionally, the large runtime for the GPU and distributed methods is large even for small discretizations due to the large inherent time needed to transfer data (see @sec:analysis_latency).
+@plt:method_comp compares the efficiencies between the different multithreading methods for both a range of coarse and fine discretizations.
+Over a spectrum of coarse discretizations (left), the GPU and distributed simulations achieve near identical behavior in their efficiencies.
+These trends only begin diverging significantly for a coarse discretization of $2^10$.
+Likewise, the efficiency of the simulation for increasing fine discretizations (right) starts poorly for low discretization, but remains near its starting level until the a fine discretization of $2^10$, just as with the coarse discretization.
+
+The divergence seen in the previous figures occurs near a discretization of $2^10$.
+This is mostl likely explained by round-off error becoming significant as when both discretizations are $2^10$, the resulting time-step is (for this simulation) on the on the same order of magnitude as the precision of 32-bit floats.
+Because the representations used here are only accurate out to approximately seven decimal places, any difference smaller than that will yield incorrect results.
+As the error of the simulation only compounds with each step, using too large of discretizations, actually yields worse performance and less accurate results.
+Disappointingly, the simulations used here show that the distributed implementation does not offer increases in performance compared to executing the simulating with local-GPU nor even sequentially.
 
 #figure(
-  caption: [The runtime of the simulation depends on the method employed.  The comparison of these runtimes is shown across the range of coarse (left) and fine (right) discretizations for the a both a fine and coarse discretization of $2^14$, respectively, chosen to highlight the differences between the methods.],
+  caption: [The runtime of the simulation depends on the method employed.  The comparison of these runtimes is shown across the range of coarse (left) and fine (right) discretizations for the a both a fine and coarse discretization of $2^12$, respectively, chosen to highlight the differences between the methods.],
   image(
-    "images/benchmarks/method_comp.png",
+    "images/benchmarks/method_comp_new.png",
     width: 77%
   )
 ) <plt:method_comp>
 
-The results shown the figures above mostly match expectations.
-The runtime of using a single CPU thread increases linearly in both coarse and fine discretization.
-The runtime of using multiple GPU threads increases linearly in coarse discretization, and quasi-parabolic in fine discretization.
-The runtime of using multiple GPUs in a distributed system of machines increases linearly in coarse discretization, and quasi-parabolic in fine discretization.
-Finally, the comparison of the methods over a range of coarse and fine discretizations shows this distributed implementation does not provide reduced runtime, but instead increases the runtime for all discretizations measured.
+The most significant factors that influence the performance of this implementation are the latency from data-transfers, numerical instability due to using too small discretization,  instability from significant round-off error due to using too small discretization, combined with using a low-precision representation of floating point numbers.
+Because communication occurs to frequently in the PA e.g. every iteration data transfers between hosts, the effects of data-transfer latency are only magnified to an extent proportional to the coarse discretization.
+While the PA is well-suited to take advantage of the massive parallelism of GPUs, the number of subproblems needed to make total use of the GPU requires discretizations that yield quantities that are sensitive to round-off error; this is only exacerbated by the standard of using only 32-bit precision representations of numbers.
+Similarly, because the number of subproblems to saturate the GPU is so large, the storage capacity needed for these subproblems also limits the effective coarse discretization and performance; such memory capacity is the reason why this work only considers discretiations up to $2^14$.
+Systems with a larger memory capacity would be able to store enough subproblems that could also fill the GPU, resulting in simulations using this implementation that would out-perform resource constrained systems.
 
 = Conclusion <sec:conclusion>
 
@@ -1250,12 +1263,7 @@ This work has shown a scalable version of the PA can produce results with numeri
 While there is significant latency associated with transferring data between memory spaces, whether it be between hardware components local to a single machine or between physically separated machines, methods to mitigate or even circumvent these latencies, such as pinned-memory and cluster-topology optimization, have been developed and can be employed in future investigations.
 Finally, benchmarks show that the current implementation of a distributed, GPU-based PA does not increase performance compared to using a local GPU or even a single threaded approach; this ranking could change for discretizations larger than those measured here.
 
-The issue is simple: calculations take time, and we only have so much of it.
-This research does not stand on its own, but of course on the shoulders of giants.
-This research does not attempt to provide a solution, but rather to grow the foundation of knowledge by a relatively infinitesimal amount.
-This research does not end the story of using computers to do understand nature, but rather offers the opportunity for another to become a master of computational science.
-
-== Future work & Possible Optimizations <sec:conclusion_future>
+== Future Work & Possible Optimizations <sec:conclusion_future>
 
 This work focused on implementing the PA in the Julia programming language targeting CUDA-based GPUs with the Distributed.jl standard-library's support for multiprocessing and distributed computing; each of these specifications has alternatives.
 While one of the goals of this research was to implement the PA in the Julia language, the same functionality could be implemented using other languages and libraries.
@@ -1280,5 +1288,5 @@ These are merely a few observations of how this implementation could be optimize
 #bibliography(
   "bib.bib",
   // full: true,
-  style: "american-physics-society"
+  style: "institute-of-electrical-and-electronics-engineers"
 )
