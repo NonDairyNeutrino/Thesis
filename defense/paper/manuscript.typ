@@ -139,13 +139,17 @@ I wouldn't have been able to do it without you.
 #outline(indent: auto)
 
 // List of figures
+#outline(
+  title: [List of Figures],
+  target: figure.where(kind: "Figure")
+)
 
+// Main Content
 #set page(numbering: (..n) => context {
   numbering("1/1", n.at(0), /* ..counter(page).at(<content_end>) */)
 })
 #counter(page).update(1)
 
-// Main Content
 = Introduction
 
 Whether it is due to the amount of data that needs to be processed, or the accuracy needed in a simulation, the problems addressed in computational science can take significant time to solve via numerical methods i.e. the runtime.
