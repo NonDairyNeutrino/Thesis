@@ -75,6 +75,31 @@
 #pagebreak()
 
 // Approval page
+#set page(numbering: "i")
+#align(center, [CENTRAL WASHINGTON UNIVERISTY\ Graduate Studies])
+
+#v(1fr)
+We hereby approve the thesis of
+#align(center, [Nathaniel Wayne Chapman])
+Candidate for the degree of Master of Science
+#v(1fr)
+
+#align(right, 
+table(
+  columns: 2,
+  stroke: 0pt,
+  align: left,
+  column-gutter: 1in,
+  row-gutter: 0.67in,
+  [], [APPROVED FOR THE GRADUATE FACULTY],
+  [#line(length: 1.25in)], [#line(length: 100%) #v(-1em) Dr. Andy Piacsek, Committee Chair #h(1fr)],
+  [#line(length: 1.25in)], [#line(length: 100%) #v(-1em) Dr. Micheal Braunstein #h(1fr)],
+  [#line(length: 1.25in)], [#line(length: 100%) #v(-1em) Dr. Szilard VAJDA #h(1fr)],
+  [#line(length: 1.25in)], [#line(length: 100%) #v(-1em) Dean of Graduate Studies #h(1fr)],
+)
+)
+#v(1fr)
+#pagebreak()
 
 // Abstract
 #v(1em)
@@ -87,7 +112,6 @@
   Benchmarks comparing single-threaded, single-GPU, and distributed implementations on a spectrum of coarse and fine discretizations are provided.
 ]
 #v(1fr)
-#set page(numbering: "i")
 #pagebreak()
 
 // Acknowledgments
