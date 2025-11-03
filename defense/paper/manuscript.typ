@@ -1,6 +1,9 @@
 #import "@preview/lovelace:0.3.0": *
 #import "@preview/hydra:0.6.1": hydra
 
+#let author = "Nathaniel Wayne Chapman"
+#let date   = datetime.today().display("[month repr:long] [year]")
+#let title = [SCALABLE PARALLEL-IN-TIME INTEGRATION\ FOR EQUATIONS OF MOTION]
 #let title1 = "Scalable Parallel-in-Time Integration for Equations of Motion"
 #let title2 = "" // "Particle Production in Analog Cosmology"
 #let gets  = sym.arrow.l
@@ -42,7 +45,7 @@
 // Title page
 // #v(1fr)
 #align(center)[
-  SCALABLE PARALLEL-IN-TIME INTEGRATION\ FOR EQUATIONS OF MOTION
+  #title
 
   #v(1fr)
   #line(length: 33%)
@@ -67,8 +70,8 @@
   #v(1fr)
 
   by\
-  Nathaniel Wayne Chapman\
-  #datetime.today().display("[month repr:long] [year]")
+  #author\
+  #date
 
   #v(1fr)
 ]
@@ -80,7 +83,7 @@
 
 #v(1fr)
 We hereby approve the thesis of
-#align(center, [Nathaniel Wayne Chapman])
+#align(center, [#author])
 Candidate for the degree of Master of Science
 #v(1fr)
 
@@ -102,15 +105,21 @@ table(
 #pagebreak()
 
 // Abstract
-#v(1em)
-#align(center)[
-  #set par(justify: false)
-  *Abstract*\
-  Physical simulations always need to balance accuracy and run-time.  
-  This work implements the Parareal Algorithm using graphics processing units across a distributed system to accurately simulate time-dependent physics while attempting to minimize runtime.
-  Data-transfer latency is identified as the primary bottleneck, for which mitigation methods are provided.
-  Benchmarks comparing single-threaded, single-GPU, and distributed implementations on a spectrum of coarse and fine discretizations are provided.
-]
+#v(1fr)
+#align(center, [
+  ABSTRACT \
+  #title \
+  by \
+  #author \
+  #date \
+])
+#v(1fr)
+#set par(justify: true)
+Physical simulations always need to balance accuracy and run-time.  
+This work implements the Parareal Algorithm using graphics processing units across a distributed system to accurately simulate time-dependent physics while attempting to minimize runtime.
+Data-transfer latency is identified as the primary bottleneck, for which mitigation methods are provided.
+Benchmarks comparing single-threaded, single-GPU, and distributed implementations on a spectrum of coarse and fine discretizations are provided.
+#set par(justify: false)
 #v(1fr)
 #pagebreak()
 
