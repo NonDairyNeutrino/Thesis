@@ -141,7 +141,7 @@ I wouldn't have been able to do it without you.
 // List of figures
 #outline(
   title: [List of Figures],
-  target: figure.where(kind: "Figure")
+  target: figure
 )
 
 // Main Content
