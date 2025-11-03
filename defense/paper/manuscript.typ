@@ -35,13 +35,15 @@
 #show heading: set align(center)
 #show heading.where(level: 1): it => pagebreak(weak: true) + it
 #show heading.where(level: 2): it => pagebreak(weak: true) + it
+#set  outline(depth: 2)
 #show outline.entry.where(
     level: 1
   ): it => {
-    v(12pt, weak: true)
     strong(it)
   }
-
+#show outline.entry.where(
+  level: 2
+  ): it => ([#v(-1em) #it])
 // Title page
 // #v(1fr)
 #align(center)[
