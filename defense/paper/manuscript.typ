@@ -14,8 +14,7 @@
 )
 #set page(
   paper: "us-letter",
-  margin: (top: auto, rest: 1in),
-  numbering: "i" /* do not change; updated after  */,
+  margin: 1in,
   header: context {
     let sections = query(selector(heading.where(level: 1)).before(here()))
     // [#here().position()]
@@ -24,12 +23,13 @@
     }
   }
 )
-#set par(justify: true, leading: 0.75em, spacing: 1.5em) // "leading" == "line spacing"
+#set par(justify: false, leading: 2em, spacing: 2em, first-line-indent: 0.5in) // "leading" == "line spacing"
 #set text(font: "New Computer Modern", size: 12pt)
 #set math.equation(numbering: "(1)", supplement: [Eq.])
 #set enum(numbering: "1.1)", full: true)
-#set heading(numbering: "1.",)
-#show heading: set block(below: 1em)
+#set heading(numbering: "1.")
+#show heading: set block(below: 2em)
+#show heading: set align(center)
 #show heading.where(level: 1): it => pagebreak(weak: true) + it
 #show heading.where(level: 2): it => pagebreak(weak: true) + it
 #show outline.entry.where(
@@ -39,8 +39,8 @@
     strong(it)
   }
 
-// TITLE
-#v(1fr)
+// Title page
+// #v(1fr)
 #align(center)[
   #text(size: 15pt)[*#title1*]
   #v(1em)
@@ -48,7 +48,11 @@
   Department of Computer Science, Central Washington University\
   #datetime.today().display("[month repr:long] [day], [year]")
 ]
+#pagebreak()
 
+// Approval page
+
+// Abstract
 #v(1em)
 #align(center)[
   #set par(justify: false)
@@ -59,28 +63,30 @@
   Benchmarks comparing single-threaded, single-GPU, and distributed implementations on a spectrum of coarse and fine discretizations are provided.
 ]
 #v(1fr)
+#set page(numbering: "i")
 #pagebreak()
 
-#v(1fr)
-#align(right, [_
-  This work is made possible thanks to\
-  my friends for sharing laughs and rants,\
-  Mr. Chris Lacy for making physics phun,\
-  Dr. Brandon Peden for showing me how to be a physicist,\
-  and Dr. Andy Piacsek for never giving up on me.\ \
-  I wouldn't have been able to do it without you.
-_])
-#v(1fr)
+// Acknowledgments
+#align(center, [ACKNOWLEDGMENTS])
+This work is made possible thanks to,
+my friends for sharing laughs and rants,
+Mr. Chris Lacy for making physics phun,
+Dr. Brandon Peden for showing me how to be a physicist,
+and Dr. Andy Piacsek for never giving up on me.
+I wouldn't have been able to do it without you.
 #pagebreak()
 
 // TABLE OF CONTENTS
 #outline(indent: auto)
+
+// List of figures
 
 #set page(numbering: (..n) => context {
   numbering("1/1", n.at(0), /* ..counter(page).at(<content_end>) */)
 })
 #counter(page).update(1)
 
+// Main Content
 = Introduction
 
 Whether it is due to the amount of data that needs to be processed, or the accuracy needed in a simulation, the problems addressed in computational science can take significant time to solve via numerical methods i.e. the runtime.
