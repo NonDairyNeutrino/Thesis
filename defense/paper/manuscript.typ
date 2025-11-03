@@ -42,11 +42,35 @@
 // Title page
 // #v(1fr)
 #align(center)[
-  #text(size: 15pt)[*#title1*]
-  #v(1em)
-  Nathan Chapman\
-  Department of Computer Science, Central Washington University\
-  #datetime.today().display("[month repr:long] [day], [year]")
+  SCALABLE PARALLEL-IN-TIME INTEGRATION\ FOR EQUATIONS OF MOTION
+
+  #v(1fr)
+  #line(length: 33%)
+  #v(1fr)
+
+  A Thesis\
+  Presented to\
+  The Graduate Faculty\
+  Central Washington University
+
+  #v(1fr)
+  #line(length: 33%)
+  #v(1fr)
+
+  In Partial Fulfillment\
+  of the Requirements for the Degree\
+  Master of Science\
+  Computational Science
+
+  #v(1fr)
+  #line(length: 33%)
+  #v(1fr)
+
+  by\
+  Nathaniel Wayne Chapman\
+  #datetime.today().display("[month repr:long] [year]")
+
+  #v(1fr)
 ]
 #pagebreak()
 
