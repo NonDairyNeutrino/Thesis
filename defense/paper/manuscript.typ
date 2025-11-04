@@ -44,6 +44,8 @@
 #show outline.entry.where(
   level: 2
   ): it => ([#v(-1em) #it])
+#show figure.caption: set par(leading: 1em)
+#show outline.entry: set par(leading: 1em)
 // Title page
 // #v(1fr)
 #align(center)[
@@ -141,7 +143,7 @@ I wouldn't have been able to do it without you.
 // List of figures
 #outline(
   title: [List of Figures],
-  target: figure
+  target: figure,
 )
 
 // Main Content
