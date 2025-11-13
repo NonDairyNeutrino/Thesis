@@ -22,7 +22,7 @@
     let sections = query(selector(heading.where(level: 1)).before(here()))
     // [#here().position()]
     if sections != () {
-      [#emph(hydra(1)) #h(1fr) #emph(hydra(2)) #line(length: 100%)]
+      [#emph(hydra(1)) #h(1fr) #emph(hydra(2)) #v(-1em) #line(length: 100%)]
     }
   }
 )
@@ -30,22 +30,23 @@
 #set text(font: "New Computer Modern", size: 12pt)
 #set math.equation(numbering: "(1)", supplement: [Eq.])
 #set enum(numbering: "1.1)", full: true)
+
 #set heading(numbering: "1.")
-#show heading: set block(below: 2em)
 #show heading: set align(center)
+#show heading: set block(below: 2em)
 #show heading.where(level: 1): it => pagebreak(weak: true) + it
-#show heading.where(level: 2): it => pagebreak(weak: true) + it
+#show heading.where(level: 2): set block(above: 2em)
+#show heading.where(level: 3): set block(above: 2em)
+
 #set  outline(depth: 2)
-#show outline.entry.where(
-    level: 1
-  ): it => {
-    strong(it)
-  }
-#show outline.entry.where(
-  level: 2
-  ): it => ([#v(-1em) #it])
-#show figure.caption: set par(leading: 1em)
 #show outline.entry: set par(leading: 1em)
+#show outline.entry.where(level: 1): it => {strong(it)}
+#show outline.entry.where(level: 2): set block(above: -1em) // it => ([#v(-1em) #it])
+
+#show figure.caption: set par(leading: 1em)
+#show figure.where(kind: "algorithm"): set par(leading: 1em)
+#show figure.where(kind: {table}): set par(leading: 1em)
+
 // Title page
 // #v(1fr)
 #align(center)[
@@ -101,7 +102,7 @@ table(
   [], [APPROVED FOR THE GRADUATE FACULTY],
   [#line(length: 1.25in)], [#line(length: 100%) #v(-1em) Dr. Andy Piacsek, Committee Chair #h(1fr)],
   [#line(length: 1.25in)], [#line(length: 100%) #v(-1em) Dr. Micheal Braunstein #h(1fr)],
-  [#line(length: 1.25in)], [#line(length: 100%) #v(-1em) Dr. Szilard VAJDA #h(1fr)],
+  [#line(length: 1.25in)], [#line(length: 100%) #v(-1em) Dr. Szil$acute(a)$rd VAJDA #h(1fr)],
   [#line(length: 1.25in)], [#line(length: 100%) #v(-1em) Dean of Graduate Studies #h(1fr)],
 )
 )
@@ -193,6 +194,7 @@ These notable methods include those based on spectral deferred corrections, mult
 PinT has been used for real science ranging from simulating the blood flow in fish to gravitational collapse.
 Select implementations include those based on small-scale multiprocessing as well as full-scale supercomputing.
 
+#pagebreak()
 @sec:parareal first offers a review of concepts in computational physics that are fundamental to this work, and details how the PA can be used to simulate motion in parallel.  
 @sec:parareal_eom provides baseline knowledge of how initial-value problems model motion, how energy drift can be used to measure the error of a simulated physical system and how symplectic integrators can be used to mitigate this error, and two types of methods of which the PA can be considered an instance.  
 @sec:parareal_parareal goes through the PA itself, presenting each key step in a way that makes the extension to using HPC methods intuitive.
@@ -203,6 +205,7 @@ While the PA is not a new contribution, the presentation of it in this way is no
 @sec:scale_gpu first identifies how GPUs offer a meaningful increase in performance due to their incredible parallel-processing power and how to "simply move the expensive part to the GPU".  
 @sec:scale_distributed details how to construct and use a cluster of computers such that the PA can be executed on GPUs across multiple machines that are possibly not even in the same physical location.
 
+#pagebreak()
 @sec:analysis covers analysis of this implementation.
 @sec:analysis_numerical details the numerical effects of discretization on error/energy drift, stability, and convergence.
 @sec:analysis_latency describes the influence, issues, and mitigation methods of transferring data between memory spaces.
@@ -219,11 +222,12 @@ This work aims to add to the field of PinT by building a foundation of using HPC
   caption: [The number of papers published (shown on the vertical axis) regarding parallel-in-time integration has significantly, and steadily, increased over the past few decades.  It is also worth noting that at the time of writing, the number of papers published this is year is on track to match last year's.   Image credit @pintorg],
   image(
     "images/pint_history.png",
-    width: 80%,
+    width: 100%,
     alt: ""
   )
 ) <img:pint_history>
 
+#pagebreak()
 // ALGORITHMS
 While this work focuses on the PA, there are several other notable algorithms that have been developed.
 There is of course the PA @parareal_og_2001, but the Parallel Implicit Time-Integrator (PITA) method has been developed as an implicit variation @FarhatEtAl2003.
@@ -267,6 +271,7 @@ While these languages offer top-tier performance, scientists without expertise i
 The Julia language was created to solve this "two language" problem with "the speed of C with the ease of Python" by using LLVM for just-in-time compilation and by being built from the ground up with high-performance scientific computing in mind.  
 Julia seems to be the future of scientific computing, so there should be support for these PinT algorithms in it.
 
+#pagebreak()
 Needless to say, PinT methods have shown significant performance gains for a wide ranging collection of sciences.  
 Because of this, it is paramount that PinT methods see continued support and implementation using high-performance methods and in scientist-focused programming languages.  
 That's why this work provides an implementation of the PA using both massive multithreading on GPUs and scalable multiprocessing in the modern scientific computing language Julia.
@@ -283,12 +288,12 @@ The interpretation of the PA in terms of these recursive subproblems makes the a
 
 This chapter begins by casting the PA in a form that is conducive to being scaled.  The main idea is to recast the "magical" mechanism of the PA to something that can be executed recursively.  In other words, the PA takes an IVP and produces a collection of IVPs, which can each be given to another instance of the PA. The latter half of of this chapter is devoted to presenting a model for which the scalable version of the PA can be implemented.  This model includes how the performance of the PA can increased by using a GPU on a single machine, as well as how to build and use a cluster of machines to further increase performance.
 
-#pagebreak()
 #let tmax = 8
 #let threads = 8
-#ex To help understand and clarify the mechanisms of the scalable PA, including the important details that are not explicitly covered in the algorithm itself, an example problem is used.  Consider the motion of a thrown ball just after it leaves the hand over the course of #tmax seconds (ignoring air resistance).  This motion is modeled by: $P = {
+#ex To help understand and clarify the mechanisms of the scalable PA, including the important details that are not explicitly covered in the algorithm itself, an example problem is used.  Consider the motion of a thrown ball just after it leaves the hand over the course of #tmax seconds (ignoring air resistance).  This motion is modeled by: 
+$ P = {
   underbrace(
-    diff_t^2 harpoon(r) = harpoon(g) ,
+    partial_t^2 harpoon(r) = harpoon(g) ,
     "Acceleration"
   ), #h(11pt)
   underbrace(
@@ -300,7 +305,7 @@ This chapter begins by casting the PA in a form that is conducive to being scale
     [0 "s", #tmax "s"],
     "time span"
   )
-}.$ <eq:root>
+}. $ <eq:root>
 The machine has #threads cores.
 
 Physically, equations of motion (EOM) (section @sec:parareal_eom) are considered in this work to be second order differential equations describing the motion of objects.  Another way of interpreting an EOM is as how the acceleration of an object over time depends on the object's position and velocity at that time.  The solution to an EOM is simply the position of the object as a function of time, from which the velocity can be derived.  The EOMs alone though only provide the behavior of how the position and velocity of the object changes over time.  In order to uniquely define a path the object takes, initial values for the position and velocity must be stipulated.  The EOM together with these initial values, then define an initial value problem (IVP).  These IVPs have long been studied, but investigations into physics at the most extreme scale have required significantly more resources.
@@ -319,7 +324,7 @@ For our purposes, an IVP can be thought of as an object with several properties:
 
 $ {
   underbrace(
-    diff_t^2 harpoon(r) = harpoon(F)(t, harpoon(r), harpoon(v)),
+    partial_t^2 harpoon(r) = harpoon(F)(t, harpoon(r), harpoon(v)),
     "Acceleration"
   ), #h(11pt)
   underbrace(
@@ -359,9 +364,9 @@ The main idea of the PA is to break up a single IVP into many smaller IVPs using
 
 Let the second-order initial value problem $P$ be defined such that
 
-$ P = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_0,  diff_t u(0) = v_0, #h(11pt) [t_0, t_0 + Delta t]}, $ <eq:ivp>
+$ P = {cal(L)(t, u, partial_t u, partial_t^2 u) = f(t), #h(11pt)  u(0) = u_0,  partial_t u(0) = v_0, #h(11pt) [t_0, t_0 + Delta t]}, $ <eq:ivp>
 
-where $cal(L)(t, u, diff_t u, diff_t^2 u) = f(t)$ defines a second-order differential equation, $u(0) = u_0$, and $diff_t u(0) = v_0$ are the initial conditions on the position and velocity, respectively, and $D = [t_0, t_0 + Delta t]$ is the closed time interval from $t_0$ to $t_0 + Delta t$. The discretization $N$ of $P$ should be determined by the number of available threads $N_t$ such that $N = m N_t$, for some positive integer $m$.  The discretization should be chosen in this manner for maximum performance and efficiency; if $N = m N_t + r$, and $0 < r < N_t$, each thread will solve a subproblem $m$ times until on the $m+1$ iteration where only $r$ threads would be active while $N_t - r$ threads idle (assuming all threads are synchronized).  This type of optimization is sometimes referred to as "_flooding the threadpool_" to mitigate thread starvation /* #cn */.
+where $cal(L)(t, u, partial_t u, partial_t^2 u) = f(t)$ defines a second-order differential equation, $u(0) = u_0$, and $partial_t u(0) = v_0$ are the initial conditions on the position and velocity, respectively, and $D = [t_0, t_0 + Delta t]$ is the closed time interval from $t_0$ to $t_0 + Delta t$. The discretization $N$ of $P$ should be determined by the number of available threads $N_t$ such that $N = m N_t$, for some positive integer $m$.  The discretization should be chosen in this manner for maximum performance and efficiency; if $N = m N_t + r$, and $0 < r < N_t$, each thread will solve a subproblem $m$ times until on the $m+1$ iteration where only $r$ threads would be active while $N_t - r$ threads idle (assuming all threads are synchronized).  This type of optimization is sometimes referred to as "_flooding the threadpool_" to mitigate thread starvation /* #cn */.
 
 With the discretization decided, partition the time domain $D$ into subdomains $D_p$ such that
 
@@ -372,11 +377,11 @@ Use a fast integration method $cal(G)_0$ (such as the Euler method) to compute i
 $ {u_p^0}_p = {u_0^0, u_1^0, u_2^0, dots, u_(N-1)^0} $
 $ {v_p^0}_p = {v_0^0, v_1^0, v_2^0, dots, v_(N-1)^0} $
 
-and ${u_p^0, v_p^0} = cal(G)(Delta t, u_(p-1)^0, v_(p-1)^0, diff_t^2 u)$.
+and ${u_p^0, v_p^0} = cal(G)(Delta t, u_(p-1)^0, v_(p-1)^0, partial_t^2 u)$.
 
 Subproblems $P_p$ take the same from as in @eq:ivp (this also means subproblems are themselves, problems), but instead using initial conditions defined by those in the initial root solution.  For example, the subproblem $P_1$ for the second ($p = 1$) subdomain, takes the form
 
-$ P_1 = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_1^0,  diff_t u(0) = v_1^0, #h(11pt) [t_p, t_(p + 1)]}. $ <eq:example_ivp>
+$ P_1 = {cal(L)(t, u, partial_t u, partial_t^2 u) = f(t), #h(11pt)  u(0) = u_1^0,  partial_t u(0) = v_1^0, #h(11pt) [t_p, t_(p + 1)]}. $ <eq:example_ivp>
 
 @alg:prep_subproblems shows the pseudocode of this process for a given IVP and integration algorithm i.e. "propagator", resulting in root solutions and and the collected subproblems.  With these subproblems in hand, the PA continues to its next stage: propagating these problems in parallel.
 
@@ -390,7 +395,7 @@ $ P_1 = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_1^0,  dif
     hooks: 0.5em
   )[
     - *INPUT:* Second order initial value problem `P`, Coarse solver `C`
-    - *OUTPUT:* Solution for `P` made from `pos_seq` and `vel_seq`, and array of subproblems `subproblems`
+    - *OUTPUT:* Solution for `P` made from `pos_seq` and `vel_seq`, and array of subproblems #v(-1em) #h(-3em) `subproblems` // negative spaces because there's too much space in the rendered document
     - \/\/ _choose discretization_
     + `N` #gets number of subproblems \/\/ _e.g. multiple of \# of computer cores_
     - \/\/ _partition the domain of P into N subdomains e.g. [a, b] -> {[a, c], [c, b]}_
@@ -415,7 +420,7 @@ $ P_1 = {cal(L)(t, u, diff_t u, diff_t^2 u) = f(t), #h(11pt)  u(0) = u_1^0,  dif
 + Use the calculated positions and velocities as initial positions and velocities to create #tmax subproblems on the associated subdomains following the form
 
 $ P_p = {
-  diff_t^2 harpoon(r) = harpoon(g), #h(11pt)
+  partial_t^2 harpoon(r) = harpoon(g), #h(11pt)
   harpoon(r)(0) = harpoon(r)_p^0 \, #h(5pt)
   harpoon(v)(0) = harpoon(v)_p^0,   #h(11pt)
   [t_p, t_(p + 1)]
@@ -522,7 +527,7 @@ Otherwise, the propagation kernel is no more than a traditional IVP solver as de
     width: 100%,
     alt: "The same plot as before, but now also with a curve of small, red dots coming from each initial position progressing to the right."
   ),
-  // square(width: 40%, [some stuff]),
+  // square(width: 67%, [some stuff]),
   caption: [Each thread uses coarse and fine propagators to produce intermediate values (small, red dots) from the initial values (big, blue dots and arrows) of its assigned subproblem.  Velocity data does exist, but is neglected here for visual clarity.]
 ) <diag:disc_prop>
 
@@ -553,7 +558,7 @@ Otherwise, the propagation kernel is no more than a traditional IVP solver as de
 
 #math.equation(block: true, numbering: none,
 $ P_p = {
-  diff_t^2 harpoon(r) = harpoon(g), #h(11pt)
+  partial_t^2 harpoon(r) = harpoon(g), #h(11pt)
   harpoon(r)(0) = harpoon(r)_p^0 \, #h(5pt)
   harpoon(v)(0) = harpoon(v)_p^0,   #h(11pt)
   [t_p, t_(p + 1)]
@@ -579,6 +584,7 @@ $ P_p = {
 
 Because the root solution has been calculated via an inaccurate method, it can be made more accurate using the results of the fine propagator.  Though the root solution is not corrected only with the results of the fine propagator, but rather by coarsely propagating the root initial values again but adding a corrector determined by a combination of the results of the fine propagator and the previous iteration's root solution.  The main idea of this process is known as Deferred Corrections @Ong2020.
 
+#pagebreak()
 The correction phase, as defined in literature @parareal_og_2001, takes the deceptively-simple recursive form
 
 $ u_t^i := underbrace(cal(G)(u_(t-1)^i), "predictor") + underbrace(cal(F)(u_(t-1)^(i-1)) - cal(G)(u_(t-1)^(i-1)), "corrector"), $ <eq:correction>
@@ -674,7 +680,6 @@ for some threshold $epsilon$.  @eq:convergence determines convergence when every
   ]
 ) <alg:parareal>
 
-\
 The magic of the PA lies in its divide-and-conquer approach to solving initial value problems.  The "root" problem is sequentially and inaccurately solved to divide it into smaller problems whose initial values are defined by the solution.  Those problems are simultaneously and accurately solved in parallel.  The root problem is then solved in the same way as before, but at each step, the data is modified by combining the previous accurate and inaccurate solutions.  Finally, the new root solution defines new problems, and the loop continues until the the solution has converged.
 
 = The Parareal Algorithm at Scale <sec:scale>
@@ -687,7 +692,7 @@ The distributed-based implementation focuses on distributing problems across mul
 
 The GPU- and distribution-based methods can be combined to further parallelize solving an initial value problem.  If each of the machines available to the distributed network has at least one GPU (a single machine can have multiple; more details in @sec:scale_distributed), this implementation will automatically identify, manage, and use all of them.  Thus these methods can be composed to provide a scalable model of parallel-in-time integration for equations of motion.
 
-High-performance computing (HPC) (section @sec:scale_hpc), in the context of this work, focuses on utilizing two core ideas: *multithreading & GPU computing*, and *multiprocessing & distributed computing*.  These ideas contrast sequential procedures where the next calculation cannot be started before the previous has finished.  Multithreading, and more specifically using graphics processing units (GPUs) to do general purpose computation i.e. GPGPU computing, allow several calculations to be done simultaneously on the same physical hardware i.e. in parallel.  Further extending this idea, multiprocessing (not to be confused with multi-_threading_) allows calculations to be executed simultaneously as in the case of several threads, but these calculations "have their own set of knowledge".  This seemingly subtle distinction provides the ability for these multiple processes to be executed on different physical hardware.  These models of parallelism have been used in the past to address the runtime issues arising from simulating complex physical phenomena.
+High-performance computing (HPC) (section @sec:scale_hpc), in the context of this work, focuses on utilizing two core ideas: multithreading & GPU computing, multiprocessing & distributed computing.  These ideas contrast sequential procedures where the next calculation cannot be started before the previous has finished.  Multithreading, and more specifically using graphics processing units (GPUs) to do general purpose computation i.e. GPGPU computing, allow several calculations to be done simultaneously on the same physical hardware i.e. in parallel.  Further extending this idea, multiprocessing (not to be confused with multi-threading) allows calculations to be executed simultaneously as in the case of several threads, but these calculations "have their own set of knowledge".  This seemingly subtle distinction provides the ability for these multiple processes to be executed on different physical hardware.  These models of parallelism have been used in the past to address the runtime issues arising from simulating complex physical phenomena.
 
 == Review of High-Performance Computing <sec:scale_hpc>
 
@@ -721,7 +726,7 @@ When there are more elements in the array than there are threads on the device, 
 Once each thread knows its array index, all threads execute the kernel simultaneously.  This is where the increased performance comes in.  If the program takes $T$ time to execute on a single array element, and there are $N$ array elements, then the total time to calculate sequentially would be $T N$.  Because the device processes each element simultaneously (as long as there are more threads than elements), the total time to calculate is that of a single execution i.e $T$.  If there are $M$ times as many elements are there are threads, then the total time would simply be $M T$ as each thread processes $M$ elements.  Further parallelization can be achieved by distributing the array elements over multiple devices and machines.
 
 #figure(
-  caption: [The indices a specific thread processes are based on how many total threads there are.\ Image credit @Singal2021],
+  caption: [The indices a specific thread processes are based on how many total threads there are. Image credit @Singal2021],
   image(
     alt: "",
     "images/grid-stride-1.png",
@@ -738,8 +743,7 @@ Unlike threads, the context, or memory space, a process has is distinct from tha
 
 The communication of data between between processes is much slower and requires much more overhead than communicating between threads.  Considering the analogy, when a family member in home A can't find the phone, they simply go to the fridge for the updated information.  If, for some reason, family B needs the location of family A's phone, someone from family A would probably walk over to home B and update them.  This takes much more time and resources than going to the fridge in the same home (and even more time and effort is required to update in the next town over!).  But what if Bob in home B wants Alice in home A to do something?
 
-#pagebreak()
-*Remote Procedure Calls:* While there are many methods to communicate information between processes, the most important method for this work involves one processes telling another process to execute some procedure, which is aptly named a remote procedure call (RPC).  RPC allows one process, such as the one launched by a user running a program, to direct another process to execute some command using its own resources.  Though, because each process has its own memory space, any references to objects that don't exist in the remote process e.g. variable, libraries, etc., will fail, and references to objects "with the same name" can produce unintended results.
+While there are many methods to communicate information between processes, the most important method for this work involves one processes telling another process to execute some procedure, which is aptly named a remote procedure call (RPC).  RPC allows one process, such as the one launched by a user running a program, to direct another process to execute some command using its own resources.  Though, because each process has its own memory space, any references to objects that don't exist in the remote process e.g. variable, libraries, etc., will fail, and references to objects "with the same name" can produce unintended results.
 
 In the analogy, Alice in home A wants to compare the location of her phone to the location of Bob's phone in home B, so she asks Bob "Where is the phone?".  Because both homes have phones, but they are in different locations, Alice would answer "the living room" and Bob would answer "the kitchen" because "the phone" is relative to each home.  If Alice and Bob wanted to have the same answer, then either they would have to communicate where they want the phone to be and put it there, or refer to the same physical instance of a phone.
 
@@ -786,7 +790,7 @@ So, why is the PA well-suited to be implemented to use GPUs?  Because the data i
 #figure(
   caption: [Sequential solutions (top in blue) are sent to the GPU to be finely-propagated (mid in red) in parallel; true solutions (bottom in black) are shown for comparison.],
   image(
-    width: 81%,
+    width: 100%,
     alt: "",
     "images/parallel_propagation_gpu.png"
   )
@@ -797,7 +801,7 @@ So, why is the PA well-suited to be implemented to use GPUs?  Because the data i
 While the PA can be further parallelized using GPUs, the fact still stands that the PA is quasi-embarrassingly-parallel.  In other words, each subproblem is independent of the others while each is being solved, and each of these subproblems can be assigned its own thread.  So, if there are more threads available, higher performance or accuracy can be achieved.  The implementation presented here provides more threads by sending problems to remote machines where they can be run simultaneously; in other words, multiple machines with their own CPUs and GPUs are networked together to form a cluster where the work is distributed amongst all machines.
 
 #figure(
-  image("images/cluster_topology.png", width: 80%),
+  image("images/cluster_topology.png", width: 67%),
   caption: [The assumed topology of the cluster presented in this work.]
 ) <diag:cluster_topology>
 
@@ -861,6 +865,7 @@ Once the managers have been spawned, the director asks them how many devices are
   ]
 ) <alg:spawn_workers>
 
+#pagebreak()
 Once the workers are spawned on their respective hosts, each of them needs a device.  While the fundamental idea of assigning a device to a worker is trivial (as shown in @alg:assign_devices_high), the implementation suffers from the fact the a device should not be assigned to a process on a different host!  In this implementation, process IDs correlate to the order in which they were spawned e.g. process 2 was spawned second, process 3 was spawned third; in other words, the process IDs are relative to the whole cluster.  The device IDs, however, are relative to their host machine.  So, care must be taken in order to pair processes and devices on the same host.
 
 #figure(
@@ -1035,7 +1040,7 @@ This nonintuitive behavior warrants further investigation as the error is expect
   caption: [The order of magnitude of the normalized percent error of the final state of the pendulum for different coarse and fine discretizations.],
   image(
     "images/analysis/energy_fine_2_9_10_11_14_coarse_2_14.png",
-    width: 77%
+    width: 75%
   )
 )  <plt:energy_coarse>
 
@@ -1043,7 +1048,7 @@ This nonintuitive behavior warrants further investigation as the error is expect
   caption: [The order of magnitude of the normalized percent error of the final state of the pendulum for different coarse and fine discretizations.],
   image(
     "images/analysis/energy_coarse_2_9_10_11_15_fine_2_14.png",
-    width: 77%
+    width: 75%
   )
 ) <plt:energy_fine>
 
@@ -1064,7 +1069,7 @@ These conclusions warrant further investigation of the topography of the error-d
   caption: [The global error of the simulation quadratically increases as the length of the simulation/the number of iterations increases.  This is consistent with the analytically determined global error of the velocity-Verlet algorithm being $O(Delta t^2)$.],
   image(
     "images/analysis/stability_cd64_fd8_tf20.png",
-    width: 77%
+    width: 75%
   )
 )  <plt:stability>
 
@@ -1095,7 +1100,7 @@ Both the linear convergence for small coarse discretizations, and the superlinea
   caption: [The number of iterations the simulations needs to converge to a solution versus the coarse discretization of the domain.  These results show linear and superlinear rates of convergence for small and large discretizations, respectively.],
   image(
     "images/analysis/convergence_fd8.png",
-    width: 77%
+    width: 75%
   )
 ) <plt:convergence_coarse>
 
@@ -1109,7 +1114,7 @@ Unfortunately, the details of how the RoC depends on the fine discretization and
   caption: [],
   image(
     "images/analysis/convergence_cd64.png",
-    width: 77%
+    width: 75%
   )
 ) <plt:convergence_fine>
 
@@ -1148,7 +1153,7 @@ If there are indeed multiple problems per device-thread, then zero-copy memory c
   caption: [When only using pinned memory, all data needs to be copied from the host to the device before any computation can begin (top). Using zero-copy memory (bottom) allows for data transfers to happen at the same time as computation.  Sourced from @cudaCppBestPractices.],
   image(
     "images/zero-copy.png",
-    width: 77%
+    width: 75%
   )
 ) <img:zero-copy>
 
@@ -1177,7 +1182,7 @@ Finally, the data moves from the manager back to the director, effectively creat
   caption: [While a cluster might have the logical form as shown in @diag:cluster_topology, the physical characteristics of the network connections and how the communication management controls the flow of data must still be considered.  It is possible for the physical topology to be a star.  Image sourced from @starNetwork.],
   image(
     "images/StarNetwork.png",
-    width: 33%
+    width: 30%
   )
 ) <img:star_topo>
 
@@ -1276,7 +1281,7 @@ For a spectrum of fine discretizations, the efficiency of the simulation is near
   caption: [The efficiency of the simulation when run on a single GPU, characterized by the product of its error and runtime.  This efficiency depends both on the coarse (left) and fine (right) discretizations.],
   image(
     "images/benchmarks/efficiency_gpu.png",
-    width: 77%
+    width: 85%
   )
 ) <plt:bench_gpu>
 
@@ -1289,7 +1294,7 @@ One notable difference between these and the single-GPU results is that for both
   caption: [The efficiency of distributed simulations and how they depend on their coarse (left) and fine (right) discretizations.],
   image(
     "images/benchmarks/efficiency_dist.png",
-    width: 77%
+    width: 85%
   )
 ) <plt:bench_distributed>
 
@@ -1308,7 +1313,7 @@ Disappointingly, the simulations used here show that the distributed implementat
   caption: [The efficiency of the simulation depends on the method employed.  The comparison of these runtimes is shown across the range of coarse (left) and fine (right) discretizations for the a both a fine and coarse discretization of $2^12$, respectively, chosen to highlight the differences between the methods.],
   image(
     "images/benchmarks/method_comp_new.png",
-    width: 77%
+    width: 85%
   )
 ) <plt:method_comp>
 
@@ -1339,6 +1344,7 @@ This work has shown a scalable version of the PA can produce results with numeri
 While there is significant latency associated with transferring data between memory spaces, whether it be between hardware components local to a single machine or between physically separated machines, methods to mitigate or even circumvent these latencies, such as pinned-memory and cluster-topology optimization, have been developed and can be employed in future investigations.
 Finally, benchmarks show that the current implementation of a distributed, GPU-based PA does not increase performance compared to using a local GPU or even a single threaded approach; this ranking could change for discretizations larger than those measured here.
 
+#pagebreak()
 == Future Work & Possible Optimizations <sec:conclusion_future>
 
 This work focused on implementing the PA in the Julia programming language targeting CUDA-based GPUs with the Distributed.jl standard-library's support for multiprocessing and distributed computing; each of these specifications has alternatives.
@@ -1361,6 +1367,7 @@ These are merely a few observations of how this implementation could be optimize
 #set page(numbering: "I")
 #counter(page).update(1)
 #set par(spacing: 1.15em)
+#set par(leading: 1em)
 #bibliography(
   "bib.bib",
   // full: true,
