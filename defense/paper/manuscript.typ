@@ -41,7 +41,7 @@
 #set  outline(depth: 2)
 #show outline.entry: set par(leading: 1em)
 #show outline.entry.where(level: 1): it => {strong(it)}
-#show outline.entry.where(level: 2): set block(above: -1em) // it => ([#v(-1em) #it])
+#show outline.entry.where(level: 2): set block(below: 1em)
 
 #show figure.caption: set par(leading: 1em)
 #show figure.where(kind: "algorithm"): set par(leading: 1em)
