@@ -1059,16 +1059,16 @@ For integrating equations of motion, a simulation can iterate more times $N$ for
 While the consequences of the former are relatively simple as the error introduced with each iteration accumulates more and more to create the global error, the latter involves both the decrease in error associated with decrease in time-step and the increase in error associated with the increase of the number of iterations.
 
 #figure(
-  caption: [The global error of the simulation quadratically increases as the length of the simulation/the number of iterations increases.  This is consistent with the analytically determined global error of the velocity-Verlet algorithm being $O(Delta t^2)$.],
+  caption: [The stability of the simulation can be encoded in the increase of the total mechanical energy (blue) from the initial energy (orange).  If the total mechnaical energy does not surpass the intial energy, the simulation is stable.],
   image(
-    "images/analysis/stability_cd64_fd8_tf20.png",
-    width: 65%
+    "images/analysis/raw_energy_c10_f3.png",
+    width: 75%
   )
 )  <plt:stability>
 
-@plt:stability shows the global error of the simulation as the time-step remains constant and the final time, and thus the number of iterations, increases.  
-The results of the PA are identical to those that would be produced by the using the fine propagator by itself, which in this case is the velocity-Verlet method.  
-The global error shown is consistent with the known behavior of the global error of the velocity-Verlet algorithm $O(Delta t^2)$, which is used here.
+@plt:stability shows the how the total mechanical energy changes over the several periods of oscillation.
+// TODO: Add explanation for the new plot and approach
+// Because the total energy is never greater than the intial energy, there is no gain in energy due to numerical error, and thus the motion of the pendulum is stable.
 
 // #pagebreak(
 === Convergence <sec:analysis_numerical_convergence>
