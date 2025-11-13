@@ -1025,6 +1025,7 @@ Notably, for every presented fine discretization, the error seemingly depends no
 Yielding almost quadratic behavior, the error initially decreases for an increase of coarse discretization, reaching a minimum at a coarse discretization of $2^10$ for every fine discretization, then rising again.
 This nonintuitive behavior warrants further investigation as the error is expected to exponentially decay converging to zero for larger coarse discretizations.
 
+// TODO: recreate error plots with better formatting
 #figure(
   caption: [The order of magnitude of the normalized percent error of the final state of the pendulum for different coarse and fine discretizations.],
   image(
@@ -1083,6 +1084,7 @@ It should also be noted that the PA converges in at most a number of iterations 
 For a coarse discretization less than $2^6 = 64$, the RoC is nearly linear, but for a coarse discretization of $2^7 = 128$ the RoC is much less than the coarse discretization e.g. a coarse discretization of $2^16 = 65,536$ converges in approximately 400 iterations; the latter behavior is known as superlinear convergence @nocedal2000numerical.
 Both the linear convergence for small coarse discretizations, and the superlinear convergence for greater coarse discretizations are consistent with literature @gander2007 @gander2007Superlinear.
 
+// TODO: recreate convergence plots with better formatting
 #figure(
   caption: [The number of iterations the simulations needs to converge to a solution versus the coarse discretization of the domain.  These results show linear and superlinear rates of convergence for small and large discretizations, respectively.],
   image(
@@ -1236,6 +1238,7 @@ The versions of these packages are detailed in @tab:soft_spec.
 The symmetry these plots is consistent with the fact that in a sequential algorithm, the total discretization is effectively the product of the coarse and fine discretizations.  
 Otherwise, both plots show that doublings of the discretization yield linear increases in the runtime.
 
+// TODO: recreate single threaded benchmark plot with better formatting
 #figure(
   caption: [The runtime of a sequential integration algorithm depends effectively on the product of the coarse (left) and fine (right) discretizations.],
   image(
@@ -1291,6 +1294,7 @@ Because the representations used here are only accurate out to approximately sev
 As the error of the simulation only compounds with each step, using too large of discretizations, actually yields worse performance and less accurate results.
 Disappointingly, the simulations used here show that the distributed implementation does not offer increases in performance compared to executing the simulating with local-GPU nor even sequentially.
 
+// TODO: add best single threaded to comparison
 #figure(
   caption: [The efficiency of the simulation depends on the method employed.  The comparison of these runtimes is shown across the range of coarse (left) and fine (right) discretizations for the a both a fine and coarse discretization of $2^12$, respectively, chosen to highlight the differences between the methods.],
   image(
