@@ -143,7 +143,12 @@ I wouldn't have been able to do it without you.
 // List of figures
 #outline(
   title: [List of Figures],
-  target: figure,
+  target: figure.where(kind:{image}),
+)
+
+#outline(
+  title: [List of Algorithms],
+  target: figure.where(kind: "algorithm"),
 )
 
 // Main Content
