@@ -80,7 +80,6 @@
 
   #v(1fr)
 ]
-#pagebreak()
 
 // Approval page
 #set page(numbering: "i")
@@ -107,7 +106,6 @@ table(
 )
 )
 #v(1fr)
-#pagebreak()
 
 // Abstract
 #v(1fr)
@@ -126,7 +124,6 @@ Data-transfer latency is identified as the primary bottleneck, for which mitigat
 Benchmarks comparing single-threaded, single-GPU, and distributed implementations on a spectrum of coarse and fine discretizations are provided.
 #set par(justify: false)
 #v(1fr)
-#pagebreak()
 
 // Acknowledgments
 #align(center, [ACKNOWLEDGMENTS])
@@ -136,7 +133,6 @@ Mr. Chris Lacy for making physics phun,
 Dr. Brandon Peden for showing me how to be a physicist,
 and Dr. Andy Piacsek for never giving up on me.
 I wouldn't have been able to do it without you.
-#pagebreak()
 
 // TABLE OF CONTENTS
 #outline(indent: auto)
@@ -194,7 +190,6 @@ These notable methods include those based on spectral deferred corrections, mult
 PinT has been used for real science ranging from simulating the blood flow in fish to gravitational collapse.
 Select implementations include those based on small-scale multiprocessing as well as full-scale supercomputing.
 
-#pagebreak()
 @sec:parareal first offers a review of concepts in computational physics that are fundamental to this work, and details how the PA can be used to simulate motion in parallel.  
 @sec:parareal_eom provides baseline knowledge of how initial-value problems model motion, how energy drift can be used to measure the error of a simulated physical system and how symplectic integrators can be used to mitigate this error, and two types of methods of which the PA can be considered an instance.  
 @sec:parareal_parareal goes through the PA itself, presenting each key step in a way that makes the extension to using HPC methods intuitive.
@@ -205,7 +200,6 @@ While the PA is not a new contribution, the presentation of it in this way is no
 @sec:scale_gpu first identifies how GPUs offer a meaningful increase in performance due to their incredible parallel-processing power and how to "simply move the expensive part to the GPU".  
 @sec:scale_distributed details how to construct and use a cluster of computers such that the PA can be executed on GPUs across multiple machines that are possibly not even in the same physical location.
 
-#pagebreak()
 @sec:analysis covers analysis of this implementation.
 @sec:analysis_numerical details the numerical effects of discretization on error/energy drift, stability, and convergence.
 @sec:analysis_latency describes the influence, issues, and mitigation methods of transferring data between memory spaces.
@@ -227,7 +221,6 @@ This work aims to add to the field of PinT by building a foundation of using HPC
   )
 ) <img:pint_history>
 
-#pagebreak()
 // ALGORITHMS
 While this work focuses on the PA, there are several other notable algorithms that have been developed.
 There is of course the PA @parareal_og_2001, but the Parallel Implicit Time-Integrator (PITA) method has been developed as an implicit variation @FarhatEtAl2003.
@@ -271,7 +264,6 @@ While these languages offer top-tier performance, scientists without expertise i
 The Julia language was created to solve this "two language" problem with "the speed of C with the ease of Python" by using LLVM for just-in-time compilation and by being built from the ground up with high-performance scientific computing in mind.  
 Julia seems to be the future of scientific computing, so there should be support for these PinT algorithms in it.
 
-#pagebreak()
 Needless to say, PinT methods have shown significant performance gains for a wide ranging collection of sciences.  
 Because of this, it is paramount that PinT methods see continued support and implementation using high-performance methods and in scientist-focused programming languages.  
 That's why this work provides an implementation of the PA using both massive multithreading on GPUs and scalable multiprocessing in the modern scientific computing language Julia.
@@ -584,7 +576,6 @@ $ P_p = {
 
 Because the root solution has been calculated via an inaccurate method, it can be made more accurate using the results of the fine propagator.  Though the root solution is not corrected only with the results of the fine propagator, but rather by coarsely propagating the root initial values again but adding a corrector determined by a combination of the results of the fine propagator and the previous iteration's root solution.  The main idea of this process is known as Deferred Corrections @Ong2020.
 
-#pagebreak()
 The correction phase, as defined in literature @parareal_og_2001, takes the deceptively-simple recursive form
 
 $ u_t^i := underbrace(cal(G)(u_(t-1)^i), "predictor") + underbrace(cal(F)(u_(t-1)^(i-1)) - cal(G)(u_(t-1)^(i-1)), "corrector"), $ <eq:correction>
@@ -865,7 +856,6 @@ Once the managers have been spawned, the director asks them how many devices are
   ]
 ) <alg:spawn_workers>
 
-#pagebreak()
 Once the workers are spawned on their respective hosts, each of them needs a device.  While the fundamental idea of assigning a device to a worker is trivial (as shown in @alg:assign_devices_high), the implementation suffers from the fact the a device should not be assigned to a process on a different host!  In this implementation, process IDs correlate to the order in which they were spawned e.g. process 2 was spawned second, process 3 was spawned third; in other words, the process IDs are relative to the whole cluster.  The device IDs, however, are relative to their host machine.  So, care must be taken in order to pair processes and devices on the same host.
 
 #figure(
@@ -1018,7 +1008,6 @@ Regardless of the source, these overflows result in a $plus.minus infinity$.
 
 // all the plots below should be normalized to the lowest discretization to highlight how they compare to each other and not show the absolute measurements
 
-// #pagebreak()
 === Discretization Error & Energy Drift <sec:analysis_numerical_error>
 
 The error associated with a simulation depends on many factors, but one of the most controllable is that associated with the time-step: the smaller the time-step the closer the simulation is to reality.
@@ -1052,7 +1041,6 @@ This nonintuitive behavior warrants further investigation as the error is expect
   )
 ) <plt:energy_fine>
 
-#pagebreak()
 @plt:energy_fine shows how the energy drift of the simulation is affected by the fine discretization for a particular choice of the coarse discretization.
 There are two key features that should be noted here: the error decreases significantly even for a small change in the fine discretization but then plateaus only to increase at large values of the fine discretization, and the difference in the difference of error (i.e. $Delta^2 E_r \/ Delta N_cal(F) Delta N_cal(G)$) is non-monotonic for different fine discretizations.
 The former signifies that the quality of the results produced from this implementation does not significantly depend on the fine discretization, until it becomes large.
@@ -1065,25 +1053,24 @@ These conclusions warrant further investigation of the topography of the error-d
 
 === Stability <sec:analysis_numerical_stability>
 
-#figure(
-  caption: [The global error of the simulation quadratically increases as the length of the simulation/the number of iterations increases.  This is consistent with the analytically determined global error of the velocity-Verlet algorithm being $O(Delta t^2)$.],
-  image(
-    "images/analysis/stability_cd64_fd8_tf20.png",
-    width: 75%
-  )
-)  <plt:stability>
-
-#pagebreak()
 The notion of stability in the context numerically solving differential equations can refer to the tendency of an integration algorithm to "blow up" due to the accumulation of error.
 As each iteration of the algorithm introduces error, the stability of a simulation depends on the number of iterations it undergoes.
 For integrating equations of motion, a simulation can iterate more times $N$ for two variations of $t_f - t_i = N Delta t$: the final time $t_f$ of the simulation becomes larger while the time step $Delta t$ stays the same, or the time step $Delta t$ becomes smaller while the time domain $t_f - t_i$ does not change.
 While the consequences of the former are relatively simple as the error introduced with each iteration accumulates more and more to create the global error, the latter involves both the decrease in error associated with decrease in time-step and the increase in error associated with the increase of the number of iterations.
 
+#figure(
+  caption: [The global error of the simulation quadratically increases as the length of the simulation/the number of iterations increases.  This is consistent with the analytically determined global error of the velocity-Verlet algorithm being $O(Delta t^2)$.],
+  image(
+    "images/analysis/stability_cd64_fd8_tf20.png",
+    width: 65%
+  )
+)  <plt:stability>
+
 @plt:stability shows the global error of the simulation as the time-step remains constant and the final time, and thus the number of iterations, increases.  
 The results of the PA are identical to those that would be produced by the using the fine propagator by itself, which in this case is the velocity-Verlet method.  
 The global error shown is consistent with the known behavior of the global error of the velocity-Verlet algorithm $O(Delta t^2)$, which is used here.
 
-#pagebreak()
+// #pagebreak(
 === Convergence <sec:analysis_numerical_convergence>
 
 How quickly a sequence of approximate solutions approaches the true solution (usually asymptotically) is known as its rate of convergence (RoC), and applies to both iterative and discretizing algorithms.
@@ -1104,7 +1091,6 @@ Both the linear convergence for small coarse discretizations, and the superlinea
   )
 ) <plt:convergence_coarse>
 
-#pagebreak()
 @plt:convergence_fine shows how the RoC depends on the fine discretization.
 Compared to how the RoC depends on the coarse discretization, that for the fine discretization is rather simple as it is nearly the same for all fine discretizations.
 Though while simple, the results seem to be contrary to the expectation that a larger fine discretization leads to more accuracy and thus fewer iterations.
@@ -1157,7 +1143,6 @@ If there are indeed multiple problems per device-thread, then zero-copy memory c
   )
 ) <img:zero-copy>
 
-#pagebreak()
 Overall, transfers can be avoided nearly completely by executing the coarse propagation on the device and distributing the problems to remote machines via RDMA. If problems are distributed, then the transfers would need to use pinned memory to avoid waiting for the CPU.  In any case, the transfer-rate across PCI-E directly depends on the amount of data being transferred, so it's best to saturate not only all available threads on the device, but also the number of problems per thread.  Even with optimally efficient data transfers, the PA is still bottlenecked by its sequential coarse propagation.
 
 === Host-Host Data Transfers
@@ -1231,7 +1216,6 @@ Additionally, inter-node network traffic was routed through a TP-Link TL-SG108 1
   )
 ) <tab:gpu_spec>
 
-#pagebreak()
 On the software side, the Julia language was used to encode the calculations.
 The Julia standard library's Distributed.jl package was used to perform any and all distributed functionality.
 Additionally, the CUDA.jl package was used to facilitate the implementation of GPU-based calculations.
@@ -1265,7 +1249,6 @@ The dependence of the runtime's order of magnitude on the coarse discretization 
 More specifically, an increase of coarse discretization by a factor of eight leads to the runtime increasing by a factor of ten, approximately.
 Additionally, nearly all fine discretizations yield similar results meaning that the runtime is mostly insensitive to the fine discretization.
 
-#pagebreak()
 Continuing with @plt:bench_gpu, the efficiency of the simulation when done using GPUs is investigated.  
 The metric for this efficiency is considered to tbe the ratio between the products of error $epsilon$ (as calculated in @sec:analysis_numerical) and the runtime $tau$ as $|epsilon tau \/ epsilon_1 tau_1|$, where $epsilon_1, tau_1$ are the error and runtime of the sequential implementation for each coarse discretization i.e. the ratio is between error and runtime for the same coarse discretization.
 As the goal is to minimize both error and runtime, the goal is thus to minimize this metric.
@@ -1285,7 +1268,6 @@ For a spectrum of fine discretizations, the efficiency of the simulation is near
   )
 ) <plt:bench_gpu>
 
-#pagebreak()
 @plt:bench_distributed shows how the runtime depends on the coarse and fine discretizations when using the distributed implementaion presented in this work.
 The overall behavior of these distributed results matches those of only using a single, local GPU.
 One notable difference between these and the single-GPU results is that for both large coarse and fine discretizations, the runtime for the distributed method is approximately an order of magnitude larger than that of the single-GPU implementation. 
@@ -1344,7 +1326,6 @@ This work has shown a scalable version of the PA can produce results with numeri
 While there is significant latency associated with transferring data between memory spaces, whether it be between hardware components local to a single machine or between physically separated machines, methods to mitigate or even circumvent these latencies, such as pinned-memory and cluster-topology optimization, have been developed and can be employed in future investigations.
 Finally, benchmarks show that the current implementation of a distributed, GPU-based PA does not increase performance compared to using a local GPU or even a single threaded approach; this ranking could change for discretizations larger than those measured here.
 
-#pagebreak()
 == Future Work & Possible Optimizations <sec:conclusion_future>
 
 This work focused on implementing the PA in the Julia programming language targeting CUDA-based GPUs with the Distributed.jl standard-library's support for multiprocessing and distributed computing; each of these specifications has alternatives.
