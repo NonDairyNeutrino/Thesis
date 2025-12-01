@@ -1025,19 +1025,18 @@ Notably, for every presented fine discretization, the error seemingly depends no
 Yielding almost quadratic behavior, the error initially decreases for an increase of coarse discretization, reaching a minimum at a coarse discretization of $2^10$ for every fine discretization, then rising again.
 This nonintuitive behavior warrants further investigation as the error is expected to exponentially decay converging to zero for larger coarse discretizations.
 
-// TODO: recreate error plots with better formatting
 #figure(
-  caption: [The order of magnitude of the normalized percent error of the final state of the pendulum for different coarse and fine discretizations.],
+  caption: [The absolute, normalized relative-error of the pendulum's final state for a spectrum of coarse discretizations and select fine discretizations. Each set ($N_cal(F)$) of results is normalized with respect to the error $cal(E)$ when $N_cal(C) = 2^3$ such that $cal(E) = epsilon(N_cal(C) = 2^3, N_cal(F))$.],
   image(
-    "images/analysis/energy_fine_2_9_10_11_14_coarse_2_14.png",
+    "images/analysis/error_coarse.png",
     width: 75%
   )
 )  <plt:energy_coarse>
 
 #figure(
-  caption: [The order of magnitude of the normalized percent error of the final state of the pendulum for different coarse and fine discretizations.],
+  caption: [The absolute, normalized relative-error of the pendulum's final state for a spectrum of fine discretizations and select coarse discretizations. The error curve for a sequential evaluation (dashed $N_cal(C) = 2^0$) is included to provide a reference point. Sequential errors at $N_cal(C) < 2^6$ are too large for meaningful comparison, and thus have been neglected in this visualization.],
   image(
-    "images/analysis/energy_coarse_2_9_10_11_15_fine_2_14.png",
+    "images/analysis/error_fine.png",
     width: 75%
   )
 ) <plt:energy_fine>
