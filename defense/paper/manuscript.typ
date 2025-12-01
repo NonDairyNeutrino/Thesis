@@ -99,8 +99,8 @@ table(
   column-gutter: 1in,
   row-gutter: 0.67in,
   [], [APPROVED FOR THE GRADUATE FACULTY],
-  [#line(length: 1.25in)], [#line(length: 100%) #v(-1em) Dr. Andy Piacsek, Committee Chair #h(1fr)],
-  [#line(length: 1.25in)], [#line(length: 100%) #v(-1em) Dr. Micheal Braunstein #h(1fr)],
+  [#line(length: 1.25in)], [#line(length: 100%) #v(-1em) Dr. Andrew Piacsek, Committee Chair #h(1fr)],
+  [#line(length: 1.25in)], [#line(length: 100%) #v(-1em) Dr. Michael Braunstein #h(1fr)],
   [#line(length: 1.25in)], [#line(length: 100%) #v(-1em) Dr. Szil$acute(a)$rd VAJDA #h(1fr)],
   [#line(length: 1.25in)], [#line(length: 100%) #v(-1em) Dean of Graduate Studies #h(1fr)],
 )
@@ -1081,14 +1081,13 @@ Because the PA is both iterative and discretizing, these rates depend on each-ot
 It should also be noted that the PA converges in at most a number of iterations equal to the coarse discretization @gander2007.
 
 @plt:convergence_coarse shows how the number of iterations the simulation needs to converge depends on the coarse discretization.
-For a coarse discretization less than $2^6 = 64$, the RoC is nearly linear, but for a coarse discretization of $2^7 = 128$ the RoC is much less than the coarse discretization e.g. a coarse discretization of $2^16 = 65,536$ converges in approximately 400 iterations; the latter behavior is known as superlinear convergence @nocedal2000numerical.
+For a coarse discretization less than $2^6 = 64$, the RoC is nearly linear, but for a coarse discretization of $2^7 = 128$ the RoC is much less than the coarse discretization; the latter behavior is known as superlinear convergence @nocedal2000numerical.
 Both the linear convergence for small coarse discretizations, and the superlinear convergence for greater coarse discretizations are consistent with literature @gander2007 @gander2007Superlinear.
 
-// TODO: recreate convergence plots with better formatting
 #figure(
   caption: [The number of iterations the simulations needs to converge to a solution versus the coarse discretization of the domain.  These results show linear and superlinear rates of convergence for small and large discretizations, respectively.],
   image(
-    "images/analysis/convergence_fd8.png",
+    "images/analysis/convergence_coarse.png",
     width: 75%
   )
 ) <plt:convergence_coarse>
@@ -1096,12 +1095,12 @@ Both the linear convergence for small coarse discretizations, and the superlinea
 @plt:convergence_fine shows how the RoC depends on the fine discretization.
 Compared to how the RoC depends on the coarse discretization, that for the fine discretization is rather simple as it is nearly the same for all fine discretizations.
 Though while simple, the results seem to be contrary to the expectation that a larger fine discretization leads to more accuracy and thus fewer iterations.
-Unfortunately, the details of how the RoC depends on the fine discretization and solver are nuanced and out of the scope of this analysis @gander2007.
+The details of how the RoC depends on the fine discretization and solver are nuanced and out of the scope of this analysis @gander2007.
 
 #figure(
   caption: [],
   image(
-    "images/analysis/convergence_cd64.png",
+    "images/analysis/convergence_fine.png",
     width: 75%
   )
 ) <plt:convergence_fine>
@@ -1263,6 +1262,7 @@ This is consistent with the fact that GPUs will take the same amount of time to 
 In other words, small discretizations don't saturate the GPU and thus will all run in the same amount of time while the error decreases as the coarse discretization increases.
 For a spectrum of fine discretizations, the efficiency of the simulation is nearly independent of them.
 
+// TODO: add discussion about the best combination of coarse and fine discretizations
 #figure(
   caption: [The efficiency of the simulation when run on a single GPU, characterized by the product of its error and runtime.  This efficiency depends both on the coarse (left) and fine (right) discretizations.],
   image(
