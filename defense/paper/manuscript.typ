@@ -1232,23 +1232,32 @@ The versions of these packages are detailed in @tab:soft_spec.
   )
 ) <tab:soft_spec>
 
-@plt:bench_single shows how the runtime of the simulation depends on the coarse and fine discretizations when using a purley sequential algorithm; these results are using the velocity-Verlet method.  
-The symmetry these plots is consistent with the fact that in a sequential algorithm, the total discretization is effectively the product of the coarse and fine discretizations.  
-Otherwise, both plots show that doublings of the discretization yield linear increases in the runtime.
+// @plt:bench_single shows how the runtime of the simulation depends on the coarse and fine discretizations when using a purley sequential algorithm; these results are using the velocity-Verlet method.  
+// The symmetry these plots is consistent with the fact that in a sequential algorithm, the total discretization is effectively the product of the coarse and fine discretizations.  
+// Otherwise, both plots show that doublings of the discretization yield linear increases in the runtime.
 
-// TODO: recreate single threaded benchmark plot with better formatting
-#figure(
-  caption: [The runtime of a sequential integration algorithm depends effectively on the product of the coarse (left) and fine (right) discretizations.],
-  image(
-    "images/benchmarks/bench_single.png",
-    width:77%
-  )
-) <plt:bench_single>
+// // TODO: recreate single threaded benchmark plot with better formatting
+// #figure(
+//   caption: [The runtime of a sequential integration algorithm depends effectively on the product of the coarse (left) and fine (right) discretizations.],
+//   image(
+//     "images/benchmarks/bench_single.png",
+//     width:77%
+//   )
+// ) <plt:bench_single>
 
 @plt:bench_gpu shows how the runtime depends on the coarse and fine discretizations when using multithreading on the GPU.
 The dependence of the runtime's order of magnitude on the coarse discretization (left) is shown to be linear for all fine discretizations. 
 More specifically, an increase of coarse discretization by a factor of eight leads to the runtime increasing by a factor of ten, approximately.
 Additionally, nearly all fine discretizations yield similar results meaning that the runtime is mostly insensitive to the fine discretization.
+
+// TODO: add discussion about the best combination of coarse and fine discretizations
+#figure(
+  caption: [The efficiency of the simulation when run on a single GPU, characterized by the product of its error and runtime.  This efficiency depends both on the coarse (left) and fine (right) discretizations.],
+  image(
+    "images/benchmarks/efficiency_gpu.png",
+    width: 85%
+  )
+) <plt:bench_gpu>
 
 Continuing with @plt:bench_gpu, the efficiency of the simulation when done using GPUs is investigated.  
 The metric for this efficiency is considered to tbe the ratio between the products of error $epsilon$ (as calculated in @sec:analysis_numerical) and the runtime $tau$ as $|epsilon tau \/ epsilon_1 tau_1|$, where $epsilon_1, tau_1$ are the error and runtime of the sequential implementation for each coarse discretization i.e. the ratio is between error and runtime for the same coarse discretization.
@@ -1260,15 +1269,6 @@ For a spectrum of coarse discretizations, most simulations behave similarly, but
 This is consistent with the fact that GPUs will take the same amount of time to run any number of threads less than what it's capable of.
 In other words, small discretizations don't saturate the GPU and thus will all run in the same amount of time while the error decreases as the coarse discretization increases.
 For a spectrum of fine discretizations, the efficiency of the simulation is nearly independent of them.
-
-// TODO: add discussion about the best combination of coarse and fine discretizations
-#figure(
-  caption: [The efficiency of the simulation when run on a single GPU, characterized by the product of its error and runtime.  This efficiency depends both on the coarse (left) and fine (right) discretizations.],
-  image(
-    "images/benchmarks/efficiency_gpu.png",
-    width: 85%
-  )
-) <plt:bench_gpu>
 
 @plt:bench_distributed shows how the runtime depends on the coarse and fine discretizations when using the distributed implementaion presented in this work.
 The overall behavior of these distributed results matches those of only using a single, local GPU.
