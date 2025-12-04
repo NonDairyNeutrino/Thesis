@@ -101,8 +101,9 @@ table(
   row-gutter: 0.67in,
   [], [APPROVED FOR THE GRADUATE FACULTY],
   [#line(length: 1.25in)], [#line(length: 100%) #v(-1em) Dr. Andrew Piacsek, Committee Chair #h(1fr)],
-  [#line(length: 1.25in)], [#line(length: 100%) #v(-1em) Dr. Michael Braunstein #h(1fr)],
-  [#line(length: 1.25in)], [#line(length: 100%) #v(-1em) Dr. Szil$acute(a)$rd VAJDA #h(1fr)],
+  [#line(length: 1.25in)], [#line(length: 100%) #v(-1em) Dr. Michael Braunstein, Committee Member #h(1fr)],
+  [#line(length: 1.25in)], [#line(length: 100%) #v(-1em) Dr. Szil$acute(a)$rd VAJDA, Committee Member #h(1fr)],
+ 
   [#line(length: 1.25in)], [#line(length: 100%) #v(-1em) Dean of Graduate Studies #h(1fr)],
 )
 )
