@@ -81,6 +81,7 @@
   #v(1fr)
 ]
 
+#pagebreak()
 // Approval page
 #set page(numbering: "i")
 #align(center, [CENTRAL WASHINGTON UNIVERISTY\ Graduate Studies])
@@ -107,6 +108,7 @@ table(
 )
 #v(1fr)
 
+#pagebreak()
 // Abstract
 #v(1fr)
 #align(center, [
@@ -121,10 +123,11 @@ table(
 Physical simulations always need to balance accuracy and run-time.  
 This work implements the Parareal Algorithm using graphics processing units across a distributed system to accurately simulate time-dependent physics while attempting to minimize runtime.
 Data-transfer latency is identified as the primary bottleneck, for which mitigation methods are provided.
-Benchmarks comparing single-threaded, single-GPU, and distributed implementations on a spectrum of coarse and fine discretizations are provided.
+Benchmarks comparing single-GPU and distributed implementations on a spectrum of coarse and fine discretizations are analyzed.
 #set par(justify: false)
 #v(1fr)
 
+#pagebreak()
 // Acknowledgments
 #align(center, [ACKNOWLEDGMENTS])
 This work is made possible thanks to,
@@ -134,20 +137,24 @@ Dr. Brandon Peden for showing me how to be a physicist,
 and Dr. Andy Piacsek for never giving up on me.
 I wouldn't have been able to do it without you.
 
+#pagebreak()
 // TABLE OF CONTENTS
 #outline(indent: auto)
 
+#pagebreak()
 // List of figures
 #outline(
   title: [List of Figures],
   target: figure.where(kind:{image}),
 )
 
+#pagebreak()
 #outline(
   title: [List of Algorithms],
   target: figure.where(kind: "algorithm"),
 )
 
+#pagebreak()
 // Main Content
 #set page(numbering: (..n) => context {
   numbering("1/1", n.at(0), /* ..counter(page).at(<content_end>) */)
@@ -497,7 +504,7 @@ Otherwise, the propagation kernel is no more than a traditional IVP solver as de
 #figure(
   kind: "algorithm",
   supplement: [Algorithm],
-  caption: [Put it all together],
+  caption: [Combine the discretization and propagation kernels.],
   pseudocode-list(
     numbered-title: smallcaps[The Parareal Kernel],
     booktabs: true,
@@ -976,8 +983,7 @@ More specifically, those transfers that occur between the host memory and the me
 Strategies to mitigate or completely circumvent these latencies are suggested.
 
 @sec:analysis_benchmarks focuses on comparing the performance of different forms of parallelism.
-To provide a baseline measurement, the performance of a single threaded integration is provided across ranges of coarse and fine discretization.
-Similarly, the performances of a local GPU and the distributed implementation provided by this work are measured for varying discretizations.
+The performances of a local GPU and the distributed implementation provided by this work are measured for varying discretizations.
 Finally, the performances of each of these methods are compared to highlight which method has the best and worst runtime.
 
 == Numerical Analysis <sec:analysis_numerical>
@@ -1021,10 +1027,10 @@ In order to ensure measurements are scale independent, the difference in energy 
 In this case the has unit mass $m = 1 "kg"$ pendulum begins at its low point $theta_0 = 0 "rads"$ a distance $ell = 1 "m"$ below its pivot with unit velocity $omega_0 = 1 "rads"\/s$ yielding $E_"true" = m ell^2 omega_0^2 \/ 2 = 0.5 "J"$.
 
 @plt:energy_coarse shows how the error depends on the coarse discretization for several choices of fine discretization.
-
-// Notably, for every presented fine discretization, the error seemingly depends not just nonlinearly, but non-monotonically.
-// Yielding almost quadratic behavior, the error initially decreases for an increase of coarse discretization, reaching a minimum at a coarse discretization of $2^10$ for every fine discretization, then rising again.
-// This nonintuitive behavior warrants further investigation as the error is expected to exponentially decay converging to zero for larger coarse discretizations.
+The most notable feature of these data is the concavity of each of the fine-discretization contours i.e. the behavior that error is high for small coarse discretizations, small for "medium" discretizations, and high for large discretizations.
+This behavior is consistent with the fact that, at smaller discretizations, the produced time-step will be quite large and thus not an accurate approximation to reality.
+Additionally, large discretizations lead changes between successive iterations to be dominated by numerical noise from using only 32-bit floats.
+Thus, according to these results, the combination of coarse and fine discretizations that yield the least error is $(N_cal(C), N_cal(F)) = (2^6, 2^5)$.
 
 #figure(
   caption: [The absolute, normalized relative-error $|epsilon \/ cal(E)|$ of the pendulum's final state for a spectrum of coarse discretizations and select fine discretizations.  Each error $epsilon$ is normalized by the error $cal(E)$ associated with the smallest coarse discretization and equal fine discretization i.e. $cal(E)(N_cal(F)) = epsilon(2^3, N_cal(F))$],
@@ -1237,24 +1243,6 @@ The versions of these packages are detailed in @tab:soft_spec.
   )
 ) <tab:soft_spec>
 
-// @plt:bench_single shows how the runtime of the simulation depends on the coarse and fine discretizations when using a purley sequential algorithm; these results are using the velocity-Verlet method.  
-// The symmetry these plots is consistent with the fact that in a sequential algorithm, the total discretization is effectively the product of the coarse and fine discretizations.  
-// Otherwise, both plots show that doublings of the discretization yield linear increases in the runtime.
-
-// // TODO: recreate single threaded benchmark plot with better formatting
-// #figure(
-//   caption: [The runtime of a sequential integration algorithm depends effectively on the product of the coarse (left) and fine (right) discretizations.],
-//   image(
-//     "images/benchmarks/bench_single.png",
-//     width:77%
-//   )
-// ) <plt:bench_single>
-
-@plt:bench_gpu shows how the runtime depends on the coarse and fine discretizations when using multithreading on the GPU.
-The dependence of the runtime's order of magnitude on the coarse discretization (left) is shown to be linear for all fine discretizations. 
-More specifically, an increase of coarse discretization by a factor of eight leads to the runtime increasing by a factor of ten, approximately.
-Additionally, nearly all fine discretizations yield similar results meaning that the runtime is mostly insensitive to the fine discretization.
-
 // TODO: add discussion about the best combination of coarse and fine discretizations
 #figure(
   caption: [The efficiency of the simulation when run on a single GPU, characterized by the product of its error and runtime.  This efficiency depends both on the coarse (left) and fine (right) discretizations.],
@@ -1264,20 +1252,21 @@ Additionally, nearly all fine discretizations yield similar results meaning that
   )
 ) <plt:bench_gpu>
 
-Continuing with @plt:bench_gpu, the efficiency of the simulation when done using GPUs is investigated.  
+@plt:bench_gpu shows the efficiency of the simulation when done using GPUs.
 The metric for this efficiency is considered to tbe the ratio between the products of error $epsilon$ (as calculated in @sec:analysis_numerical) and the runtime $tau$ as $|epsilon tau \/ epsilon_1 tau_1|$, where $epsilon_1, tau_1$ are the error and runtime of the sequential implementation for each coarse discretization i.e. the ratio is between error and runtime for the same coarse discretization.
 As the goal is to minimize both error and runtime, the goal is thus to minimize this metric.
 In other words, lower is better.
 
-As can be seen in both the figures for the coarse (left) and fine (right) discretiation in @plt:bench_gpu, the simulation becomes drastically inefficient.
+As can be seen in both the subfigures for the coarse (left) and fine (right) discretizations in @plt:bench_gpu, the simulation becomes drastically inefficient at higher discretizations.
 For a spectrum of coarse discretizations, most simulations behave similarly, but those with the largest fine discretizations diverge; the rate of this divergence is proportional to the fine discretization.
 This is consistent with the fact that GPUs will take the same amount of time to run any number of threads less than what it's capable of.
 In other words, small discretizations don't saturate the GPU and thus will all run in the same amount of time while the error decreases as the coarse discretization increases.
 For a spectrum of fine discretizations, the efficiency of the simulation is nearly independent of them.
 
-@plt:bench_distributed shows how the runtime depends on the coarse and fine discretizations when using the distributed implementaion presented in this work.
+@plt:bench_distributed shows how the efficiency depends on the coarse and fine discretizations when using the distributed implementaion presented in this work.
 The overall behavior of these distributed results matches those of only using a single, local GPU.
-One notable difference between these and the single-GPU results is that for both large coarse and fine discretizations, the runtime for the distributed method is approximately an order of magnitude larger than that of the single-GPU implementation. 
+While there is little change between fine-discretization (left), efficiency strongly depends on the coarse-discretization.
+The trend is simply that smaller coarse discretizations yield much better (more accurate and less runtime) results when compared to using larger coarse discretizations.
 
 #figure(
   caption: [The efficiency of distributed simulations and how they depend on their coarse (left) and fine (right) discretizations.],
@@ -1293,10 +1282,10 @@ These trends only begin diverging significantly for a coarse discretization of $
 Likewise, the efficiency of the simulation for increasing fine discretizations (right) starts poorly for low discretization, but remains near its starting level until the a fine discretization of $2^10$, just as with the coarse discretization.
 
 The divergence seen in the previous figures occurs near a discretization of $2^10$.
-This is mostl likely explained by round-off error becoming significant as when both discretizations are $2^10$, the resulting time-step is (for this simulation) on the on the same order of magnitude as the precision of 32-bit floats.
+This is most likely explained by round-off error becoming significant as when both discretizations are $2^10$, the resulting time-step is (for this simulation) on the on the same order of magnitude as the precision of 32-bit floats.
 Because the representations used here are only accurate out to approximately seven decimal places, any difference smaller than that will yield incorrect results.
 As the error of the simulation only compounds with each step, using too large of discretizations, actually yields worse performance and less accurate results.
-Disappointingly, the simulations used here show that the distributed implementation does not offer increases in performance compared to executing the simulating with local-GPU nor even sequentially.
+The simulations used here show that the distributed implementation does not offer increases in performance compared to executing the simulating with local-GPU.
 
 // TODO: add best single threaded to comparison
 #figure(
@@ -1308,7 +1297,7 @@ Disappointingly, the simulations used here show that the distributed implementat
 ) <plt:method_comp>
 
 The most significant factors that influence the performance of this implementation are the latency from data-transfers, numerical instability due to using too small discretization,  instability from significant round-off error due to using too small discretization, combined with using a low-precision representation of floating point numbers.
-Because communication occurs to frequently in the PA e.g. every iteration data transfers between hosts, the effects of data-transfer latency are only magnified to an extent proportional to the coarse discretization.
+Because communication occurs frequently in the PA e.g. every iteration data transfers between hosts, the effects of data-transfer latency are only magnified to an extent proportional to the coarse discretization.
 While the PA is well-suited to take advantage of the massive parallelism of GPUs, the number of subproblems needed to make total use of the GPU requires discretizations that yield quantities that are sensitive to round-off error; this is only exacerbated by the standard of using only 32-bit precision representations of numbers.
 Similarly, because the number of subproblems to saturate the GPU is so large, the storage capacity needed for these subproblems also limits the effective coarse discretization and performance; such memory capacity is the reason why this work only considers discretiations up to $2^14$.
 Systems with a larger memory capacity would be able to store enough subproblems that could also fill the GPU, resulting in simulations using this implementation that would out-perform resource constrained systems.
