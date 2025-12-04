@@ -1021,12 +1021,13 @@ In order to ensure measurements are scale independent, the difference in energy 
 In this case the has unit mass $m = 1 "kg"$ pendulum begins at its low point $theta_0 = 0 "rads"$ a distance $ell = 1 "m"$ below its pivot with unit velocity $omega_0 = 1 "rads"\/s$ yielding $E_"true" = m ell^2 omega_0^2 \/ 2 = 0.5 "J"$.
 
 @plt:energy_coarse shows how the error depends on the coarse discretization for several choices of fine discretization.
-Notably, for every presented fine discretization, the error seemingly depends not just nonlinearly, but non-monotonically.
-Yielding almost quadratic behavior, the error initially decreases for an increase of coarse discretization, reaching a minimum at a coarse discretization of $2^10$ for every fine discretization, then rising again.
-This nonintuitive behavior warrants further investigation as the error is expected to exponentially decay converging to zero for larger coarse discretizations.
+
+// Notably, for every presented fine discretization, the error seemingly depends not just nonlinearly, but non-monotonically.
+// Yielding almost quadratic behavior, the error initially decreases for an increase of coarse discretization, reaching a minimum at a coarse discretization of $2^10$ for every fine discretization, then rising again.
+// This nonintuitive behavior warrants further investigation as the error is expected to exponentially decay converging to zero for larger coarse discretizations.
 
 #figure(
-  caption: [The absolute, normalized relative-error of the pendulum's final state for a spectrum of coarse discretizations and select fine discretizations. Each set ($N_cal(F)$) of results is normalized with respect to the error $cal(E)$ when $N_cal(C) = 2^3$ such that $cal(E) = epsilon(N_cal(C) = 2^3, N_cal(F))$.],
+  caption: [The absolute, normalized relative-error $|epsilon \/ cal(E)|$ of the pendulum's final state for a spectrum of coarse discretizations and select fine discretizations.  Each error $epsilon$ is normalized by the error $cal(E)$ associated with the smallest coarse discretization and equal fine discretization i.e. $cal(E)(N_cal(F)) = epsilon(2^3, N_cal(F))$],
   image(
     "images/analysis/error_coarse.png",
     width: 75%
@@ -1056,7 +1057,7 @@ These conclusions warrant further investigation of the topography of the error-d
 The notion of stability in the context numerically solving differential equations can refer to the tendency of an integration algorithm to "blow up" due to the accumulation of error.
 As each iteration of the algorithm introduces error, the stability of a simulation depends on the number of iterations it undergoes.
 For integrating equations of motion, a simulation can iterate more times $N$ for two variations of $t_f - t_i = N Delta t$: the final time $t_f$ of the simulation becomes larger while the time step $Delta t$ stays the same, or the time step $Delta t$ becomes smaller while the time domain $t_f - t_i$ does not change.
-While the consequences of the former are relatively simple as the error introduced with each iteration accumulates more and more to create the global error, the latter involves both the decrease in error associated with decrease in time-step and the increase in error associated with the increase of the number of iterations.
+While the consequences of the former are relatively simple as the error introduced with each iteration accumulates more and more to create the global error, the latter involves both the decrease in error associated with the smaller time-step and the increase in error associated with the increased number of iterations.
 
 #figure(
   caption: [The stability of the simulation can be encoded in the increase of the total mechanical energy (blue) from the initial energy (orange).  If the total mechnaical energy does not surpass the intial energy, the simulation is stable.],
@@ -1066,9 +1067,11 @@ While the consequences of the former are relatively simple as the error introduc
   )
 )  <plt:stability>
 
-@plt:stability shows the how the total mechanical energy changes over the several periods of oscillation.
-// TODO: Add explanation for the new plot and approach
-// Because the total energy is never greater than the intial energy, there is no gain in energy due to numerical error, and thus the motion of the pendulum is stable.
+If the TME becomes greater than its initial value, the simulation would be unstable and the results unphysical as energy would be seemingly added from nowhere.
+@plt:stability shows how the total mechanical energy (TME) changes over several periods of oscillation.
+As the TME remains less than or equal to its initial value, the simulation is considered stable on this time interval.
+While the TME does oscillate slightly (the lower bound of the TME being only $0.46 "J"$), this behavior is expected. 
+A larger time interval could be used to determine the extent of this implementation's stability, but the data used here is chosen to be consistent with the other analyses in this investigation. 
 
 // #pagebreak(
 === Convergence <sec:analysis_numerical_convergence>
