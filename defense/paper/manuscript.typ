@@ -84,7 +84,7 @@
 #pagebreak()
 // Approval page
 #set page(numbering: "i")
-#align(center, [CENTRAL WASHINGTON UNIVERISTY\ Graduate Studies])
+#align(center, [CENTRAL WASHINGTON UNIVERSITY\ Graduate Studies])
 
 #v(1fr)
 We hereby approve the thesis of
@@ -672,7 +672,7 @@ for some threshold $epsilon$.  @eq:convergence determines convergence when every
     + `ddom, pos[0, :], vel[0, :]` #gets Prepare the subproblems via a coarse solution
     + `i` #gets `1`
     + *while* `max(changes)` $>=$ `ep`
-      + `fpos[t], fvel[t]` #gets Launch the parareal kernel in parallel with `F, pos[i-1, :], vel[i-1, :]` to get the fine solutions for subproblem `t`
+      + `fpos[t], fvel[t]` #gets Launch the Parareal kernel in parallel with `F, pos[i-1, :], vel[i-1, :]` to get the fine solutions for subproblem `t`
       + `pos[i, :], vel[i, :]` #gets Construct new root solutions with `G`, `pos[i-1, :], vel[i-1, :]`, and `fpos, fvel`
       + `changes` #gets The difference between the current and previous solutions
     + *return* `ddom, pos, vel`
@@ -777,7 +777,7 @@ So, why is the PA well-suited to be implemented to use GPUs?  Because the data i
       + `i += 1`
       - \/\/ _fine propagate on the device_
       + `posd[i-1, :], veld[i-1, :]` #gets Copy `F, pos[i-1, :], vel[i-1, :]` to the device
-      + `fposd[t], fveld[t]` #gets Launch the parareal kernel to get the fine solutions for subproblem `t`
+      + `fposd[t], fveld[t]` #gets Launch the Parareal kernel to get the fine solutions for subproblem `t`
       + `fpos, fvel` #gets Copy the fine solutions `fposd, fveld` to the host
       - \/\/ _coarse propagate on the host_
       + `pos[i, :], vel[i, :]` #gets Construct new root solutions with `G`, `pos[i-1, :], vel[i-1, :], fpos, fvel`
@@ -908,7 +908,7 @@ One way to address this issue is to create "host objects" by collecting the host
     - *OUTPUT:* List of host objects `hosts`
     + For each host
       + `name` #gets name of host
-      + `workers` #gets list of woker IDs on host
+      + `workers` #gets list of worker IDs on host
       + `ndevs` #gets number of devices on host
       + `hosts[i]` #gets `Host(name, workers, ndevs)`
     + *return* `hosts`
@@ -1066,7 +1066,7 @@ For integrating equations of motion, a simulation can iterate more times $N$ for
 While the consequences of the former are relatively simple as the error introduced with each iteration accumulates more and more to create the global error, the latter involves both the decrease in error associated with the smaller time-step and the increase in error associated with the increased number of iterations.
 
 #figure(
-  caption: [The stability of the simulation can be encoded in the increase of the total mechanical energy (blue) from the initial energy (orange).  If the total mechnaical energy does not surpass the intial energy, the simulation is stable.],
+  caption: [The stability of the simulation can be encoded in the increase of the total mechanical energy (blue) from the initial energy (orange).  If the total mechanical energy does not surpass the initial energy, the simulation is stable.],
   image(
     "images/analysis/raw_energy_c10_f3.png",
     width: 75%
@@ -1115,7 +1115,7 @@ However, the details of how the RoC depends on the fine discretization and solve
 
 When both the coarse and fine discretizations are large, figures @plt:convergence_coarse[] and @plt:convergence_fine[] show the number of iterations drastically increases.
 This is due to the fact that, when the simulation has nearly converged, the difference between successive iterations is dominated by imprecision error.
-Imprecision error becomes signifcant due to only using 32 bits to represent the float results of the simulation, while also needing their difference to be within $sqrt(epsilon)$, where $epsilon$ is the machine epsilon of the 32-bit float.
+Imprecision error becomes significant due to only using 32 bits to represent the float results of the simulation, while also needing their difference to be within $sqrt(epsilon)$, where $epsilon$ is the machine epsilon of the 32-bit float.
 
 The RoC of the PA has been well studied @gander2007 @gander2007Superlinear.
 @plt:convergence_coarse shows this implementation converges linearly for small coarse discretizations, and superlinearly for large discretizations matching literature.
@@ -1254,17 +1254,17 @@ The versions of these packages are detailed in @tab:soft_spec.
 ) <plt:bench_gpu>
 
 @plt:bench_gpu shows the efficiency of the simulation when done using GPUs.
-The metric for this efficiency is considered to tbe the ratio between the products of error $epsilon$ (as calculated in @sec:analysis_numerical) and the runtime $tau$ as $|epsilon tau \/ epsilon_1 tau_1|$, where $epsilon_1, tau_1$ are the error and runtime of the sequential implementation for each coarse discretization i.e. the ratio is between error and runtime for the same coarse discretization.
+The metric for this efficiency is considered to be the ratio between the products of error $epsilon$ (as calculated in @sec:analysis_numerical) and the runtime $tau$ as $|epsilon tau \/ epsilon_1 tau_1|$, where $epsilon_1, tau_1$ are the error and runtime of the sequential implementation for each coarse discretization i.e. the ratio is between error and runtime for the same coarse discretization.
 As the goal is to minimize both error and runtime, the goal is thus to minimize this metric.
 In other words, lower is better.
 
-As can be seen in both the subfigures for the coarse (left) and fine (right) discretizations in @plt:bench_gpu, the simulation becomes drastically inefficient at higher discretizations.
+As can be seen in both the sub-figures for the coarse (left) and fine (right) discretizations in @plt:bench_gpu, the simulation becomes drastically inefficient at higher discretizations.
 For a spectrum of coarse discretizations, most simulations behave similarly, but those with the largest fine discretizations diverge; the rate of this divergence is proportional to the fine discretization.
 This is consistent with the fact that GPUs will take the same amount of time to run any number of threads less than what it's capable of.
 In other words, small discretizations don't saturate the GPU and thus will all run in the same amount of time while the error decreases as the coarse discretization increases.
 For a spectrum of fine discretizations, the efficiency of the simulation is nearly independent of them.
 
-@plt:bench_distributed shows how the efficiency depends on the coarse and fine discretizations when using the distributed implementaion presented in this work.
+@plt:bench_distributed shows how the efficiency depends on the coarse and fine discretizations when using the distributed implementation presented in this work.
 The overall behavior of these distributed results matches those of only using a single, local GPU.
 While there is little change between fine-discretization (left), efficiency strongly depends on the coarse-discretization.
 The trend is simply that smaller coarse discretizations yield much better (more accurate and less runtime) results when compared to using larger coarse discretizations.
@@ -1300,7 +1300,7 @@ The simulations used here show that the distributed implementation does not offe
 The most significant factors that influence the performance of this implementation are the latency from data-transfers, numerical instability due to using too small discretization,  instability from significant round-off error due to using too small discretization, combined with using a low-precision representation of floating point numbers.
 Because communication occurs frequently in the PA e.g. every iteration data transfers between hosts, the effects of data-transfer latency are only magnified to an extent proportional to the coarse discretization.
 While the PA is well-suited to take advantage of the massive parallelism of GPUs, the number of subproblems needed to make total use of the GPU requires discretizations that yield quantities that are sensitive to round-off error; this is only exacerbated by the standard of using only 32-bit precision representations of numbers.
-Similarly, because the number of subproblems to saturate the GPU is so large, the storage capacity needed for these subproblems also limits the effective coarse discretization and performance; such memory capacity is the reason why this work only considers discretiations up to $2^14$.
+Similarly, because the number of subproblems to saturate the GPU is so large, the storage capacity needed for these subproblems also limits the effective coarse discretization and performance; such memory capacity is the reason why this work only considers discretizations up to $2^14$.
 Systems with a larger memory capacity would be able to store enough subproblems that could also fill the GPU, resulting in simulations using this implementation that would out-perform resource constrained systems.
 
 = Conclusion <sec:conclusion>

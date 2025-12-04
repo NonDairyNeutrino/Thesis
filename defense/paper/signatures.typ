@@ -39,7 +39,7 @@
 #show figure.where(kind: "algorithm"): set par(leading: 1em)
 #show figure.where(kind: {table}): set par(leading: 1em)
 
-#align(center, [CENTRAL WASHINGTON UNIVERISTY\ Graduate Studies])
+#align(center, [CENTRAL WASHINGTON UNIVERSITY\ Graduate Studies])
 
 #v(1fr)
 We hereby approve the thesis of
