@@ -1082,7 +1082,7 @@ Because the PA is both iterative and discretizing, these rates depend on each-ot
 It should also be noted that the PA converges in at most a number of iterations equal to the coarse discretization @gander2007.
 
 @plt:convergence_coarse shows how the number of iterations the simulation needs to converge depends on the coarse discretization.
-For a coarse discretization less than $2^6 = 64$, the RoC is nearly linear, but for a coarse discretization of $2^7 = 128$ the RoC is much less than the coarse discretization; the latter behavior is known as superlinear convergence @nocedal2000numerical.
+For a coarse discretization less than $2^6 = 64$, the RoC is nearly linear, but when the coarse discretization is greater than or equal to $2^7 = 128$, the RoC is much less than the coarse discretization; the latter behavior is known as superlinear convergence @nocedal2000numerical.
 Both the linear convergence for small coarse discretizations, and the superlinear convergence for greater coarse discretizations are consistent with literature @gander2007 @gander2007Superlinear.
 
 #figure(
@@ -1095,21 +1095,24 @@ Both the linear convergence for small coarse discretizations, and the superlinea
 
 @plt:convergence_fine shows how the RoC depends on the fine discretization.
 Compared to how the RoC depends on the coarse discretization, that for the fine discretization is rather simple as it is nearly the same for all fine discretizations.
-Though while simple, the results seem to be contrary to the expectation that a larger fine discretization leads to more accuracy and thus fewer iterations.
-The details of how the RoC depends on the fine discretization and solver are nuanced and out of the scope of this analysis @gander2007.
+Though, while simple, the results are inconsistent with the expectation that a larger fine discretization leads to more accuracy and thus fewer iterations.
+However, the details of how the RoC depends on the fine discretization and solver are nuanced and out of the scope of this analysis @gander2007.
 
 #figure(
-  caption: [],
+  caption: [The number of iterations needed for a simulation to complete using a combination of coarse and fine discretizations.],
   image(
     "images/analysis/convergence_fine.png",
     width: 75%
   )
 ) <plt:convergence_fine>
 
+When both the coarse and fine discretizations are large, figures @plt:convergence_coarse[] and @plt:convergence_fine[] show the number of iterations drastically increases.
+This is due to the fact that, when the simulation has nearly converged, the difference between successive iterations is dominated by imprecision error.
+Imprecision error becomes signifcant due to only using 32 bits to represent the float results of the simulation, while also needing their difference to be within $sqrt(epsilon)$, where $epsilon$ is the machine epsilon of the 32-bit float.
+
 The RoC of the PA has been well studied @gander2007 @gander2007Superlinear.
 @plt:convergence_coarse shows this implementation converges linearly for small coarse discretizations, and superlinearly for large discretizations matching literature.
 @plt:convergence_fine shows the RoC of this implementation only slightly depends on the fine discretization for a small coarse discretization.
-Further analysis could be done for both a large coarse and fine discretizations.
 The results shown in this section provide substantial confidence that the behavior of further results will be consistent with those found in literature.
 
 == Data Transfers & Latency <sec:analysis_latency>
