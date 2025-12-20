@@ -18,31 +18,27 @@
 #set page(
   paper: "us-letter",
   margin: 1in,
-  header: context {
-    let sections = query(selector(heading.where(level: 1)).before(here()))
-    // [#here().position()]
-    if sections != () {
-      [#emph(hydra(1)) #h(1fr) #emph(hydra(2)) #v(-1em) #line(length: 100%)]
-    }
-  }
+  // header: context {
+  //   let sections = query(selector(heading.where(level: 1)).before(here()))
+  //   // [#here().position()]
+  //   if sections != () {
+  //     [#emph(hydra(1)) #h(1fr) #emph(hydra(2)) #v(-1em) #line(length: 100%)]
+  //   }
+  // }
 )
 #set par(justify: false, leading: 2em, spacing: 2em, first-line-indent: 0.5in) // "leading" == "line spacing"
 #set text(font: "New Computer Modern", size: 12pt)
 #set math.equation(numbering: "(1)", supplement: [Eq.])
 #set enum(numbering: "1.1)", full: true)
 
-#set heading(numbering: "1.")
+#set heading(numbering: "I")
 #show heading: set align(center)
 #show heading: set block(below: 2em)
-#show heading.where(level: 1): it => pagebreak(weak: true) + it
+#show heading: set text(weight: "regular", size: 12pt)
+#show heading.where(level: 1, outlined: true): it => pagebreak(weak: true) + "CHAPTER" + it
 #show heading.where(level: 2): set block(above: 2em)
+#show heading.where(level: 2): set text(weight: "bold")
 #show heading.where(level: 3): set block(above: 2em)
-
-#set  outline(depth: 2)
-#show outline.entry: set par(leading: 1em)
-#show outline.entry.where(level: 1): it => {strong(it)}
-#show outline.entry.where(level: 2): set block(below: 1em)
-
 #show figure.caption: set par(leading: 1em)
 #show figure.where(kind: "algorithm"): set par(leading: 1em)
 #show figure.where(kind: {table}): set par(leading: 1em)
@@ -52,33 +48,33 @@
 #align(center)[
   #title
 
-  #v(1fr)
-  #line(length: 33%)
-  #v(1fr)
+  #v(0.25in)
+  #line(length: 8cm)
+  #v(0.5in)
 
   A Thesis\
   Presented to\
   The Graduate Faculty\
   Central Washington University
 
-  #v(1fr)
-  #line(length: 33%)
-  #v(1fr)
+  #v(0.5in)
+  #line(length: 8cm)
+  #v(0.5in)
 
   In Partial Fulfillment\
   of the Requirements for the Degree\
   Master of Science\
   Computational Science
 
-  #v(1fr)
-  #line(length: 33%)
-  #v(1fr)
+  #v(0.5in)
+  #line(length: 8cm)
+  // #v(1fr)
 
   by\
   #author\
   #date
 
-  #v(1fr)
+  // #v(1fr)
 ]
 
 #pagebreak()
@@ -86,11 +82,11 @@
 #set page(numbering: "i")
 #align(center, [CENTRAL WASHINGTON UNIVERSITY\ Graduate Studies])
 
-#v(1fr)
+#v(1cm)
 We hereby approve the thesis of
 #align(center, [#author])
 Candidate for the degree of Master of Science
-#v(1fr)
+#v(1.5cm)
 
 #align(right, 
 table(
@@ -100,11 +96,11 @@ table(
   column-gutter: 1in,
   row-gutter: 0.67in,
   [], [APPROVED FOR THE GRADUATE FACULTY],
-  [#line(length: 1.25in)], [#line(length: 100%) #v(-1em) Dr. Andrew Piacsek, Committee Chair #h(1fr)],
-  [#line(length: 1.25in)], [#line(length: 100%) #v(-1em) Dr. Michael Braunstein, Committee Member #h(1fr)],
-  [#line(length: 1.25in)], [#line(length: 100%) #v(-1em) Dr. Szil$acute(a)$rd VAJDA, Committee Member #h(1fr)],
+  [#line(length: 3cm)], [#line(length: 8.7cm) #v(-1em) Dr. Andrew Piacsek],
+  [#line(length: 3cm)], [#line(length: 8.7cm) #v(-1em) Dr. Michael Braunstein],
+  [#line(length: 3cm)], [#line(length: 8.7cm) #v(-1em) Dr. Szil$acute(a)$rd VAJDA],
  
-  [#line(length: 1.25in)], [#line(length: 100%) #v(-1em) Dean of Graduate Studies #h(1fr)],
+  [#line(length: 3cm)], [#line(length: 8.7cm) #v(-1em) Dean of Graduate Studies #h(1fr)],
 )
 )
 #v(1fr)
@@ -140,18 +136,35 @@ I wouldn't have been able to do it without you.
 
 #pagebreak()
 // TABLE OF CONTENTS
-#outline(indent: auto)
+
+#set outline(depth: 2)
+#show outline.entry: set par(leading: 1em)
+// #show outline.entry.where(level: 1): it => {strong(it)}
+#show outline.entry.where(level: 2): ent => ent // ent.element.numbering
+
+#outline(
+  indent: auto, 
+  title: [
+    TABLE OF CONTENTS \ 
+    #h(-2em) Chapter #h(1fr) Page
+  ]
+)
 
 #pagebreak()
-// List of figures
 #outline(
-  title: [List of Figures],
+  title: [
+    LIST OF FIGURES \
+    #h(-2em) Figure #h(1fr) Page
+  ],
   target: figure.where(kind:{image}),
 )
 
 #pagebreak()
 #outline(
-  title: [List of Algorithms],
+  title: [
+    LIST OF ALGORITHMS \
+    #h(-2em) Algorithm #h(1fr) Page
+  ],
   target: figure.where(kind: "algorithm"),
 )
 
@@ -162,7 +175,7 @@ I wouldn't have been able to do it without you.
 })
 #counter(page).update(1)
 
-= Introduction
+= #upper[Introduction]
 
 Whether it is due to the amount of data that needs to be processed, or the accuracy needed in a simulation, the problems addressed in computational science can take significant time to solve via numerical methods i.e. the runtime.
 While this time has been reduced by improvements to the time needed to execute a single calculation, these improvements are decreasing.
@@ -213,7 +226,7 @@ While the PA is not a new contribution, the presentation of it in this way is no
 @sec:analysis_latency describes the influence, issues, and mitigation methods of transferring data between memory spaces.
 @sec:analysis_benchmarks addresses the core goal of this work: how this implementation affects the time needed to simulate motion.
 
-= Background <sec:background>
+= #upper[Background] <sec:background>
 
 The PA has been one of the most widely studied PinT algorithms @pintorg, but there are several other PinT methods that have garnered attention over the years (as seen in @img:pint_history).
 These methods and their uses have used several different implementations ranging from using small-scale, distributed systems to "true HPC" at Lawrence-Livermore National Lab (LLNL).
@@ -276,7 +289,7 @@ Needless to say, PinT methods have shown significant performance gains for a wid
 Because of this, it is paramount that PinT methods see continued support and implementation using high-performance methods and in scientist-focused programming languages.  
 That's why this work provides an implementation of the PA using both massive multithreading on GPUs and scalable multiprocessing in the modern scientific computing language Julia.
 
-= The Parareal Algorithm <sec:parareal>
+= #upper[The Parareal Algorithm] <sec:parareal>
 
 Physical processes map well onto sequential, explicit calculation because both are causal i.e. "the future depends on the past".  However, while the physics   The PA, and other parallel-in-time integration algorithms, have been developed in the last few decades to specifically address this issue @parareal_og_2001.
 // These paragraphs should be squished together, after the above gets trimmed down
@@ -681,7 +694,7 @@ for some threshold $epsilon$.  @eq:convergence determines convergence when every
 
 The magic of the PA lies in its divide-and-conquer approach to solving initial value problems.  The "root" problem is sequentially and inaccurately solved to divide it into smaller problems whose initial values are defined by the solution.  Those problems are simultaneously and accurately solved in parallel.  The root problem is then solved in the same way as before, but at each step, the data is modified by combining the previous accurate and inaccurate solutions.  Finally, the new root solution defines new problems, and the loop continues until the the solution has converged.
 
-= The Parareal Algorithm at Scale <sec:scale>
+= #upper[The Parareal Algorithm at Scale] <sec:scale>
 
 @sec:parareal_parareal highlights the PA's nature of being quasi-embarrassingly-parallel i.e. the performance of the algorithm scales with the number of threads, while still being bottlenecked by a periodic sequential process. That being said, the previous discussion ignores the details and nuances of implementing the PA including the actual form of the threads.  The primary goal of this work is to provide two new implementation models that both take advantage of increased parallelism and allow easy scaling: using the massively parallel architecture of graphics processing units (GPUs), and the scalability of distributed systems. Instances of these implementations are also provided @Chapman_PararealGPU_jl.
 
@@ -965,7 +978,7 @@ Once the devices are assigned, the cluster has been prepared.  The director then
 ) <alg:parareal_distributed>
 
 
-= Performance Analysis <sec:analysis>
+= #upper[Performance Analysis] <sec:analysis>
 
 While there are many significant aspects of this work that could be analyzed, only three that will be considered here.  
 The first is on the quality of the results produced by this implementation via standard numerical analysis.  
@@ -1303,7 +1316,7 @@ While the PA is well-suited to take advantage of the massive parallelism of GPUs
 Similarly, because the number of subproblems to saturate the GPU is so large, the storage capacity needed for these subproblems also limits the effective coarse discretization and performance; such memory capacity is the reason why this work only considers discretizations up to $2^14$.
 Systems with a larger memory capacity would be able to store enough subproblems that could also fill the GPU, resulting in simulations using this implementation that would out-perform resource constrained systems.
 
-= Conclusion <sec:conclusion>
+= #upper[Conclusion] <sec:conclusion>
 
 The Parareal Algorithm and other methods in the field of parallel-in-time integration are growing increasingly important and popular.
 Their use in computational science has seen significant increases in the past few years in the fields of physics, manufacturing, logistics, biology, and quantitative finance.
