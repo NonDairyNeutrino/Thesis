@@ -31,7 +31,7 @@
 #set math.equation(numbering: "(1)", supplement: [Eq.])
 #set enum(numbering: "1.1)", full: true)
 
-#set heading(numbering: "I")
+#set heading(numbering: "I.i")
 #show heading: set align(center)
 #show heading: set block(below: 2em)
 #show heading: set text(weight: "regular", size: 12pt)
@@ -140,7 +140,6 @@ I wouldn't have been able to do it without you.
 // TABLE OF CONTENTS
 #set outline(depth: 2)
 #show outline.entry: set par(leading: 1em)
-// #show outline.entry.where(level: 1): it => {strong(it)}
 #show outline.entry.where(level: 2): it => link(
   it.element.location(),
   it.indented(none /* it.prefix() */, it.inner()),
@@ -1373,6 +1372,6 @@ These are merely a few observations of how this implementation could be optimize
 #set par(leading: 1em)
 #bibliography(
   "bib.bib",
-  // full: true,
-  style: "institute-of-electrical-and-electronics-engineers"
+  style: "ieee",
+  title: [REFERENCES CITED]
 )
