@@ -40,6 +40,7 @@
 #show heading.where(level: 2): set block(above: 2em)
 #show heading.where(level: 2): set text(weight: "bold")
 #show heading.where(level: 3): set block(above: 2em)
+#show heading.where(level: 3): set text(style: "oblique")
 #show figure.caption: set par(leading: 1em)
 #show figure.where(kind: "algorithm"): set par(leading: 1em)
 #show figure.where(kind: {table}): set par(leading: 1em)
