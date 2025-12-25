@@ -140,8 +140,10 @@ I wouldn't have been able to do it without you.
 #set outline(depth: 2)
 #show outline.entry: set par(leading: 1em)
 // #show outline.entry.where(level: 1): it => {strong(it)}
-#show outline.entry.where(level: 2): ent => ent // ent.element.numbering
-
+#show outline.entry.where(level: 2): it => link(
+  it.element.location(),
+  it.indented(none /* it.prefix() */, it.inner()),
+)
 #outline(
   indent: auto, 
   title: [
