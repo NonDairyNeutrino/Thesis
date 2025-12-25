@@ -35,7 +35,8 @@
 #show heading: set align(center)
 #show heading: set block(below: 2em)
 #show heading: set text(weight: "regular", size: 12pt)
-#show heading.where(level: 1, outlined: true): it => pagebreak(weak: true) + "CHAPTER" + it
+#show heading: it => it.body // default to just the heading title
+#show heading.where(level: 1, outlined: true): it => pagebreak(weak: true) + "CHAPTER " + counter(heading).display() + "\n" + it.body
 #show heading.where(level: 2): set block(above: 2em)
 #show heading.where(level: 2): set text(weight: "bold")
 #show heading.where(level: 3): set block(above: 2em)
