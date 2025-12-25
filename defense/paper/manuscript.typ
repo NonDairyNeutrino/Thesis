@@ -136,7 +136,6 @@ I wouldn't have been able to do it without you.
 
 #pagebreak()
 // TABLE OF CONTENTS
-
 #set outline(depth: 2)
 #show outline.entry: set par(leading: 1em)
 // #show outline.entry.where(level: 1): it => {strong(it)}
@@ -153,6 +152,11 @@ I wouldn't have been able to do it without you.
 )
 
 #pagebreak()
+// LIST OF FIGURES
+#show outline.entry.where(level: 1): it => link(
+  it.element.location(),
+  it.indented(repr(it.prefix()).replace(regex("\D"), ""), it.inner()),
+)
 #outline(
   title: [
     LIST OF FIGURES \
