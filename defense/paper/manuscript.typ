@@ -157,7 +157,10 @@ I wouldn't have been able to do it without you.
 // LIST OF FIGURES
 #show outline.entry.where(level: 1): it => link(
   it.element.location(),
-  it.indented(repr(it.prefix()).replace(regex("\D"), ""), it.inner()),
+  it.indented(
+    repr(it.prefix()).replace(regex("\D"), ""), 
+    it.inner()
+  ),
 )
 #outline(
   title: [
