@@ -154,11 +154,32 @@ I wouldn't have been able to do it without you.
 
 #pagebreak()
 // LIST OF FIGURES
+#let outline_figure_entries = (
+  [History of articles covering applications of Parallel-in-Time integration],
+  [Turning a single IVP into multiple],
+  [Producing intermediate values via coarse and fine propagators],
+  [How GPU threads calculate their array indices],
+  [How GPU threads access array indices],
+  [Sending subproblems to the GPU],
+  [The topology of the cluster used],
+  [Error for several fine discretizations],
+  [Error for several coarse discretizations],
+  [Evolution of mechanical energy over time],
+  [Rate of convergence vs coarse discretization for several fine discretizations],
+  [Rate of convergence vs fine discretization for several coarse discretizations],
+  [Benefits of using pinned and zero-copy memory for GPU data transfers],
+  [Difference between logical and physical cluster topology],
+  [Efficiency on a single GPU],
+  [Efficiency on distributed GPUs],
+  [Comparison of efficiencies between single and distributed GPUs]
+)
+#let get_count(it) = repr(it.prefix()).replace(regex("\D"), "")
 #show outline.entry.where(level: 1): it => link(
   it.element.location(),
   it.indented(
-    repr(it.prefix()).replace(regex("\D"), ""), 
-    it.inner()
+    get_count(it),
+    // below taken from https://forum.typst.app/t/how-to-customize-the-body-of-an-outline-entry/3091/2
+    outline_figure_entries.at(int(get_count(it)) - 1) /* it.body() */ + sym.space + box(width: 1fr, it.fill) + sym.space + sym.wj + it.page()
   ),
 )
 #outline(
