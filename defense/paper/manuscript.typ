@@ -154,6 +154,7 @@ I wouldn't have been able to do it without you.
 
 #pagebreak()
 // LIST OF FIGURES
+#let get_count(it) = repr(it.prefix()).replace(regex("\D"), "")
 #let outline_figure_entries = (
   [History of articles covering applications of Parallel-in-Time integration],
   [Turning a single IVP into multiple],
@@ -173,7 +174,6 @@ I wouldn't have been able to do it without you.
   [Efficiency on distributed GPUs],
   [Comparison of efficiencies between single and distributed GPUs]
 )
-#let get_count(it) = repr(it.prefix()).replace(regex("\D"), "")
 #show outline.entry.where(level: 1): it => link(
   it.element.location(),
   it.indented(
@@ -191,6 +191,30 @@ I wouldn't have been able to do it without you.
 )
 
 #pagebreak()
+#let outline_algorithm_entries = (
+  [Prepare the subproblems],
+  [Parallel discretization kernel],
+  [Parallel propagation kernel],
+  [The Parareal kernel],
+  [New solution generator],
+  [The Parareal algorithm],
+  [The GPU-based Parareal algorithm],
+  [Prepare the cluster],
+  [Spawn manager processes],
+  [Spawn worker processes],
+  [Assign devices - High level],
+  [Create host objects],
+  [Assign devices],
+  [The Parareal algorithm at scale]
+)
+#show outline.entry.where(level: 1): it => link(
+  it.element.location(),
+  it.indented(
+    get_count(it),
+    // below taken from https://forum.typst.app/t/how-to-customize-the-body-of-an-outline-entry/3091/2
+    outline_algorithm_entries.at(int(get_count(it)) - 1) /* it.body() */ + sym.space + box(width: 1fr, it.fill) + sym.space + sym.wj + it.page()
+  ),
+)
 #outline(
   title: [
     LIST OF ALGORITHMS \
