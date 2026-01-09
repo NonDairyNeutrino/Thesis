@@ -339,7 +339,7 @@ Additionally, the aforementioned implementations have focused on using the tradi
 While these languages offer top-tier performance, scientists without expertise in them are unable to use their associated PinT implementations without first spending too much time learning the language.  
 The Julia language was created to solve this "two language" problem with "the speed of C with the ease of Python" by using LLVM for just-in-time compilation and by being built from the ground up with high-performance scientific computing in mind.  
 Julia seems to be the future of scientific computing, so there should be support for these PinT algorithms in it.
-
+#pagebreak()
 Needless to say, PinT methods have shown significant performance gains for a wide ranging collection of sciences.  
 Because of this, it is paramount that PinT methods see continued support and implementation using high-performance methods and in scientist-focused programming languages.  
 That's why this work provides an implementation of the PA using both massive multithreading on GPUs and scalable multiprocessing in the modern scientific computing language Julia.
@@ -351,7 +351,7 @@ Physical processes map well onto sequential, explicit calculation because both a
 Many details and variations of the PA have been investigated to find and address issues such as stability /* #cn */, convergence rates /* #cn */, application to higher-order differential equations /* #cn */.  The main goal of this investigation is to contribute another variation: an implementation of the PA using methods from high-performance computing.
 
 Before the PA can be implemented using these high-performance methods, the algorithm must be decomposed into its central components.  The PA begins by partitioning a single IVP into several IVPs on smaller domains via an initial, inaccurate, "root" solution.  Then each of the "subproblems" are solved using a sequential, accurate method on different threads at the same time.  The final data for each of the subsolutions is then combined with the respective data of the root solution to yield a more accurate (i.e. "corrected") root solution.  This new root solution is then used to repeat the process until convergence.
-
+#pagebreak()
 The interpretation of the PA in terms of these recursive subproblems makes the algorithm almost embarrassingly parallel; the corrections to the root solution need to be done sequentially.  In addition to this structure, the algorithms being evaluated in parallel manifestly depend on simple arithmetic; because of this simplicity, the PA is well-suited to be evaluated on the GPU.  Likewise, distributed methods can be combined with GPU evaluation for further parallelization for either a single model (taking advantaged of the recursive nature of the PA) or a system of models.
 
 This chapter begins by casting the PA in a form that is conducive to being scaled.  The main idea is to recast the "magical" mechanism of the PA to something that can be executed recursively.  In other words, the PA takes an IVP and produces a collection of IVPs, which can each be given to another instance of the PA. The latter half of of this chapter is devoted to presenting a model for which the scalable version of the PA can be implemented.  This model includes how the performance of the PA can increased by using a GPU on a single machine, as well as how to build and use a cluster of machines to further increase performance.
@@ -417,13 +417,13 @@ Outside of considering the energy of the whole universe, the total energy of a (
 The difference between the simulated energy at any point in time and the initial energy acts as a measurement of the inaccuracy of the simulation at that point in time i.e. the local error. A corollary to this is that the difference between the energy at the end of the simulation and the initial energy serves as a measure of the global error as the local error compounds over time.  In other words, the energy of the system drifts away from the true value as error is compounded.
 
 While almost all methods can be used for any problem, some methods result in less energy drift for the same time-step.  A specific class of these methods is known as symplectic integrators.  The underlying reasons for this are out of the scope of this work, but an important note is that even though these methods mitigate the effects of energy drift substantially, they do not yield exactly zero drift @RackauckasSymplectic.  It is these symplectic integration methods that are considered in this work.
-
+#pagebreak()
 === Iterative & Multiple-Shooting Methods
 
 When it comes to simulating physics that only depends on spatial behavior, certain methods can be used that aren't immediately available in the time-dependent case.  Two classes of these methods are iterative and multiple-shooting methods.  An iterative method can be considered a form of "guess and check" algorithm where an initial solution is given, some quantity is calculated using this solution, and then the process repeats after adjusting the solution to potentially result in a "better" calculated quantity.  A multiple-shooting method is when one big problem is divided into many problems, each of which only considers a subset of the original domain, and each of these problems is solved independently such that the its values at the domain boundaries agree with those of its neighbors.
 
 An iterative method known as the Hartree-Fock algorithm (also known as the Self-Consistent Field Method) can be used to find the configuration of atoms and molecules that minimizes the system's quantum energy @cramer2013essentials.  Likewise, multiple-shooting methods have been used for solving optimal control problems @BOCK19841603. While these methods have traditionally been used for spatial physics, this work relies on the combination of these principles to solve time-dependent problems.
-
+#pagebreak()
 == The Parareal Algorithm <sec:parareal_parareal>
 
 The main idea of the PA is to break up a single IVP into many smaller IVPs using some low-accuracy solution, solve those in parallel using high-accuracy methods, correct your initial solution using the sub-solutions, then make a new low-accuracy solution based on the corrected data, and repeat this process until the solution doesn't change.  The end result of this procedure is a solution identical to one produced by directly using the high-accuracy method while potentially taking a less time @gander2007.  Because the PA wraps traditional (sequential) solvers, it could be considered a "meta-" or "higher-order" method to solve IVPs.
@@ -651,7 +651,7 @@ $ P_p = {
 === Solving the root problem <sec:corrections>
 
 Because the root solution has been calculated via an inaccurate method, it can be made more accurate using the results of the fine propagator.  Though the root solution is not corrected only with the results of the fine propagator, but rather by coarsely propagating the root initial values again but adding a corrector determined by a combination of the results of the fine propagator and the previous iteration's root solution.  The main idea of this process is known as Deferred Corrections @Ong2020.
-
+#pagebreak()
 The correction phase, as defined in literature @parareal_og_2001, takes the deceptively-simple recursive form
 
 $ u_t^i := underbrace(cal(G)(u_(t-1)^i), "predictor") + underbrace(cal(F)(u_(t-1)^(i-1)) - cal(G)(u_(t-1)^(i-1)), "corrector"), $ <eq:correction>
@@ -754,7 +754,7 @@ The magic of the PA lies in its divide-and-conquer approach to solving initial v
 @sec:parareal_parareal highlights the PA's nature of being quasi-embarrassingly-parallel i.e. the performance of the algorithm scales with the number of threads, while still being bottlenecked by a periodic sequential process. That being said, the previous discussion ignores the details and nuances of implementing the PA including the actual form of the threads.  The primary goal of this work is to provide two new implementation models that both take advantage of increased parallelism and allow easy scaling: using the massively parallel architecture of graphics processing units (GPUs), and the scalability of distributed systems. Instances of these implementations are also provided @Chapman_PararealGPU_jl.
 
 The PA as defined in @alg:parareal does not change in it what it does when implemented to use GPUs, but rather how it does.  There are several issues that arise when utilizing general-purpose GPU computing (GPGPU) such as the GPU needing to wait until the CPU tells it to do something, better performance with less precision, and the restriction to using primitive types like "ints" and "floats".  Though, the biggest issue is the need to consider the movement of data between RAM and VRAM, or more generally host memory and device memory; considering unshared memory spaces will be even more important in section @sec:scale_distributed.
-
+#pagebreak()
 The distributed-based implementation focuses on distributing problems across multiple remote machines.  These machines solve their problems simultaneously with the other machines, thus achieving a form of parallelism only limited by the number of accessible machines. These problems could either arise from the coarse propagation of a single root problem, yielding a "problem tree" (/* @diag:problem_tree */) where each machine would create-distribute-collect its own set of problems, or if there are multiple "true root" problems e.g. a system of ODEs.
 
 The GPU- and distribution-based methods can be combined to further parallelize solving an initial value problem.  If each of the machines available to the distributed network has at least one GPU (a single machine can have multiple; more details in @sec:scale_distributed), this implementation will automatically identify, manage, and use all of them.  Thus these methods can be composed to provide a scalable model of parallel-in-time integration for equations of motion.
@@ -789,7 +789,7 @@ The data that's transferred between the host and device usually takes the form o
 ) <img:cuda_indexing>
 
 When there are more elements in the array than there are threads on the device, each thread must process multiple array elements. Once each thread is finished writing to its index (either in-place to the original array, or to another array copied from the host), it "jumps over" all the indices that were just written to by all the other threads in all the other blocks, and writes to the next one.  The number of indices the thread "jumps", called the stride, is determined by the number of threads in each block (`blockDim.x`) and the number of blocks in each grid (`gridDim.x`).  This is known as index striding and is frequently used in GPU programming to process arrays of arbitrary dimension @Harris2013.  This idea is shown in @img:cuda_stride.
-
+#pagebreak()
 Once each thread knows its array index, all threads execute the kernel simultaneously.  This is where the increased performance comes in.  If the program takes $T$ time to execute on a single array element, and there are $N$ array elements, then the total time to calculate sequentially would be $T N$.  Because the device processes each element simultaneously (as long as there are more threads than elements), the total time to calculate is that of a single execution i.e $T$.  If there are $M$ times as many elements are there are threads, then the total time would simply be $M T$ as each thread processes $M$ elements.  Further parallelization can be achieved by distributing the array elements over multiple devices and machines.
 
 #figure(
@@ -800,7 +800,7 @@ Once each thread knows its array index, all threads execute the kernel simultane
     width: 100%
   )
 ) <img:cuda_stride>
-
+#pagebreak()
 === Multiprocessing & Distributed Computing <sec:multiprocessing>
 
 The three most important ideas to understand in multiprocessing and distributed computing for this work are: different processes do not have access to the same data, one process can tell another to perform an action, and the time associated with communicating between processes.  To distinguish processes and threads, consider two homes A and B each with its own family.  Each home represents a process with its associated family members being that process's threads.
@@ -1108,7 +1108,7 @@ Thus, according to these results, the combination of coarse and fine discretizat
     width: 75%
   )
 )  <plt:energy_coarse>
-
+#v(-1.45em)
 #figure(
   caption: [The absolute, normalized relative-error of the pendulum's final state for a spectrum of fine discretizations and select coarse discretizations. The error curve for a sequential evaluation (dashed $N_cal(C) = 2^0$) is included to provide a reference point. Sequential errors at $N_cal(C) < 2^6$ are too large for meaningful comparison, and thus have been neglected in this visualization.],
   image(
@@ -1125,7 +1125,7 @@ The latter suggests that, for a larger coarse discretization, the fine discretiz
 Figures @plt:energy_coarse[] and @plt:energy_fine[] show that the error of using this implementation does depend on the size of the coarse and fine discretizations.
 The error is concave in each of the discretizations, first decreasing with larger discretization before reaching a minimum, then increasing.
 Furthermore, the mixed change of the error $Delta^2 E_r \/ Delta N_cal(G) Delta N_cal(F)$ is negative and thus increases in fine discretization offer diminishing returns when used with a large coarse discretization.
-
+#pagebreak()
 === Stability <sec:analysis_numerical_stability>
 
 The notion of stability in the context numerically solving differential equations can refer to the tendency of an integration algorithm to "blow up" due to the accumulation of error.
@@ -1147,7 +1147,7 @@ As the TME remains less than or equal to its initial value, the simulation is co
 While the TME does oscillate slightly (the lower bound of the TME being only $0.46 "J"$), this behavior is expected. 
 A larger time interval could be used to determine the extent of this implementation's stability, but the data used here is chosen to be consistent with the other analyses in this investigation. 
 
-// #pagebreak(
+#pagebreak()
 === Convergence <sec:analysis_numerical_convergence>
 
 How quickly a sequence of approximate solutions approaches the true solution (usually asymptotically) is known as its rate of convergence (RoC), and applies to both iterative and discretizing algorithms.
@@ -1232,7 +1232,7 @@ As described in @sec:scale, every time this implementation finishes coarse-propa
 
 // cluster topology
 It has been shown that cluster topology (i.e. how workers are related to each other, not necessarily physically) can have a significant effect on the performance of inter-machine communication @Deng2020.  As such, there are two topologies to consider: the network associated with the physical path any data takes (e.g. all data has to go through the director), and the network of nodes each node can "see".  The former physical topology consists of the tangible material through which electrical impulses are sent such as Ethernet cabling.  The latter logical topology encodes the worker that a particular worker can share data.
-
+#pagebreak()
 // example for this cluster
 For example, the cluster shown in @diag:cluster_topology was designed to have the worker processes only communicate with the manager process on the same machine.  
 This is so only the manager would need to send a single batch of data between physical machines to the director.  
@@ -1364,7 +1364,7 @@ The simulations used here show that the distributed implementation does not offe
     width: 85%
   )
 ) <plt:method_comp>
-
+#pagebreak()
 The most significant factors that influence the performance of this implementation are the latency from data-transfers, numerical instability due to using too small discretization,  instability from significant round-off error due to using too small discretization, combined with using a low-precision representation of floating point numbers.
 Because communication occurs frequently in the PA e.g. every iteration data transfers between hosts, the effects of data-transfer latency are only magnified to an extent proportional to the coarse discretization.
 While the PA is well-suited to take advantage of the massive parallelism of GPUs, the number of subproblems needed to make total use of the GPU requires discretizations that yield quantities that are sensitive to round-off error; this is only exacerbated by the standard of using only 32-bit precision representations of numbers.
@@ -1391,7 +1391,7 @@ These architectures together theoretically offer unlimited computational power s
 This work has shown a scalable version of the PA can produce results with numerical accuracy and behavior similar to those found in literature.
 While there is significant latency associated with transferring data between memory spaces, whether it be between hardware components local to a single machine or between physically separated machines, methods to mitigate or even circumvent these latencies, such as pinned-memory and cluster-topology optimization, have been developed and can be employed in future investigations.
 Finally, benchmarks show that the current implementation of a distributed, GPU-based PA does not increase performance compared to using a local GPU or even a single threaded approach; this ranking could change for discretizations larger than those measured here.
-
+#pagebreak()
 == Future Work & Possible Optimizations <sec:conclusion_future>
 
 This work focused on implementing the PA in the Julia programming language targeting CUDA-based GPUs with the Distributed.jl standard-library's support for multiprocessing and distributed computing; each of these specifications has alternatives.
@@ -1411,6 +1411,7 @@ Additionally, custom types were used to facilitate source-code readability, but 
 These are merely a few observations of how this implementation could be optimized; there are certainly more that will be identified and addressed in the near future.
 
 #metadata("end of content") <content_end>
+#show heading.where(level: 1, outlined: true): it => pagebreak(weak: true) + it.body
 #set page(numbering: "I")
 #counter(page).update(1)
 #set par(spacing: 1.15em)
