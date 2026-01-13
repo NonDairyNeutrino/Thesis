@@ -118,12 +118,10 @@ table(
   #date \
 ])
 #v(1fr)
-#set par(justify: true)
 Physical simulations always need to balance accuracy and run-time.  
 This work implements the Parareal Algorithm using graphics processing units across a distributed system to accurately simulate time-dependent physics while attempting to minimize runtime.
 Data-transfer latency is identified as the primary bottleneck, for which mitigation methods are provided.
 Benchmarks comparing single-GPU and distributed implementations on a spectrum of coarse and fine discretizations are analyzed.
-#set par(justify: false)
 #v(1fr)
 
 #pagebreak()
@@ -155,31 +153,31 @@ I wouldn't have been able to do it without you.
 #pagebreak()
 // LIST OF FIGURES
 #let get_count(it) = repr(it.prefix()).replace(regex("\D"), "")
-#let outline_figure_entries = (
-  [History of articles covering applications of Parallel-in-Time integration],
-  [Turning a single IVP into multiple],
-  [Producing intermediate values via coarse and fine propagators],
-  [How GPU threads calculate their array indices],
-  [How GPU threads access array indices],
-  [Sending subproblems to the GPU],
-  [The topology of the cluster used],
-  [Error for several fine discretizations],
-  [Error for several coarse discretizations],
-  [Evolution of mechanical energy over time],
-  [Rate of convergence vs coarse discretization for several fine discretizations],
-  [Rate of convergence vs fine discretization for several coarse discretizations],
-  [Benefits of using pinned and zero-copy memory for GPU data transfers],
-  [Difference between logical and physical cluster topology],
-  [Efficiency on a single GPU],
-  [Efficiency on distributed GPUs],
-  [Comparison of efficiencies between single and distributed GPUs]
-)
+// #let outline_figure_entries = (
+//   [History of articles covering applications of Parallel-in-Time integration],
+//   [Turning a single IVP into multiple],
+//   [Producing intermediate values via coarse and fine propagators],
+//   [How GPU threads calculate their array indices],
+//   [How GPU threads access array indices],
+//   [Sending subproblems to the GPU],
+//   [The topology of the cluster used],
+//   [Error for several fine discretizations],
+//   [Error for several coarse discretizations],
+//   [Evolution of mechanical energy over time],
+//   [Rate of convergence vs coarse discretization for several fine discretizations],
+//   [Rate of convergence vs fine discretization for several coarse discretizations],
+//   [Benefits of using pinned and zero-copy memory for GPU data transfers],
+//   [Difference between logical and physical cluster topology],
+//   [Efficiency on a single GPU],
+//   [Efficiency on distributed GPUs],
+//   [Comparison of efficiencies between single and distributed GPUs]
+// )
 #show outline.entry.where(level: 1): it => link(
   it.element.location(),
   it.indented(
     get_count(it),
     // below taken from https://forum.typst.app/t/how-to-customize-the-body-of-an-outline-entry/3091/2
-    outline_figure_entries.at(int(get_count(it)) - 1) /* it.body() */ + sym.space + box(width: 1fr, it.fill) + sym.space + sym.wj + it.page()
+    /* outline_figure_entries.at(int(get_count(it)) - 1) */ it.body() + sym.space + box(width: 1fr, it.fill) + sym.space + sym.wj + it.page()
   ),
 )
 #outline(
@@ -191,36 +189,45 @@ I wouldn't have been able to do it without you.
 )
 
 #pagebreak()
-#let outline_algorithm_entries = (
-  [Prepare the subproblems],
-  [Parallel discretization kernel],
-  [Parallel propagation kernel],
-  [The Parareal kernel],
-  [New solution generator],
-  [The Parareal algorithm],
-  [The GPU-based Parareal algorithm],
-  [Prepare the cluster],
-  [Spawn manager processes],
-  [Spawn worker processes],
-  [Assign devices - High level],
-  [Create host objects],
-  [Assign devices],
-  [The Parareal algorithm at scale]
-)
-#show outline.entry.where(level: 1): it => link(
+// #let outline_algorithm_entries = (
+//   [Prepare the subproblems],
+//   [Parallel discretization kernel],
+//   [Parallel propagation kernel],
+//   [The Parareal kernel],
+//   [New solution generator],
+//   [The Parareal algorithm],
+//   [The GPU-based Parareal algorithm],
+//   [Prepare the cluster],
+//   [Spawn manager processes],
+//   [Spawn worker processes],
+//   [Assign devices - High level],
+//   [Create host objects],
+//   [Assign devices],
+//   [The Parareal algorithm at scale]
+// )
+/* #show outline.entry.where(level: 1): it => link(
   it.element.location(),
   it.indented(
     get_count(it),
     // below taken from https://forum.typst.app/t/how-to-customize-the-body-of-an-outline-entry/3091/2
-    outline_algorithm_entries.at(int(get_count(it)) - 1) /* it.body() */ + sym.space + box(width: 1fr, it.fill) + sym.space + sym.wj + it.page()
+    /* outline_algorithm_entries.at(int(get_count(it)) - 1) */ it.body() + sym.space + box(width: 1fr, it.fill) + sym.space + sym.wj + it.page()
   ),
-)
+) */
 #outline(
   title: [
     LIST OF ALGORITHMS \
     #h(-2em) Algorithm #h(1fr) Page
   ],
   target: figure.where(kind: "algorithm"),
+)
+
+#pagebreak()
+#outline(
+  title: [
+    LIST OF TABLES \
+    #h(-2em) Table #h(1fr) Page
+  ],
+  target: figure.where(kind: table)
 )
 
 #pagebreak()
@@ -289,9 +296,9 @@ These methods have also been used in practice for simulating the dynamics of sys
 This work aims to add to the field of PinT by building a foundation of using HPC methods for PinT in the scientific computing programming language Julia.
 
 #figure(
-  caption: [The number of papers published (shown on the vertical axis) regarding parallel-in-time integration has significantly, and steadily, increased over the past few decades.  It is also worth noting that at the time of writing, the number of papers published this is year is on track to match last year's.   Image credit @pintorg],
+  caption: [The number of papers published (shown on the vertical axis) regarding parallel-in-time integration has significantly, and steadily, increased over the past few decades.  It is also worth noting that at the time of writing, the number of papers published this year is on track to match last year's.   Image credit @pintorg],
   image(
-    "images/pint_history.png",
+    "images/pint_history_labeled.png",
     width: 100%,
     alt: ""
   )
@@ -386,7 +393,7 @@ According to classical mechanics, the motion for any and every object in the uni
 
 Take, for example, the motion of a simple pendulum.  While the overall motion of a bob is determined from length on which it hangs, and the gravity affecting it, the angle at which the bob hangs only depends on time.  Now, the position of a point on a guitar string does not only change in time, but is also affected by the motion of the points around it.  Both of these systems can be modeled by an EOM, but the pendulum can be modeled by an ordinary differential equation (ODE), and the guitar string can be modeled by a partial differential equation (PDE).
 
-The nuances on each of these concepts are out of the scope of this work, but the detail that is indeed important here is that there are techniques that can transform a PDE to a collection of ODEs.  One such procedure is known as the spectral method, where by representing the solution to the PDE as a sum of waves (i.e. a Fourier transform), the physics in each dimension only affects the frequency in that dimension @Orszag1969.  While the solutions to the ODEs would be in so-called "frequency space", applying the inverse Fourier transform on those solutions, achieves the desired solution to the original PDE.  Whether it be an ODE, a PDE, or a system of ODEs, when modeling physical phenomena, initial values need to be considered to make any concrete predictions about the future state of a specific object.
+The nuances on each of these concepts are out of the scope of this work, but the detail that is indeed important here is that there are techniques that can transform a PDE to a collection of ODEs.  One such procedure is known as the spectral method, where by representing the solution to the PDE as a sum of waves (i.e. a Fourier transform), the physics in each dimension only affects the frequency in that dimension @Orszag1969.  While the solutions to the ODEs would be in so-called "frequency space," applying the inverse Fourier transform on those solutions, achieves the desired solution to the original PDE.  Whether it be an ODE, a PDE, or a system of ODEs, when modeling physical phenomena, initial values need to be considered to make any concrete predictions about the future state of a specific object.
 
 For our purposes, an IVP can be thought of as an object with several properties: the acceleration, the initial position and velocity, and the time interval on which you are modeling (which could be unbound e.g. $[0, infinity)$) as shown by the following equation:
 
@@ -451,7 +458,7 @@ Subproblems $P_p$ take the same from as in @eq:ivp (this also means subproblems 
 
 $ P_1 = {cal(L)(t, u, partial_t u, partial_t^2 u) = f(t), #h(11pt)  u(0) = u_1^0,  partial_t u(0) = v_1^0, #h(11pt) [t_p, t_(p + 1)]}. $ <eq:example_ivp>
 
-@alg:prep_subproblems shows the pseudocode of this process for a given IVP and integration algorithm i.e. "propagator", resulting in root solutions and and the collected subproblems.  With these subproblems in hand, the PA continues to its next stage: propagating these problems in parallel.
+@alg:prep_subproblems shows the pseudocode of this process for a given IVP and integration algorithm i.e. "propagator," resulting in root solutions and and the collected subproblems.  With these subproblems in hand, the PA continues to its next stage: propagating these problems in parallel.
 
 #figure(
   kind: "algorithm",
@@ -692,7 +699,7 @@ $ <eq:prop_corrector>
 #figure(
   kind: "algorithm",
   supplement: [Algorithm],
-  caption: [New position and velocity solutions are generated by coarse propagating the previous solution in the current iteration and combining it with the difference between the fine and coarse solutions from the previous iteration.  The new solutions are pushed to a the end of the solution arrays.],
+  caption: [New position and velocity solutions are generated by coarse propagating the previous solution in the current iteration and combining it with the difference between the fine and coarse solutions from the previous iteration.  The new solutions are pushed to the end of the solution arrays.],
   pseudocode-list(
     numbered-title: smallcaps[New Solution Generator],
     booktabs: true,
@@ -714,7 +721,7 @@ $ <eq:prop_corrector>
 
 *Example:*
 
-+ Have arrays of positions and velocities at each time for the previous and current iteration; the first element of the current iteration's array is the initial value of the problem, while the rest of empty.  Also have arrays of positions and velocities generated from the coarse and fine propagators at each time for the previous iteration.
++ Have arrays of positions and velocities at each time for the previous and current iteration; the first element of the current iteration's array is the initial value of the problem, while the rest are empty.  Also have arrays of positions and velocities generated from the coarse and fine propagators at each time for the previous iteration.
 + Use the new solution generator algorithm with these arrays and the coarse propagator.
 + The arrays for the position and velocity of the root solution at the current iteration are now populated.
 
@@ -769,7 +776,7 @@ When problems get big enough, or more concretely when there is enough data that 
 
 @sec:multiprocessing covers the basics of utilizing multiple processes and even multiple physical machines to perform many calculations simultaneously.  Much like multithreading, the potential performance increase from utilizing multiple processes on a single CPU is still limited by its "10s of calculations" ability, and in fact is lower than with multithreading due to processes needing more resources to exist.  Unlike multithreading, multiprocessing allows for calculations to be distributed amongst resources that are not even physically located on the same machine, allowing for theoretically unlimited performance increases.  Though, like multithreading, this utilizing this power does not come without its challenges.
 
-One of the core goals of this work is to combine the power of massive multithreading from GPUs and the unbound potential from distributed computing to solve EOMs.  This will allow "extreme-scale", time-dependent problems to be solved in reasonable time.
+One of the core goals of this work is to combine the power of massive multithreading from GPUs and the unbound potential from distributed computing to solve EOMs.  This will allow "extreme-scale," time-dependent problems to be solved in reasonable time.
 
 === Multithreading & GPU Computing <sec:multithreading>
 
@@ -788,7 +795,7 @@ The data that's transferred between the host and device usually takes the form o
   )
 ) <img:cuda_indexing>
 
-When there are more elements in the array than there are threads on the device, each thread must process multiple array elements. Once each thread is finished writing to its index (either in-place to the original array, or to another array copied from the host), it "jumps over" all the indices that were just written to by all the other threads in all the other blocks, and writes to the next one.  The number of indices the thread "jumps", called the stride, is determined by the number of threads in each block (`blockDim.x`) and the number of blocks in each grid (`gridDim.x`).  This is known as index striding and is frequently used in GPU programming to process arrays of arbitrary dimension @Harris2013.  This idea is shown in @img:cuda_stride.
+When there are more elements in the array than there are threads on the device, each thread must process multiple array elements. Once each thread is finished writing to its index (either in-place to the original array, or to another array copied from the host), it "jumps over" all the indices that were just written to by all the other threads in all the other blocks, and writes to the next one.  The number of indices the thread "jumps," called the stride, is determined by the number of threads in each block (`blockDim.x`) and the number of blocks in each grid (`gridDim.x`).  This is known as index striding and is frequently used in GPU programming to process arrays of arbitrary dimension @Harris2013.  This idea is shown in @img:cuda_stride.
 #pagebreak()
 Once each thread knows its array index, all threads execute the kernel simultaneously.  This is where the increased performance comes in.  If the program takes $T$ time to execute on a single array element, and there are $N$ array elements, then the total time to calculate sequentially would be $T N$.  Because the device processes each element simultaneously (as long as there are more threads than elements), the total time to calculate is that of a single execution i.e $T$.  If there are $M$ times as many elements are there are threads, then the total time would simply be $M T$ as each thread processes $M$ elements.  Further parallelization can be achieved by distributing the array elements over multiple devices and machines.
 
@@ -867,12 +874,12 @@ So, why is the PA well-suited to be implemented to use GPUs?  Because the data i
 
 While the PA can be further parallelized using GPUs, the fact still stands that the PA is quasi-embarrassingly-parallel.  In other words, each subproblem is independent of the others while each is being solved, and each of these subproblems can be assigned its own thread.  So, if there are more threads available, higher performance or accuracy can be achieved.  The implementation presented here provides more threads by sending problems to remote machines where they can be run simultaneously; in other words, multiple machines with their own CPUs and GPUs are networked together to form a cluster where the work is distributed amongst all machines.
 
+While clusters can take many forms, this implementation considers building a cluster from the ground up in a modular and ad-hoc manner.  This way the cluster can theoretically scale without limit.  The general structure, or topology, of the cluster is rather simple: A head node runs the director process, which tells worker processes on other compute nodes what to do; this structure is shown in @diag:cluster_topology.  In other words, the director only decides and does not do, while the workers do not decide and only do.  While the workers can solve their problems and communicate with every other worker (and the director), only the director can spawn new processes.  Once the director has finished spawning and configuring the workers as in @alg:cluster_prep, the director moves on to begin the PA.
+
 #figure(
   image("images/cluster_topology.png", width: 67%),
   caption: [The assumed topology of the cluster presented in this work.]
 ) <diag:cluster_topology>
-
-While clusters can take many forms, this implementation considers building a cluster from the ground up in a modular and ad-hoc manner.  This way the cluster can theoretically scale without limit.  The general structure, or topology, of the cluster is rather simple: A head node runs the director process, which tells worker processes on other compute nodes what to do; this structure is shown in @diag:cluster_topology.  In other words, the director only decides and does not do, while the workers do not decide and only do.  While the workers can solve their problems and communicate with every other worker (and the director), only the director can spawn new processes.  Once the director has finished spawning and configuring the workers as in @alg:cluster_prep, the director moves on to begin the PA.
 
 #figure(
   kind: "algorithm",
@@ -892,7 +899,7 @@ While clusters can take many forms, this implementation considers building a clu
   ]
 ) <alg:cluster_prep>
 
-In order for this implementation to be flexible, the director does not assume any a-priori configuration of any worker nodes.  This way any node can be seamlessly introduced to the cluster.  The drawback of this flexibility is that the cluster must be created each time.  Part of this creation is identifying the available devices in the cluster.  To do this, the director first uses a user-given collection of hostnames to spawn a single "manager" process on each of the given hosts.
+In order for this implementation to be flexible, the director does not assume any a-priori configuration of any worker nodes.  This way any node can be seamlessly introduced to the cluster.  The drawback of this flexibility is that the cluster must be created each time.  Part of this creation is identifying the available devices in the cluster.  To do this, the director first uses a user-given collection of hostnames to spawn a single "manager" process on each of the given hosts as in @alg:spawn_managers.
 
 #figure(
   kind: "algorithm",
@@ -961,7 +968,7 @@ Using a cluster management system to keep track of process IDs, thus without los
   - Device 0 on host Y is assigned to PID 3
   - Device 1 on host Y is assigned to PID 4
 
-One way to address this issue is to create "host objects" by collecting the hostnames, PIDS, and number of devices for each host.  The collection of these host objects, together with their relative connections, would constitute a "cluster object" or "cluster graph".  While the actual ids of the devices on each host are what is important, the pattern is the same for all hosts e.g. `devids = 0, 1, ..., ndevs-1`.  This way only a single integer needs to be stored instead of a list.
+One way to address this issue is to create "host objects" by collecting the hostnames, PIDS, and number of devices for each host as shown in @alg:create_hosts.  The collection of these host objects, together with their relative connections, would constitute a "cluster object" or "cluster graph".  While the actual ids of the devices on each host are what is important, the pattern is the same for all hosts e.g. `devids = 0, 1, ..., ndevs-1`.  This way only a single integer needs to be stored instead of a list.
 
 #figure(
   kind: "algorithm",
@@ -1064,7 +1071,7 @@ Finally, the performances of each of these methods are compared to highlight whi
 // @sec:analysis_numerical_stability investigates how the global error of the simulation depends on the number of integration steps for a constant time-step.
 // @sec:analysis_numerical_convergence investigates how the number of iterations needed for the PA to reach a solution depends on the coarse and fine discretizations.
 
-Because the PA acts as a "meta-algorithm", the underlying integration methods must also be chosen.  
+Because the PA acts as a "meta-algorithm," the underlying integration methods must also be chosen.  
 For these results, the integration schemes for the coarse and fine propagators are the symplectic-Euler and velocity-Verlet methods, respectively.  
 The symplectic-Euler method is chosen for the coarse propagation because it computationally "cheap" while still being symplectic.  
 The velocity-Verlet method is chosen for the fine propagation due to its higher accuracy, while still being computationally inexpensive.  
@@ -1108,7 +1115,12 @@ Thus, according to these results, the combination of coarse and fine discretizat
     width: 75%
   )
 )  <plt:energy_coarse>
-#v(-1.45em)
+
+@plt:energy_fine shows how the energy drift of the simulation is affected by the fine discretization for a particular choice of the coarse discretization.
+Two key features to note are: error decreases significantly even for a small increases in fine discretization but plateaus only to increase at large values of fine discretization, and the difference in error between adjacent fine discretizations decreases significantly for increases in fine discretization.
+The former signifies that the quality of the results produced from this implementation does not significantly depend on the fine discretization, until it becomes large and round-off error becomes significant.
+The latter suggests that, for a larger coarse discretization, the fine discretization can be chosen to be smaller to produce the same error and larger choices of fine discretization will not provide significant improvements to accuracy.
+
 #figure(
   caption: [The absolute, normalized relative-error of the pendulum's final state for a spectrum of fine discretizations and select coarse discretizations. The error curve for a sequential evaluation (dashed $N_cal(C) = 2^0$) is included to provide a reference point. Sequential errors at $N_cal(C) < 2^6$ are too large for meaningful comparison, and thus have been neglected in this visualization.],
   image(
@@ -1116,11 +1128,6 @@ Thus, according to these results, the combination of coarse and fine discretizat
     width: 75%
   )
 ) <plt:energy_fine>
-
-@plt:energy_fine shows how the energy drift of the simulation is affected by the fine discretization for a particular choice of the coarse discretization.
-Two key features to note are: error decreases significantly even for a small increases in fine discretization but plateaus only to increase at large values of fine discretization, and the difference in error between adjacent fine discretizations decreases significantly for increases in fine discretization.
-The former signifies that the quality of the results produced from this implementation does not significantly depend on the fine discretization, until it becomes large and round-off error becomes significant.
-The latter suggests that, for a larger coarse discretization, the fine discretization can be chosen to be smaller to produce the same error and larger choices of fine discretization will not provide significant improvements to accuracy.
 
 Figures @plt:energy_coarse[] and @plt:energy_fine[] show that the error of using this implementation does depend on the size of the coarse and fine discretizations.
 The error is concave in each of the discretizations, first decreasing with larger discretization before reaching a minimum, then increasing.
@@ -1133,6 +1140,12 @@ As each iteration of the algorithm introduces error, the stability of a simulati
 For integrating equations of motion, a simulation can iterate more times $N$ for two variations of $t_f - t_i = N Delta t$: the final time $t_f$ of the simulation becomes larger while the time step $Delta t$ stays the same, or the time step $Delta t$ becomes smaller while the time domain $t_f - t_i$ does not change.
 While the consequences of the former are relatively simple as the error introduced with each iteration accumulates more and more to create the global error, the latter involves both the decrease in error associated with the smaller time-step and the increase in error associated with the increased number of iterations.
 
+If the TME becomes greater than its initial value, the simulation would be unstable and the results unphysical as energy would be seemingly added from nowhere.
+@plt:stability shows how the total mechanical energy (TME) changes over several periods of oscillation.
+As the TME remains less than or equal to its initial value, the simulation is considered stable on this time interval.
+While the TME does oscillate slightly (the lower bound of the TME being only $0.46 "J"$), this behavior is expected. 
+A larger time interval could be used to determine the extent of this implementation's stability, but the data used here is chosen to be consistent with the other analyses in this investigation. 
+
 #figure(
   caption: [The stability of the simulation can be encoded in the increase of the total mechanical energy (blue) from the initial energy (orange).  If the total mechanical energy does not surpass the initial energy, the simulation is stable.],
   image(
@@ -1141,13 +1154,7 @@ While the consequences of the former are relatively simple as the error introduc
   )
 )  <plt:stability>
 
-If the TME becomes greater than its initial value, the simulation would be unstable and the results unphysical as energy would be seemingly added from nowhere.
-@plt:stability shows how the total mechanical energy (TME) changes over several periods of oscillation.
-As the TME remains less than or equal to its initial value, the simulation is considered stable on this time interval.
-While the TME does oscillate slightly (the lower bound of the TME being only $0.46 "J"$), this behavior is expected. 
-A larger time interval could be used to determine the extent of this implementation's stability, but the data used here is chosen to be consistent with the other analyses in this investigation. 
-
-#pagebreak()
+// #pagebreak()
 === Convergence <sec:analysis_numerical_convergence>
 
 How quickly a sequence of approximate solutions approaches the true solution (usually asymptotically) is known as its rate of convergence (RoC), and applies to both iterative and discretizing algorithms.
@@ -1232,7 +1239,7 @@ As described in @sec:scale, every time this implementation finishes coarse-propa
 
 // cluster topology
 It has been shown that cluster topology (i.e. how workers are related to each other, not necessarily physically) can have a significant effect on the performance of inter-machine communication @Deng2020.  As such, there are two topologies to consider: the network associated with the physical path any data takes (e.g. all data has to go through the director), and the network of nodes each node can "see".  The former physical topology consists of the tangible material through which electrical impulses are sent such as Ethernet cabling.  The latter logical topology encodes the worker that a particular worker can share data.
-#pagebreak()
+// #pagebreak()
 // example for this cluster
 For example, the cluster shown in @diag:cluster_topology was designed to have the worker processes only communicate with the manager process on the same machine.  
 This is so only the manager would need to send a single batch of data between physical machines to the director.  
@@ -1313,6 +1320,11 @@ The versions of these packages are detailed in @tab:soft_spec.
 ) <tab:soft_spec>
 
 // TODO: add discussion about the best combination of coarse and fine discretizations
+
+@plt:bench_gpu shows the efficiency of the simulation when done using GPUs.
+The metric for this efficiency is considered to be the ratio between the products of error $epsilon$ (as calculated in @sec:analysis_numerical) and the runtime $tau$ as $|epsilon tau \/ epsilon_1 tau_1|$, where $epsilon_1, tau_1$ are the error and runtime of the sequential implementation for each coarse discretization i.e. the ratio is between error and runtime for the same coarse discretization.
+As the goal is to minimize both error and runtime, the goal is thus to minimize this metric.
+In other words, lower is better.
 #figure(
   caption: [The efficiency of the simulation when run on a single GPU, characterized by the product of its error and runtime.  This efficiency depends both on the coarse (left) and fine (right) discretizations.],
   image(
@@ -1320,11 +1332,6 @@ The versions of these packages are detailed in @tab:soft_spec.
     width: 85%
   )
 ) <plt:bench_gpu>
-
-@plt:bench_gpu shows the efficiency of the simulation when done using GPUs.
-The metric for this efficiency is considered to be the ratio between the products of error $epsilon$ (as calculated in @sec:analysis_numerical) and the runtime $tau$ as $|epsilon tau \/ epsilon_1 tau_1|$, where $epsilon_1, tau_1$ are the error and runtime of the sequential implementation for each coarse discretization i.e. the ratio is between error and runtime for the same coarse discretization.
-As the goal is to minimize both error and runtime, the goal is thus to minimize this metric.
-In other words, lower is better.
 
 As can be seen in both the sub-figures for the coarse (left) and fine (right) discretizations in @plt:bench_gpu, the simulation becomes drastically inefficient at higher discretizations.
 For a spectrum of coarse discretizations, most simulations behave similarly, but those with the largest fine discretizations diverge; the rate of this divergence is proportional to the fine discretization.
@@ -1412,8 +1419,8 @@ These are merely a few observations of how this implementation could be optimize
 
 #metadata("end of content") <content_end>
 #show heading.where(level: 1, outlined: true): it => pagebreak(weak: true) + it.body
-#set page(numbering: "I")
-#counter(page).update(1)
+// #set page(numbering: "I")
+// #counter(page).update(1)
 #set par(spacing: 1.15em)
 #set par(leading: 1em)
 #bibliography(
